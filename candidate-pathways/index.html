@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Watching to Doing</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&display=swap" rel="stylesheet">
+<style>
+  /* Candidate Pathways pitch deck. Palette from the CP product tokens (azure, cornflower,
+     pigeon, porcelain) plus the brand red, saved for one loud moment. Headlines set
+     condensed and heavy, like a campaign yard sign. */
+  :root{
+    --azure:#3A5FAD;
+    --corn:#5873FA;
+    --navy:#172A55;
+    --pigeon:#B4C2DF;
+    --wash:#E8EDF8;
+    --paper:#F6F8FC;
+    --ink:#1D2433;
+    --muted:#566079;
+    --line:#D6DDEC;
+    --red:#C4161C;
+    --stage:#0C1630;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;}
+  body{background:var(--stage);color:var(--ink);font-family:'Nunito Sans','Avenir Next',Avenir,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;overflow:hidden;}
+  img,video{display:block;}
+
+  .stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--stage);}
+  .deck{position:relative;width:min(100vw,177.78vh);height:min(100vh,56.25vw);background:var(--paper);overflow:hidden;}
+  .track{display:flex;height:100%;width:100%;transition:transform .9s cubic-bezier(.22,1,.36,1);will-change:transform;}
+  .slide{position:relative;min-width:100%;height:100%;container-type:size;overflow:hidden;background:var(--paper);}
+
+  .slide.active .rise{animation:rise .8s .05s cubic-bezier(.22,1,.36,1) both;}
+  .slide.active .rise2{animation:rise .8s .16s cubic-bezier(.22,1,.36,1) both;}
+  .slide.active .rise3{animation:rise .8s .27s cubic-bezier(.22,1,.36,1) both;}
+  .slide.active .wipe{animation:wipe 1s .12s cubic-bezier(.22,1,.36,1) both;}
+  @keyframes rise{from{opacity:.001;transform:translateY(2.2cqh);}to{opacity:1;transform:none;}}
+  @keyframes wipe{from{clip-path:inset(0 100% 0 0);}to{clip-path:inset(0 0 0 0);}}
+
+  /* type: condensed sign-face display, humanist body */
+  h1,h2,.sign{font-family:'Archivo','Arial Narrow',Arial,sans-serif;font-stretch:72%;font-variation-settings:"wdth" 72;
+    font-weight:850;letter-spacing:-.01em;line-height:.95;text-wrap:balance;}
+  .display{font-size:10.5cqh;}
+  .h1{font-size:8cqh;}
+  .h2{font-size:6cqh;}
+  .lede{font-size:2.7cqh;line-height:1.45;max-width:44ch;}
+  .body{font-size:2.3cqh;line-height:1.5;max-width:46ch;color:var(--muted);}
+  .small{font-size:1.8cqh;line-height:1.45;color:var(--muted);}
+  .by{font-size:1.95cqh;line-height:1.4;font-weight:600;}
+  b,strong{font-weight:700;color:var(--ink);}
+  .hi{color:var(--azure);}
+
+  .pad{padding:9cqh 8cqw;height:100cqh;display:flex;flex-direction:column;}
+  .split{display:grid;grid-template-columns:.8fr 1.2fr;align-items:center;gap:4.5cqw;height:100cqh;padding:0 6.5cqw;}
+  .split.rev{grid-template-columns:1.2fr .8fr;}
+  .rail{display:flex;flex-direction:column;gap:2.6cqh;}
+
+  ul.marks{list-style:none;display:flex;flex-direction:column;gap:1.5cqh;max-width:42ch;}
+  ul.marks li{position:relative;padding-left:3.2cqh;font-size:2.2cqh;line-height:1.42;color:var(--muted);}
+  ul.marks li::before{content:"";position:absolute;left:0;top:.8cqh;width:1.5cqh;height:1.5cqh;border-radius:.3cqh;background:var(--azure);}
+
+  /* grounds */
+  .g-azure{background:var(--azure);color:#fff;}
+  .g-azure h1,.g-azure h2,.g-azure b{color:#fff;}
+  .g-azure .lede{color:rgba(255,255,255,.92);}
+  .g-azure .by,.g-azure .small{color:rgba(255,255,255,.8);}
+  .g-navy{background:var(--navy);color:#fff;}
+  .g-navy h2,.g-navy b{color:#fff;}
+  .g-navy .body,.g-navy .small{color:rgba(255,255,255,.74);}
+  .g-red{background:var(--red);color:#fff;}
+  .g-red h2{color:#fff;}
+
+  /* app frame */
+  .frame{width:100%;border-radius:1.4cqh;overflow:hidden;background:#fff;border:1px solid var(--line);
+    box-shadow:0 3cqh 7cqh rgba(23,42,85,.20),0 .6cqh 1.6cqh rgba(23,42,85,.10);}
+  .frame .bar{display:flex;align-items:center;gap:1cqw;padding:1.3cqh 1.4cqw;background:var(--wash);border-bottom:1px solid var(--line);}
+  .frame .dots{display:flex;gap:.6cqw;}
+  .frame .dots i{width:1.2cqh;height:1.2cqh;border-radius:50%;background:var(--pigeon);display:block;}
+  .frame .where{margin-left:.8cqw;font-size:1.5cqh;font-weight:600;color:var(--muted);}
+  .frame .view{aspect-ratio:1440/858;overflow:hidden;background:#fff;}
+  .frame .view img,.frame .view video{width:100%;height:100%;object-fit:cover;object-position:top center;}
+  .frame.g-azure-edge{border-color:rgba(255,255,255,.3);box-shadow:0 4cqh 9cqh rgba(8,18,45,.35);}
+  img.pp{display:none;}
+
+  /* where people quit */
+  .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:3.5cqw;margin-top:auto;}
+  .facts div{border-top:.35cqh solid var(--ink);padding-top:2.2cqh;display:flex;flex-direction:column;gap:1cqh;}
+  .facts .v{font-family:'Archivo','Arial Narrow',sans-serif;font-stretch:72%;font-variation-settings:"wdth" 72;font-weight:850;font-size:9cqh;line-height:.9;color:var(--azure);}
+  .facts .l{font-size:2cqh;line-height:1.45;color:var(--muted);}
+
+  /* the question */
+  .q{font-family:'Archivo','Arial Narrow',sans-serif;font-stretch:72%;font-variation-settings:"wdth" 72;font-weight:850;font-size:11cqh;line-height:.92;
+    color:var(--azure);max-width:16ch;text-wrap:balance;}
+
+  /* level 9 sign */
+  .sign9{position:absolute;right:-2cqw;top:50%;transform:translateY(-50%);font-size:78cqh;line-height:.78;font-weight:900;
+    font-family:'Archivo','Arial Narrow',sans-serif;font-stretch:62%;font-variation-settings:"wdth" 62;color:rgba(255,255,255,.12);letter-spacing:-.04em;pointer-events:none;}
+  .red-copy{position:relative;z-index:1;height:100cqh;display:flex;flex-direction:column;justify-content:center;gap:4cqh;padding:0 8cqw;max-width:78cqw;}
+  .red-copy .story{font-size:2.8cqh;line-height:1.45;color:rgba(255,255,255,.92);max-width:40ch;}
+  .red-copy .rule{height:.4cqh;width:12cqw;background:#fff;}
+
+  /* ballot */
+  .ballot{background:#fff;border:1px solid var(--line);border-radius:1cqh;padding:4cqh 3cqw;box-shadow:0 2.4cqh 6cqh rgba(23,42,85,.12);
+    display:flex;flex-direction:column;gap:0;}
+  .ballot .office{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:2cqh;border-bottom:.35cqh solid var(--ink);}
+  .ballot .office span:first-child{font-family:'Archivo','Arial Narrow',sans-serif;font-stretch:72%;font-variation-settings:"wdth" 72;font-weight:850;font-size:4cqh;line-height:1;}
+  .ballot .office span:last-child{font-size:1.7cqh;color:var(--muted);}
+  .opt{display:grid;grid-template-columns:5cqh 1fr;gap:1.6cqw;padding:2.6cqh 0;border-bottom:1px solid var(--line);align-items:start;}
+  .opt:last-child{border-bottom:0;padding-bottom:0;}
+  .oval{width:4.6cqh;height:3cqh;border-radius:50%;border:.3cqh solid var(--ink);margin-top:.3cqh;position:relative;}
+  .opt.win .oval{background:var(--azure);border-color:var(--azure);}
+  .opt.lose .oval::after{content:"";position:absolute;left:-.8cqh;right:-.8cqh;top:50%;height:.35cqh;background:var(--red);transform:rotate(-24deg);}
+  .opt .n{font-size:2.6cqh;font-weight:700;line-height:1.25;color:var(--ink);}
+  .opt.lose .n{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--red);text-decoration-thickness:.3cqh;}
+  .opt .why{font-size:1.9cqh;line-height:1.45;color:var(--muted);margin-top:.8cqh;}
+
+  /* coach chips (match the product) */
+  .chips{display:flex;gap:1cqw;flex-wrap:wrap;}
+  .chip{font-size:1.9cqh;font-weight:700;padding:.8cqh 1.3cqw;border-radius:99px;}
+  .chip.st{background:#EEF0F3;color:#5B6270;}
+  .chip.sl{background:#FDEBDD;color:#B8520F;}
+  .chip.ac{background:#E3F5E7;color:#1E7B35;}
+  .pull{font-size:3cqh;line-height:1.35;font-weight:700;color:var(--ink);max-width:30ch;border-left:.5cqh solid var(--azure);padding-left:1.6cqw;}
+
+
+  /* now / later */
+  .phases{display:grid;grid-template-columns:1.3fr 1fr;gap:3cqw;margin-top:4cqh;}
+  .phase{border-top:.35cqh solid var(--ink);padding-top:2.4cqh;display:flex;flex-direction:column;gap:1.8cqh;}
+  .phase.later{border-top-style:dashed;border-top-color:var(--pigeon);}
+  .phase h3{font-family:'Archivo','Arial Narrow',sans-serif;font-stretch:72%;font-variation-settings:"wdth" 72;font-weight:850;font-size:4.4cqh;line-height:1;}
+  .phase.later h3{color:var(--muted);}
+  .metric{display:flex;align-items:baseline;gap:1.2cqw;margin-top:auto;padding-top:2cqh;}
+  .metric .sign{font-size:5cqh;color:var(--azure);}
+
+  /* quote */
+  .quote{font-family:'Archivo','Arial Narrow',sans-serif;font-stretch:72%;font-variation-settings:"wdth" 72;font-weight:800;font-size:8.4cqh;line-height:1;
+    color:#fff;max-width:22ch;text-wrap:balance;}
+  .quote::before{content:"\201C";color:var(--pigeon);margin-left:-.45em;}
+  .quote::after{content:"\201D";color:var(--pigeon);}
+  .asks{display:grid;grid-template-columns:repeat(3,1fr);gap:3cqw;margin-top:5cqh;}
+  .asks div{border-top:1px solid rgba(255,255,255,.3);padding-top:2cqh;font-size:2.2cqh;line-height:1.4;color:rgba(255,255,255,.88);}
+
+  .close-mark{display:flex;align-items:center;gap:1.4cqw;font-size:2.2cqh;font-weight:600;color:#fff;}
+  .close-mark .dot{width:1cqh;height:1cqh;border-radius:50%;background:#fff;opacity:.6;}
+
+  /* chrome */
+  .progress{position:fixed;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.1);z-index:40;}
+  .progress .bar{height:100%;background:var(--corn);width:0;transition:width .55s cubic-bezier(.76,0,.16,1);}
+  .counter{position:fixed;right:2.4vw;bottom:2.6vh;z-index:41;font:700 11px/1 'Nunito Sans',Arial,sans-serif;letter-spacing:.14em;color:#fff;
+    mix-blend-mode:difference;opacity:.6;font-variant-numeric:tabular-nums;pointer-events:none;}
+  .nav-zone{position:fixed;top:0;bottom:0;width:12vw;z-index:30;cursor:pointer;background:none;border:0;}
+  .nav-zone.prev{left:0;}.nav-zone.next{right:0;}
+  .nav-zone:focus-visible{outline:2px solid var(--corn);outline-offset:-6px;}
+
+  @media (prefers-reduced-motion:reduce){
+    .track{transition:none;}
+    .slide *{animation:none!important;}
+  }
+  @media print{
+    @page{size:1280px 720px;margin:0;}
+    html,body{overflow:visible!important;height:auto!important;background:#fff!important;}
+    .stage{position:static!important;display:block!important;}
+    .deck{width:1280px!important;height:auto!important;overflow:visible!important;}
+    .track{display:block!important;transform:none!important;}
+    .slide{width:1280px!important;height:720px!important;min-width:0!important;break-after:page;}
+    .slide *{animation:none!important;}
+    video{display:none!important;} img.pp{display:block!important;}
+    .progress,.counter,.nav-zone{display:none!important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="deck">
+    <div class="track" id="track">
+
+      <!-- 1 · COVER -->
+      <section class="slide g-azure" aria-label="Cover">
+        <div class="split" style="grid-template-columns:.9fr 1.1fr;">
+          <div class="rail" style="gap:3cqh;">
+            <p class="by rise">Candidate Pathways · candidate training app</p>
+            <h1 class="display rise2" style="max-width:10ch;">Training that moves people from watching to doing.</h1>
+            <p class="lede rise3">Reworking the app that trains first-time political candidates around one question: what actually gets someone to finish the work?</p>
+            <p class="by rise3" style="margin-top:1.4cqh;">Victoria Reed · Product &amp; UX Design Lead · 2026</p>
+          </div>
+          <div class="frame g-azure-edge wipe">
+            <div class="bar"><div class="dots"><i></i><i></i><i></i></div><span class="where">Know your values</span></div>
+            <div class="view" style="aspect-ratio:3/2;"><video class="clip" src="clip/card.mp4" poster="img/card-poster.jpg" aria-label="A question, a video, an Action, then saved for later" muted loop playsinline preload="auto"></video></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2 · THE BRIEF -->
+      <section class="slide" aria-label="The brief">
+        <div class="split" style="grid-template-columns:1fr 1fr;gap:7cqw;padding:0 8cqw;">
+          <div class="rail">
+            <h2 class="h2 rise" style="max-width:15ch;">The brief said tidy up the training. We asked a different question.</h2>
+            <p class="body rise2">Candidate Pathways trains first-time political candidates. They work through videos, hands-on Actions, and reflection questions, leveling up as they go, with a coach watching from the other side.</p>
+            <p class="body rise3">Organizing content only matters if it gets people from watching to doing. So before we touched a screen, we interviewed the people who live in the app: coaches, champions, and candidates.</p>
+          </div>
+          <p class="q rise2">What gets a candidate to finish an Action?</p>
+        </div>
+      </section>
+
+      <!-- 3 · WHERE PEOPLE QUIT -->
+      <section class="slide" aria-label="Where people quit">
+        <div class="pad">
+          <h2 class="h1 rise" style="max-width:18ch;">Actions were where people quit.</h2>
+          <div class="facts rise2">
+            <div><span class="v">50+</span><span class="l">Actions, one size fits all, whether or not they had anything to do with your race</span></div>
+            <div><span class="v">12 hours</span><span class="l">For a single "read the Constitution" Action, sitting right next to the quick ones</span></div>
+            <div><span class="v">Locked</span><span class="l">Make Actions optional and people binged the videos. Make them required and people hit a wall and left.</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4 · LEVEL 9 -->
+      <section class="slide g-red" aria-label="Level 9">
+        <div class="sign9" aria-hidden="true">9</div>
+        <div class="red-copy">
+          <p class="story rise">One team got so fed up with the level locks, they hacked their candidates straight to level 9 to skip them.</p>
+          <div class="rule rise2" aria-hidden="true"></div>
+          <h2 class="display rise2" style="max-width:15ch;font-size:11cqh;">When your best users are gaming the system, the system is the problem.</h2>
+        </div>
+      </section>
+
+      <!-- 5 · THE IDEA WE KILLED -->
+      <section class="slide" aria-label="The idea we killed">
+        <div class="split" style="grid-template-columns:1fr 1fr;gap:6cqw;padding:0 8cqw;">
+          <div class="rail">
+            <h2 class="h2 rise" style="max-width:14ch;">The obvious fix was a nicer road through the same swamp.</h2>
+            <p class="body rise2">Regroup the content, line it up, ship it. A cleaner march over the same fifty-plus Actions still hits the same wall, and with no way to skip ahead, it builds that wall back.</p>
+            <p class="body rise3">Levels were never topics, either. Each one held four or five topics inside it, so relabeling them would have been a rename with a nicer font. <b>Killing that idea was the most useful call on the project.</b></p>
+          </div>
+          <div class="ballot rise2" role="group" aria-label="Two directions, one chosen">
+            <div class="office"><span>How we fix the training</span><span>Vote for one</span></div>
+            <div class="opt lose"><span class="oval" aria-hidden="true"></span><div><div class="n">Regroup and go linear</div><div class="why">Cleaner, same swamp, same wall</div></div></div>
+            <div class="opt win"><span class="oval" aria-hidden="true"></span><div><div class="n">Topics as the spine, nothing locked</div><div class="why">Catch people before they quit, and give coaches one honest signal</div></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6 · TOPICS ARE THE SPINE -->
+      <section class="slide" aria-label="Topics are the spine">
+        <div class="split">
+          <div class="rail">
+            <h2 class="h2 rise" style="max-width:12ch;">Topics are the spine. Formats are furniture.</h2>
+            <p class="body rise2">We regrouped the existing content into plain-language sections and dropped the format silos. The video, the Action, and the question for one topic now sit in the same place.</p>
+            <ul class="marks rise3">
+              <li>The app says where you left off, and where to start</li>
+              <li>Admins barely notice: <b>"Level" becomes "Section"</b></li>
+              <li>Level stays on under the hood as a hidden sort order, so nothing breaks</li>
+            </ul>
+          </div>
+          <div class="frame wipe">
+            <div class="bar"><div class="dots"><i></i><i></i><i></i></div><span class="where">Your Campaign Pathways</span></div>
+            <div class="view"><img src="img/prospect-home.jpg" alt="The training home, with each topic's video, Action, and question grouped together"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7 · ONE STEP AT A TIME -->
+      <section class="slide" aria-label="One step at a time">
+        <div class="split rev">
+          <div class="frame wipe">
+            <div class="bar"><div class="dots"><i></i><i></i><i></i></div><span class="where">Getting started</span></div>
+            <div class="view"><video class="clip" src="clip/values-flow-c.mp4" poster="img/values-flow-poster.jpg" aria-label="Stepping through a section one question and Action at a time" muted loop playsinline preload="auto"></video></div>
+          </div>
+          <div class="rail">
+            <h2 class="h2 rise" style="max-width:12ch;">Inside a section, one thing at a time.</h2>
+            <p class="body rise2">Answer the question, do the step, hit next. The list on the left shows how far you've come, so a long section never feels endless.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8 · UNLOCK EVERYTHING -->
+      <section class="slide" aria-label="Unlock everything">
+        <div class="split">
+          <div class="rail">
+            <h2 class="h2 rise" style="max-width:13ch;">Unlock everything. Catch people before they quit.</h2>
+            <p class="body rise2">Skipping ahead was the one thing that made the old app bearable, so we kept it and made it official. No gates.</p>
+            <p class="body rise3">Every Action ends on a real choice: <b>do it now</b>, or <b>save it for later</b> and get a gentle nudge when the timing is right. "I can't do a 12-hour thing right now" stops being the moment someone leaves.</p>
+          </div>
+          <div class="frame wipe">
+            <div class="bar"><div class="dots"><i></i><i></i><i></i></div><span class="where">Have the Family Conversation</span></div>
+            <div class="view"><video class="clip" src="clip/prospect-flow-c.mp4" poster="img/prospect-flow-poster.jpg" aria-label="An Action landing on Do it now or Save it for later" muted loop playsinline preload="auto"></video></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 9 · COACH SIGNAL -->
+      <section class="slide" aria-label="One honest signal for coaches">
+        <div class="split rev">
+          <div class="frame wipe">
+            <div class="bar"><div class="dots"><i></i><i></i><i></i></div><span class="where">Coach home</span></div>
+            <div class="view"><img src="img/coach-home.jpg" alt="The coach dashboard, with each prospect marked Stalled, Slowing, or Active"></div>
+          </div>
+          <div class="rail">
+            <h2 class="h2 rise" style="max-width:12ch;">Give coaches one honest signal.</h2>
+            <p class="pull rise2">One coach printed progress on paper to keep track, and called it "the failure of our system."</p>
+            <p class="body rise3">The coach view now answers one question: who's gone quiet, and who to reach out to today.</p>
+            <div class="chips rise3" aria-label="Engagement states">
+              <span class="chip st">Stalled</span><span class="chip sl">Slowing</span><span class="chip ac">Active</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 10 · WHAT SHIPS FIRST -->
+      <section class="slide" aria-label="What ships first">
+        <div class="pad" style="justify-content:center;">
+          <h2 class="h1 rise" style="max-width:20ch;">The first slice is mostly data work, not new screens.</h2>
+          <div class="phases rise2">
+            <div class="phase">
+              <h3>First</h3>
+              <ul class="marks">
+                <li>Regroup existing content into sections</li>
+                <li>Unlock every Action, add save-for-later</li>
+                <li>Show coaches who's gone quiet</li>
+              </ul>
+              <div class="metric"><span class="sign">One number</span><span class="small" style="font-size:2.1cqh;">Actions started, and Actions finished</span></div>
+            </div>
+            <div class="phase later">
+              <h3>Second, on purpose</h3>
+              <p class="body">Personalization. Topics and videos are the stable backbone. Get the backbone right and the personal layer becomes cheap to add, instead of risky.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 11 · UNPROMPTED -->
+      <section class="slide g-navy" aria-label="Unprompted validation">
+        <div class="pad" style="justify-content:center;padding-left:10cqw;">
+          <p class="small rise" style="font-size:2.1cqh;margin-bottom:3cqh;">Right as we locked the plan, a founding customer sent feedback we never asked for:</p>
+          <p class="quote rise2">Our users are too diverse in their experience, timing, and lifestyles to apply them broadly.</p>
+          <div class="asks rise3">
+            <div>Name the vague levels</div>
+            <div>Stop tying Actions to level-ups</div>
+            <div>Make Actions customizable</div>
+          </div>
+          <p class="body rise3" style="margin-top:3cqh;">Almost line for line, the scope we had already drawn.</p>
+        </div>
+      </section>
+
+      <!-- 12 · CLOSE -->
+      <section class="slide g-azure" aria-label="Close">
+        <div class="pad" style="justify-content:center;gap:4cqh;">
+          <h2 class="display rise" style="max-width:15ch;">Organizing content only matters if it moves people.</h2>
+          <p class="lede rise2" style="max-width:48ch;">Have a product people sign up for, then stall in? Let's talk.</p>
+          <div class="close-mark rise3"><span>Victoria Reed</span><span class="dot" aria-hidden="true"></span><span>victoriareed.ai</span></div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<button class="nav-zone prev" id="prev" aria-label="Previous slide"></button>
+<button class="nav-zone next" id="next" aria-label="Next slide"></button>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<div class="counter" id="counter">01 / 12</div>
+
+<script>
+(function(){
+  var track=document.getElementById('track'), slides=[].slice.call(document.querySelectorAll('.slide'));
+  var bar=document.getElementById('bar'), counter=document.getElementById('counter'), i=0;
+  function pad(n){return String(n).padStart(2,'0');}
+  function show(n){
+    i=Math.max(0,Math.min(slides.length-1,n));
+    track.style.transform='translateX('+(-i*100)+'%)';
+    slides.forEach(function(s,x){s.classList.toggle('active',x===i);});
+    bar.style.width=(i/(slides.length-1)*100)+'%';
+    counter.textContent=pad(i+1)+' / '+pad(slides.length);
+    document.querySelectorAll('.clip').forEach(function(v){
+      if(slides[i].contains(v)){try{v.currentTime=0;}catch(e){} var p=v.play(); if(p&&p.catch)p.catch(function(){});}
+      else v.pause();
+    });
+    try{history.replaceState(null,'','#'+(i+1));}catch(e){}
+  }
+  document.getElementById('next').addEventListener('click',function(){show(i+1);});
+  document.getElementById('prev').addEventListener('click',function(){show(i-1);});
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();show(i+1);}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();show(i-1);}
+    else if(e.key==='Home')show(0); else if(e.key==='End')show(slides.length-1);
+  });
+  var tx=null;
+  addEventListener('touchstart',function(e){tx=e.touches[0].clientX;},{passive:true});
+  addEventListener('touchend',function(e){ if(tx===null)return; var d=e.changedTouches[0].clientX-tx; if(Math.abs(d)>40)show(i+(d<0?1:-1)); tx=null; });
+  document.querySelectorAll('.clip').forEach(function(v){
+    var p=v.getAttribute('poster'); if(!p)return;
+    var img=document.createElement('img'); img.className='pp'; img.src=p; img.alt='';
+    img.style.cssText='width:100%;height:100%;object-fit:cover;object-position:top center;';
+    v.parentNode.appendChild(img);
+  });
+  var start=parseInt((location.hash||'').slice(1),10);
+  show(isNaN(start)?0:start-1);
+})();
+</script>
+
+</body>
+</html>

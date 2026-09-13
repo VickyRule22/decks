@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The App That Answers</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Figtree:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* Blue Stream Fiber pitch deck. Palette lifted from the client's own site and app:
+     app blue, app ink, the site's teal-to-green hero gradient, the gold CTA, the "go" green. */
+  :root{
+    --blue:#027BB4;
+    --ink:#003A56;
+    --night:#021B29;
+    --teal:#0E8FB0;
+    --leaf:#20B38B;
+    --go:#0A7D17;
+    --gold:#FBC371;
+    --mist:#D9EFF9;
+    --paper:#F3F8FB;
+    --line:#CFE3EE;
+    --muted:#4C6A7A;
+    --stage:#01131D;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;}
+  body{background:var(--stage);color:var(--ink);font-family:'Atkinson Hyperlegible',Verdana,system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;overflow:hidden;}
+  img,video,canvas{display:block;}
+
+  .stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--stage);}
+  .deck{position:relative;width:min(100vw,177.78vh);height:min(100vh,56.25vw);background:var(--paper);overflow:hidden;}
+  .track{display:flex;height:100%;width:100%;transition:transform .9s cubic-bezier(.22,1,.36,1);will-change:transform;}
+  .slide{position:relative;min-width:100%;height:100%;container-type:size;overflow:hidden;background:var(--paper);}
+
+  .slide.active .rise{animation:rise .8s .05s cubic-bezier(.22,1,.36,1) both;}
+  .slide.active .rise2{animation:rise .8s .16s cubic-bezier(.22,1,.36,1) both;}
+  .slide.active .rise3{animation:rise .8s .27s cubic-bezier(.22,1,.36,1) both;}
+  .slide.active .lift{animation:lift 1s .12s cubic-bezier(.22,1,.36,1) both;}
+  @keyframes rise{from{opacity:.001;transform:translateY(2.2cqh);}to{opacity:1;transform:none;}}
+  @keyframes lift{from{opacity:.001;transform:translateY(5cqh) scale(.98);}to{opacity:1;transform:none;}}
+
+  /* type */
+  h1,h2,h3,.fig{font-family:'Figtree','Avenir Next',system-ui,sans-serif;text-wrap:balance;letter-spacing:-.02em;}
+  .display{font-size:9cqh;line-height:.98;font-weight:900;}
+  .h1{font-size:6.6cqh;line-height:1.02;font-weight:800;}
+  .h2{font-size:5cqh;line-height:1.06;font-weight:800;}
+  .lede{font-size:2.7cqh;line-height:1.45;max-width:44ch;}
+  .body{font-size:2.25cqh;line-height:1.5;max-width:46ch;color:var(--muted);}
+  .small{font-size:1.8cqh;line-height:1.45;color:var(--muted);}
+  .by{font-size:1.9cqh;line-height:1.4;}
+  b,strong{font-weight:700;color:var(--ink);}
+
+  ul.ticks{list-style:none;display:flex;flex-direction:column;gap:1.6cqh;max-width:44ch;}
+  ul.ticks li{position:relative;padding-left:3.4cqh;font-size:2.25cqh;line-height:1.42;color:var(--muted);}
+  ul.ticks li::before{content:"";position:absolute;left:0;top:.55cqh;width:1.9cqh;height:1.9cqh;border-radius:50%;
+    background:var(--mist) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l4 4 8-9' fill='none' stroke='%23027BB4' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/70% no-repeat;}
+
+  .pad{padding:9cqh 8cqw;height:100cqh;display:flex;flex-direction:column;}
+  .split{display:grid;grid-template-columns:1.15fr .85fr;align-items:center;gap:5cqw;height:100cqh;padding:0 8cqw;}
+  .split.rev{grid-template-columns:.85fr 1.15fr;}
+  .rail{display:flex;flex-direction:column;gap:2.8cqh;}
+
+  /* brand gradient grounds + the site's wave */
+  .g-brand{background:linear-gradient(118deg,var(--blue) 0%,var(--teal) 48%,var(--leaf) 100%);color:#fff;}
+  .g-brand h1,.g-brand h2,.g-brand b{color:#fff;}
+  .g-brand .lede{color:rgba(255,255,255,.92);}
+  .g-brand .small,.g-brand .by{color:rgba(255,255,255,.8);}
+  .wave{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:17cqh;}
+  .wave path{fill:var(--paper);}
+  .g-night{background:var(--night);color:#EAF6FC;}
+  .g-night h2{color:#fff;}
+  .g-night .body{color:rgba(234,246,252,.74);}
+  .g-night b{color:#fff;}
+  .g-ink{background:var(--ink);color:#fff;}
+  .g-ink h2,.g-ink b{color:#fff;}
+  .g-ink .body,.g-ink .small{color:rgba(255,255,255,.72);}
+
+  /* phone */
+  .phone{position:relative;height:78cqh;aspect-ratio:390/844;border-radius:5.4cqh;padding:1.1cqh;background:#0B1E2A;
+    box-shadow:0 4cqh 9cqh rgba(0,34,51,.34),0 .8cqh 2cqh rgba(0,34,51,.18),inset 0 0 0 .25cqh #25404F;justify-self:center;}
+  .phone .scr{width:100%;height:100%;border-radius:4.4cqh;overflow:hidden;background:#fff;position:relative;}
+  .phone .scr video,.phone .scr img{width:100%;height:100%;object-fit:cover;object-position:top center;}
+  .phone .notch{position:absolute;top:2.2cqh;left:50%;transform:translateX(-50%);width:11cqh;height:2.8cqh;border-radius:2cqh;background:#0B1E2A;z-index:2;}
+  .g-brand .phone{box-shadow:0 5cqh 10cqh rgba(0,40,60,.38),inset 0 0 0 .25cqh #25404F;}
+  img.pp{display:none;}
+
+  /* cost slide */
+  .cost{display:grid;grid-template-columns:auto 1fr;gap:5cqw;align-items:end;}
+  .cost .num{font-family:'Figtree',system-ui,sans-serif;font-weight:900;font-size:30cqh;line-height:.8;letter-spacing:-.05em;color:var(--blue);
+    font-variant-numeric:tabular-nums;}
+  .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:3cqw;margin-top:auto;}
+  .facts div{border-top:.3cqh solid var(--ink);padding-top:2cqh;display:flex;flex-direction:column;gap:.8cqh;}
+  .facts .v{font-family:'Figtree',system-ui,sans-serif;font-weight:800;font-size:3.2cqh;line-height:1.1;color:var(--ink);}
+  .facts .l{font-size:1.95cqh;line-height:1.4;color:var(--muted);}
+
+  /* user profile sheet */
+  .sheet{background:#fff;border:1px solid var(--line);border-radius:2cqh;padding:4.5cqh 3.2cqw;display:flex;flex-direction:column;gap:0;}
+  .sheet .row{display:grid;grid-template-columns:15cqh 1fr;gap:2cqw;padding:2.1cqh 0;border-top:1px solid var(--line);align-items:baseline;}
+  .sheet .row:first-child{border-top:0;padding-top:0;}
+  .sheet .k{font-size:1.8cqh;color:var(--muted);}
+  .sheet .val{font-family:'Figtree',system-ui,sans-serif;font-weight:800;font-size:3.4cqh;line-height:1.1;color:var(--ink);}
+  .sheet .val small{display:block;font-family:'Atkinson Hyperlegible',system-ui,sans-serif;font-weight:400;font-size:1.9cqh;line-height:1.4;color:var(--muted);margin-top:.6cqh;letter-spacing:0;}
+
+  /* reframe */
+  .reframe{display:flex;flex-direction:column;gap:3.4cqh;}
+  .reframe .was{font-family:'Figtree',system-ui,sans-serif;font-weight:700;font-size:6cqh;line-height:1;color:#8FA9B6;
+    text-decoration:line-through;text-decoration-thickness:.55cqh;text-decoration-color:var(--gold);}
+  .reframe .now{font-family:'Figtree',system-ui,sans-serif;font-weight:900;font-size:9.6cqh;line-height:.96;color:var(--ink);letter-spacing:-.03em;max-width:17ch;}
+  .tag{font-size:1.9cqh;color:var(--muted);display:flex;align-items:center;gap:1cqw;}
+  .tag i{display:inline-block;width:3.2cqw;height:.3cqh;background:var(--line);}
+
+  /* maze */
+  .maze{position:absolute;inset:0;width:100%;height:100%;}
+  .maze-copy{position:relative;z-index:1;height:100cqh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:0 8cqw;gap:6cqw;}
+  .principles{display:flex;flex-direction:column;gap:0;}
+  .principles div{display:grid;grid-template-columns:18cqh 1fr;gap:2cqw;padding:2.4cqh 0;border-top:1px solid rgba(217,239,249,.18);align-items:baseline;}
+  .principles div:last-child{border-bottom:1px solid rgba(217,239,249,.18);}
+  .principles .p{font-family:'Figtree',system-ui,sans-serif;font-weight:800;font-size:3.2cqh;color:var(--gold);}
+  .principles .d{font-size:2.1cqh;line-height:1.4;color:rgba(234,246,252,.8);}
+
+  /* bill illustration */
+  .bill{background:#fff;border-radius:2.2cqh;border:1px solid var(--line);box-shadow:0 3cqh 7cqh rgba(0,58,86,.12);overflow:hidden;}
+  .bill .hd{padding:3cqh 3cqw 2.4cqh;display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);}
+  .bill .hd .t{font-family:'Figtree',system-ui,sans-serif;font-weight:800;font-size:3.4cqh;color:var(--ink);}
+  .bill .hd .s{font-size:1.8cqh;color:var(--go);font-weight:700;display:flex;align-items:center;gap:.6cqw;}
+  .bill .hd .s::before{content:"";width:1.3cqh;height:1.3cqh;border-radius:50%;background:#39D353;}
+  .bill .grp{padding:2.4cqh 3cqw;}
+  .bill .grp + .grp{border-top:.6cqh solid var(--paper);}
+  .bill .gl{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1.4cqh;}
+  .bill .gl .n{font-family:'Figtree',system-ui,sans-serif;font-weight:800;font-size:2.6cqh;color:var(--ink);}
+  .bill .gl .who{font-size:1.75cqh;font-weight:700;padding:.5cqh 1cqw;border-radius:99px;}
+  .bill .inc .who{background:#E3F4E5;color:var(--go);}
+  .bill .add .who{background:#FDEFD9;color:#7A4B00;}
+  .bill .li{display:grid;grid-template-columns:1fr auto;gap:1.5cqw;padding:1.3cqh 0;border-top:1px solid var(--mist);align-items:center;}
+  .bill .li .a{font-size:2.15cqh;font-weight:700;color:var(--ink);}
+  .bill .li .b{font-size:1.85cqh;color:var(--muted);margin-top:.3cqh;}
+  .bill .why{font-size:1.7cqh;font-weight:700;color:var(--blue);background:var(--mist);border-radius:99px;padding:.7cqh 1.1cqw;white-space:nowrap;}
+  .cap{font-size:1.6cqh;color:var(--muted);margin-top:1.6cqh;}
+
+  /* contested call */
+  .rules{display:flex;flex-direction:column;}
+  .rules div{display:flex;align-items:center;gap:2cqw;padding:3cqh 0;border-top:1px solid rgba(255,255,255,.22);}
+  .rules div:last-child{border-bottom:1px solid rgba(255,255,255,.22);}
+  .rules .x{flex-shrink:0;width:5.4cqh;height:5.4cqh;border-radius:50%;border:.3cqh solid var(--gold);position:relative;}
+  .rules .x::before,.rules .x::after{content:"";position:absolute;left:50%;top:50%;width:2.4cqh;height:.3cqh;background:var(--gold);transform:translate(-50%,-50%) rotate(45deg);}
+  .rules .x::after{transform:translate(-50%,-50%) rotate(-45deg);}
+  .rules .r{font-family:'Figtree',system-ui,sans-serif;font-weight:800;font-size:4.2cqh;line-height:1.08;color:#fff;}
+
+  /* results meters, drawn to scale */
+  .scores{display:grid;grid-template-columns:1fr 1fr;gap:6cqw;margin-top:5cqh;}
+  .score{display:flex;flex-direction:column;gap:2cqh;}
+  .score .big{font-family:'Figtree',system-ui,sans-serif;font-weight:900;font-size:17cqh;line-height:.85;letter-spacing:-.05em;color:var(--ink);font-variant-numeric:tabular-nums;}
+  .score .big span{font-size:5cqh;font-weight:700;color:var(--muted);letter-spacing:-.01em;margin-left:.6cqw;}
+  .meter{display:grid;gap:.5cqw;height:2.6cqh;}
+  .meter i{display:block;border-radius:.5cqh;background:var(--mist);position:relative;overflow:hidden;}
+  .meter i b{position:absolute;inset:0 auto 0 0;background:var(--blue);}
+  .score .l{font-size:2.2cqh;line-height:1.45;color:var(--muted);max-width:40ch;}
+  .score .l strong{color:var(--ink);}
+
+  .close-mark{display:flex;align-items:center;gap:1.4cqw;font-size:2.2cqh;color:#fff;}
+  .close-mark .dot{width:1cqh;height:1cqh;border-radius:50%;background:var(--gold);}
+
+  /* chrome */
+  .progress{position:fixed;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.1);z-index:40;}
+  .progress .bar{height:100%;background:var(--gold);width:0;transition:width .55s cubic-bezier(.76,0,.16,1);}
+  .counter{position:fixed;right:2.4vw;bottom:2.6vh;z-index:41;font:600 11px/1 'Figtree',system-ui,sans-serif;letter-spacing:.14em;color:#fff;
+    mix-blend-mode:difference;opacity:.6;font-variant-numeric:tabular-nums;pointer-events:none;}
+  .nav-zone{position:fixed;top:0;bottom:0;width:12vw;z-index:30;cursor:pointer;background:none;border:0;}
+  .nav-zone.prev{left:0;}.nav-zone.next{right:0;}
+  .nav-zone:focus-visible{outline:2px solid var(--gold);outline-offset:-6px;}
+
+  @media (prefers-reduced-motion:reduce){
+    .track{transition:none;}
+    .slide *{animation:none!important;}
+  }
+  @media print{
+    @page{size:1280px 720px;margin:0;}
+    html,body{overflow:visible!important;height:auto!important;background:#fff!important;}
+    .stage{position:static!important;display:block!important;}
+    .deck{width:1280px!important;height:auto!important;overflow:visible!important;}
+    .track{display:block!important;transform:none!important;}
+    .slide{width:1280px!important;height:720px!important;min-width:0!important;break-after:page;}
+    .slide *{animation:none!important;}
+    video{display:none!important;} img.pp{display:block!important;}
+    .progress,.counter,.nav-zone{display:none!important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="deck">
+    <div class="track" id="track">
+
+      <!-- 1 · COVER -->
+      <section class="slide g-brand" aria-label="Cover">
+        <div class="split" style="position:relative;z-index:1;">
+          <div class="rail" style="gap:3.2cqh;">
+            <p class="by rise">Blue Stream Fiber · customer app</p>
+            <h1 class="display rise2" style="max-width:12ch;">The app that answers before you call.</h1>
+            <p class="lede rise3">Redesigning a support app so subscribers in their sixties and seventies could answer their own questions, instead of calling for them.</p>
+            <p class="by rise3" style="margin-top:2cqh;">Victoria Reed · Lead Product Designer · 2025–2026</p>
+          </div>
+          <div class="phone lift" style="height:80cqh;">
+            <div class="scr"><video class="clip" src="clip/bs-notify.mp4" poster="img/bs-home.png" aria-label="The app home screen, then the notifications list" muted loop playsinline preload="auto"></video></div>
+          </div>
+        </div>
+        <svg class="wave" viewBox="0 0 1440 170" preserveAspectRatio="none" aria-hidden="true"><path d="M0 120 C 360 40, 620 190, 980 118 S 1330 60, 1440 92 L1440 170 L0 170 Z"/></svg>
+      </section>
+
+      <!-- 2 · THE COST -->
+      <section class="slide" aria-label="The cost">
+        <div class="pad" style="gap:6cqh;">
+          <div class="cost">
+            <div class="num rise" aria-label="600 dollars">$600</div>
+            <h2 class="h1 rise2" style="max-width:19ch;padding-bottom:1cqh;">Every truck roll started as a question the app hadn't answered.</h2>
+          </div>
+          <p class="body rise2" style="max-width:62ch;">Every dispatched technician cost about six hundred dollars. Every confusing billing question went to a call center built for explaining, not for heading calls off. The app was supposed to take on that load. It wasn't.</p>
+          <div class="facts rise3">
+            <div><span class="v">Late 60s and 70s</span><span class="l">Where most subscribers sat, in retirement and HOA communities</span></div>
+            <div><span class="v">Paid by someone else</span><span class="l">Most residents get internet through their HOA, and add on from there</span></div>
+            <div><span class="v">Outgrown support</span><span class="l">The company had grown faster than the way it helped people</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3 · THE USER WE HAD -->
+      <section class="slide" aria-label="The user we actually had">
+        <div class="split">
+          <div class="rail">
+            <h2 class="h1 rise" style="max-width:14ch;">We designed for the user we actually had.</h2>
+            <p class="body rise2">The brief said "reduce call volume." The people on the other end of those calls said something more useful: they trusted the phone, and they trusted a person.</p>
+            <p class="body rise3">So we tested with them. Five users between sixty and a hundred years old in round one. Six HOA residents, fifty-five and up, in round two.</p>
+          </div>
+          <div class="sheet lift" role="list">
+            <div class="row" role="listitem"><span class="k">Median age</span><span class="val">68</span></div>
+            <div class="row" role="listitem"><span class="k">Reading</span><span class="val">Bifocals<small>Small type and tight tap targets fail first</small></span></div>
+            <div class="row" role="listitem"><span class="k">Asks for</span><span class="val">The phone<small>A strong, stated preference for calling support</small></span></div>
+            <div class="row" role="listitem"><span class="k">Also using the app</span><span class="val">The Helper<small>The daughter, the neighbor, the front-desk attendant</small></span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4 · THE REFRAME -->
+      <section class="slide" aria-label="The reframe">
+        <div class="pad" style="justify-content:center;">
+          <div class="reframe">
+            <p class="tag rise">The brief <i></i></p>
+            <p class="was rise">Reduce call volume.</p>
+            <p class="tag rise2" style="margin-top:2cqh;">What people needed <i></i></p>
+            <p class="now rise2">Give people fewer reasons to call.</p>
+            <p class="body rise3" style="margin-top:1cqh;max-width:56ch;">Our users didn't want fewer calls. They wanted the answer. If the app gives it first, the calls drop on their own.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5 · MAZE IN THE DARK -->
+      <section class="slide g-night" aria-label="Maze in the Dark">
+        <canvas class="maze" id="maze" aria-hidden="true"></canvas>
+        <div class="maze-copy">
+          <div class="rail">
+            <h2 class="h1 rise" style="max-width:12ch;">We named the bet Maze in the Dark.</h2>
+            <p class="body rise2" style="max-width:40ch;">Support had been treated as a place you go. Our users were living it as the only light in the room. So the app had to light the way before anyone went looking.</p>
+          </div>
+          <div class="principles rise3">
+            <div><span class="p">Clarity</span><span class="d">Make the bill the product</span></div>
+            <div><span class="p">Accessibility</span><span class="d">Design for the user we actually had</span></div>
+            <div><span class="p">Guidance</span><span class="d">Answer before the maze</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6 · CLARITY: THE BILL -->
+      <section class="slide" aria-label="Clarity: the bill">
+        <div class="split">
+          <div class="rail">
+            <h2 class="h1 rise" style="max-width:13ch;">Clarity: make the bill the product.</h2>
+            <p class="body rise2">Most of the calls we shadowed weren't about broken internet. They were about the bill. The HOA paid the base cost, the resident paid for add-ons, and nobody had told the resident which was which.</p>
+            <ul class="ticks rise3">
+              <li><b>Included</b> and <b>Add-on</b> split at the very top</li>
+              <li>Plain-language copy on every line</li>
+              <li>A one-tap explainer behind each charge</li>
+            </ul>
+          </div>
+          <div class="lift">
+            <div class="bill" aria-label="Illustration of the split bill">
+              <div class="hd"><span class="t">Your bill</span><span class="s">Autopay is on</span></div>
+              <div class="grp inc">
+                <div class="gl"><span class="n">Included</span><span class="who">Paid by your HOA</span></div>
+                <div class="li"><div><div class="a">Fiber internet</div><div class="b">Your community covers this</div></div><span class="why">Why?</span></div>
+                <div class="li"><div><div class="a">TV basics</div><div class="b">Comes with your home</div></div><span class="why">Why?</span></div>
+              </div>
+              <div class="grp add">
+                <div class="gl"><span class="n">Add-ons</span><span class="who">You pay for these</span></div>
+                <div class="li"><div><div class="a">Premium channels</div><div class="b">An extra you chose</div></div><span class="why">Why am I charged?</span></div>
+                <div class="li"><div><div class="a">Whole-home Wi-Fi</div><div class="b">An upgrade on your account</div></div><span class="why">Why am I charged?</span></div>
+              </div>
+            </div>
+            <p class="cap">Illustration of the billing split. "Why am I being charged?" stopped being a phone call and became a screen.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7 · ACCESSIBILITY -->
+      <section class="slide" aria-label="Accessibility">
+        <div class="split rev">
+          <div class="phone lift">
+            <div class="scr"><img src="img/bs-home.png" alt="The redesigned home screen: large tap targets, plain labels, and a Talk to a real person button"></div>
+          </div>
+          <div class="rail">
+            <h2 class="h1 rise" style="max-width:14ch;">Accessibility wasn't a compliance pass. It was the product.</h2>
+            <ul class="ticks rise2">
+              <li>Big tap targets, higher contrast, <b>no sideways scrolling</b></li>
+              <li>Every item says it twice: a label, then a plain sentence, so the screen reads like a person and not a form</li>
+              <li><b>Talk to a real person</b> sits on the home screen and never hides</li>
+              <li>Built for The Helper too, tapping on someone else's behalf</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8 · GUIDANCE: TECH VISIT -->
+      <section class="slide" aria-label="Guidance: the tech visit">
+        <div class="split">
+          <div class="rail">
+            <h2 class="h1 rise" style="max-width:13ch;">Guidance: answer before the maze.</h2>
+            <p class="body rise2">"Is the technician still coming?" is a phone call. So the visit answers it first. The appointment moves from getting ready, to on route, to arrived, live, with the technician's name and a one-tap call.</p>
+            <ul class="ticks rise3">
+              <li>Outage status shows up before the call does</li>
+              <li>Guides and short videos open right where they're needed</li>
+              <li>Pause Service for snowbirds, who live half the year somewhere else</li>
+            </ul>
+          </div>
+          <div class="phone lift">
+            <div class="scr"><video class="clip" src="clip/bs-techvisit.mp4" poster="img/bs-arrival.png" aria-label="The appointment tracker filling in: getting ready, on route, arrived" muted loop playsinline preload="auto"></video></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 9 · CLOSING THE LOOP -->
+      <section class="slide g-ink" aria-label="Closing the loop">
+        <div class="split rev">
+          <div class="phone lift">
+            <div class="scr" style="background:var(--ink);"><video class="clip" src="clip/bs-rating.mp4" poster="img/bs-rating.png" aria-label="Rating a visit five stars" muted loop playsinline preload="auto"></video></div>
+          </div>
+          <div class="rail">
+            <h2 class="h1 rise" style="max-width:13ch;">The visit ends with one tap, not a survey email.</h2>
+            <p class="body rise2">Rate the visit right in the app. Four or five stars gets a thank-you. Anything lower goes straight to a way to talk to a real person, while it still matters.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 10 · THE CONTESTED CALL -->
+      <section class="slide g-brand" aria-label="The contested call">
+        <div class="split" style="grid-template-columns:1fr 1fr;">
+          <div class="rail">
+            <h2 class="h1 rise" style="max-width:14ch;">An AI assistant, for people who told us they'd rather call.</h2>
+            <p class="lede rise2" style="font-size:2.3cqh;">It was the most argued-over decision on the project. Testing said build it, with two conditions. We shipped both as hard rules.</p>
+            <p class="small rise3" style="font-size:2cqh;">The cost: we pushed a bigger help-center overhaul down the list to make room for it.</p>
+          </div>
+          <div class="rules rise2">
+            <div><span class="x" aria-hidden="true"></span><span class="r">It never pretends to be a person.</span></div>
+            <div><span class="x" aria-hidden="true"></span><span class="r">It never tries to sell you something.</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 11 · WHAT TESTING SAID -->
+      <section class="slide" aria-label="What testing said">
+        <div class="pad" style="justify-content:center;">
+          <h2 class="h1 rise" style="max-width:22ch;">The group we worried about most scored it highest.</h2>
+          <div class="scores">
+            <div class="score rise2">
+              <div class="big">4.67<span>/ 5</span></div>
+              <div class="meter" style="grid-template-columns:repeat(5,1fr);" aria-hidden="true">
+                <i><b style="width:100%"></b></i><i><b style="width:100%"></b></i><i><b style="width:100%"></b></i><i><b style="width:100%"></b></i><i><b style="width:67%"></b></i>
+              </div>
+              <p class="l"><strong>Ease of use</strong>, from a panel of HOA residents fifty-five and up.</p>
+            </div>
+            <div class="score rise3">
+              <div class="big">7.6<span>/ 10</span></div>
+              <div class="meter" style="grid-template-columns:repeat(10,1fr);gap:.35cqw;" aria-hidden="true">
+                <i><b style="width:100%"></b></i><i><b style="width:100%"></b></i><i><b style="width:100%"></b></i><i><b style="width:100%"></b></i><i><b style="width:100%"></b></i><i><b style="width:100%"></b></i><i><b style="width:100%"></b></i><i><b style="width:60%"></b></i><i></i><i></i>
+              </div>
+              <p class="l"><strong>Likely to use the AI assistant</strong>, from people who called themselves tech beginners.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 12 · CLOSE -->
+      <section class="slide g-brand" aria-label="Close">
+        <div class="pad" style="justify-content:center;gap:4cqh;position:relative;z-index:1;padding-bottom:18cqh;">
+          <h2 class="display rise" style="max-width:17ch;font-size:8cqh;">Stop designing the absence of a phone call. Design the presence of the answer.</h2>
+          <p class="lede rise2" style="max-width:50ch;">Have a product your customers call about instead of use? Let's talk.</p>
+          <div class="close-mark rise3"><span>Victoria Reed</span><span class="dot" aria-hidden="true"></span><span>victoriareed.ai</span></div>
+        </div>
+        <svg class="wave" viewBox="0 0 1440 170" preserveAspectRatio="none" aria-hidden="true"><path d="M0 92 C 300 30, 640 180, 1000 110 S 1320 70, 1440 120 L1440 170 L0 170 Z"/></svg>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<button class="nav-zone prev" id="prev" aria-label="Previous slide"></button>
+<button class="nav-zone next" id="next" aria-label="Next slide"></button>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<div class="counter" id="counter">01 / 12</div>
+
+<script>
+(function(){
+  var track=document.getElementById('track'), slides=[].slice.call(document.querySelectorAll('.slide'));
+  var bar=document.getElementById('bar'), counter=document.getElementById('counter'), i=0;
+  function pad(n){return String(n).padStart(2,'0');}
+  function show(n){
+    i=Math.max(0,Math.min(slides.length-1,n));
+    track.style.transform='translateX('+(-i*100)+'%)';
+    slides.forEach(function(s,x){s.classList.toggle('active',x===i);});
+    bar.style.width=(i/(slides.length-1)*100)+'%';
+    counter.textContent=pad(i+1)+' / '+pad(slides.length);
+    document.querySelectorAll('.clip').forEach(function(v){
+      if(slides[i].contains(v)){try{v.currentTime=0;}catch(e){} var p=v.play(); if(p&&p.catch)p.catch(function(){});}
+      else v.pause();
+    });
+    if(slides[i].querySelector('#maze')) drawMaze();
+    try{history.replaceState(null,'','#'+(i+1));}catch(e){}
+  }
+  document.getElementById('next').addEventListener('click',function(){show(i+1);});
+  document.getElementById('prev').addEventListener('click',function(){show(i-1);});
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();show(i+1);}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();show(i-1);}
+    else if(e.key==='Home')show(0); else if(e.key==='End')show(slides.length-1);
+  });
+  var tx=null;
+  addEventListener('touchstart',function(e){tx=e.touches[0].clientX;},{passive:true});
+  addEventListener('touchend',function(e){ if(tx===null)return; var d=e.changedTouches[0].clientX-tx; if(Math.abs(d)>40)show(i+(d<0?1:-1)); tx=null; });
+
+  /* Maze in the Dark: a generated maze, lit only where the answer sits */
+  var maze=document.getElementById('maze'), mazeSeed=7;
+  function rnd(){ mazeSeed=(mazeSeed*16807)%2147483647; return (mazeSeed-1)/2147483646; }
+  function drawMaze(){
+    var r=maze.getBoundingClientRect(); if(!r.width) return;
+    var dpr=Math.min(2,devicePixelRatio||1), W=r.width, H=r.height;
+    maze.width=W*dpr; maze.height=H*dpr;
+    var c=maze.getContext('2d'); c.setTransform(dpr,0,0,dpr,0,0); c.clearRect(0,0,W,H);
+    var cell=Math.round(H/14), cols=Math.ceil(W/cell), rows=Math.ceil(H/cell);
+    mazeSeed=7;
+    var seen=new Uint8Array(cols*rows), walls=[];
+    for(var y=0;y<rows;y++)for(var x=0;x<cols;x++)walls.push([1,1]); /* [right, bottom] */
+    var stack=[[0,0]]; seen[0]=1;
+    while(stack.length){
+      var cur=stack[stack.length-1], cx=cur[0], cy=cur[1], opts=[];
+      [[1,0],[-1,0],[0,1],[0,-1]].forEach(function(d){var nx=cx+d[0],ny=cy+d[1]; if(nx>=0&&ny>=0&&nx<cols&&ny<rows&&!seen[ny*cols+nx])opts.push([nx,ny,d]);});
+      if(!opts.length){stack.pop();continue;}
+      var o=opts[Math.floor(rnd()*opts.length)], d=o[2];
+      if(d[0]===1)walls[cy*cols+cx][0]=0; if(d[0]===-1)walls[o[1]*cols+o[0]][0]=0;
+      if(d[1]===1)walls[cy*cols+cx][1]=0; if(d[1]===-1)walls[o[1]*cols+o[0]][1]=0;
+      seen[o[1]*cols+o[0]]=1; stack.push([o[0],o[1]]);
+    }
+    c.lineWidth=Math.max(1,cell*.06); c.lineCap='square';
+    c.strokeStyle='rgba(217,239,249,.10)';
+    c.beginPath();
+    for(y=0;y<rows;y++)for(x=0;x<cols;x++){
+      var w=walls[y*cols+x], px=x*cell, py=y*cell;
+      if(w[0]){c.moveTo(px+cell,py);c.lineTo(px+cell,py+cell);}
+      if(w[1]){c.moveTo(px,py+cell);c.lineTo(px+cell,py+cell);}
+    }
+    c.stroke();
+    /* the light: the same walls, brighter, only inside a soft pool around the principles */
+    var lx=W*.72, ly=H*.5, lr=H*.62;
+    var g=c.createRadialGradient(lx,ly,0,lx,ly,lr);
+    g.addColorStop(0,'rgba(251,195,113,.22)'); g.addColorStop(.55,'rgba(14,143,176,.10)'); g.addColorStop(1,'rgba(2,27,41,0)');
+    c.fillStyle=g; c.fillRect(0,0,W,H);
+    c.save(); c.beginPath(); c.arc(lx,ly,lr*.8,0,Math.PI*2); c.clip();
+    c.strokeStyle='rgba(217,239,249,.16)'; c.stroke(); c.restore();
+  }
+  addEventListener('resize',function(){ if(slides[i].querySelector('#maze')) drawMaze(); });
+
+  /* print: posters stand in for clips */
+  document.querySelectorAll('.clip').forEach(function(v){
+    var p=v.getAttribute('poster'); if(!p)return;
+    var img=document.createElement('img'); img.className='pp'; img.src=p; img.alt='';
+    img.style.cssText='width:100%;height:100%;object-fit:cover;object-position:top center;';
+    v.parentNode.appendChild(img);
+  });
+  var start=parseInt((location.hash||'').slice(1),10);
+  show(isNaN(start)?0:start-1);
+})();
+</script>
+
+</body>
+</html>

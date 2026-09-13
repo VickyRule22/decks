@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Victoria Reed · Decks</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=Atkinson+Hyperlegible:wght@400;700&family=Figtree:wght@800;900&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#161B26;--muted:#5A6275;--paper:#F5F6F8;--line:#DADDE4;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--paper);color:var(--ink);font-family:'Atkinson Hyperlegible',system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+    min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:clamp(28px,6vw,80px);}
+  header{max-width:1100px;width:100%;margin:0 auto 36px;display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;}
+  header h1{font-size:clamp(28px,3.4vw,40px);font-weight:700;letter-spacing:-.01em;}
+  header p{color:var(--muted);font-size:16px;}
+  header a{color:inherit;}
+  main{max-width:1100px;width:100%;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;}
+  a.deck{position:relative;display:flex;flex-direction:column;justify-content:space-between;gap:48px;min-height:340px;padding:32px;border-radius:14px;
+    color:#fff;text-decoration:none;overflow:hidden;transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s;}
+  a.deck:hover{transform:translateY(-4px);box-shadow:0 24px 50px rgba(20,30,50,.22);}
+  a.deck:focus-visible{outline:3px solid var(--ink);outline-offset:4px;}
+  .bs{background:linear-gradient(118deg,#027BB4 0%,#0E8FB0 48%,#20B38B 100%);}
+  .cp{background:#3A5FAD;}
+  .client{font-size:15px;opacity:.85;}
+  .bs h2{font-family:'Figtree',system-ui,sans-serif;font-weight:900;font-size:clamp(30px,3.2vw,42px);line-height:1;letter-spacing:-.02em;max-width:12ch;}
+  .cp h2{font-family:'Archivo','Arial Narrow',sans-serif;font-variation-settings:"wdth" 72;font-stretch:72%;font-weight:850;font-size:clamp(36px,3.9vw,52px);line-height:.95;max-width:11ch;}
+  .go{display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:700;}
+  .go span:last-child{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);display:grid;place-items:center;font-size:18px;}
+  .cp .nine{position:absolute;right:-10px;bottom:-60px;font-family:'Archivo',sans-serif;font-variation-settings:"wdth" 62;font-weight:900;font-size:300px;line-height:1;color:rgba(255,255,255,.08);pointer-events:none;}
+  footer{max-width:1100px;width:100%;margin:28px auto 0;color:var(--muted);font-size:14px;}
+  @media (prefers-reduced-motion:reduce){a.deck{transition:none;}}
+</style>
+</head>
+<body>
+  <header>
+    <h1>Victoria Reed</h1>
+    <p>Two design stories · <a href="https://victoriareed.ai">victoriareed.ai</a></p>
+  </header>
+  <main>
+    <a class="deck bs" href="blue-stream/">
+      <div><p class="client">Blue Stream Fiber · customer app</p></div>
+      <h2>The app that answers before you call.</h2>
+      <div class="go"><span>Open the deck</span><span aria-hidden="true">→</span></div>
+    </a>
+    <a class="deck cp" href="candidate-pathways/">
+      <span class="nine" aria-hidden="true">9</span>
+      <div><p class="client">Candidate Pathways · training app</p></div>
+      <h2>Training that moves people from watching to doing.</h2>
+      <div class="go"><span>Open the deck</span><span aria-hidden="true">→</span></div>
+    </a>
+  </main>
+  <footer>Use the arrow keys or swipe to move through each deck.</footer>
+</body>
+</html>
