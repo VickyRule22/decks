@@ -146,6 +146,15 @@
   .asks{display:grid;grid-template-columns:repeat(3,1fr);gap:3cqw;margin-top:5cqh;}
   .asks div{border-top:1px solid rgba(255,255,255,.3);padding-top:2cqh;font-size:2.2cqh;line-height:1.4;color:rgba(255,255,255,.88);}
 
+  .proto{display:inline-flex;align-items:center;gap:1.4cqh;align-self:flex-start;padding:1.9cqh 2.8cqh 1.9cqh 3.4cqh;border-radius:99px;background:#fff;color:var(--navy);font-size:2.4cqh;font-weight:700;line-height:1;text-decoration:none;position:relative;z-index:35;box-shadow:0 1.4cqh 3.6cqh rgba(12,22,48,.3);transition:transform .3s cubic-bezier(.22,1,.36,1),box-shadow .3s cubic-bezier(.22,1,.36,1);}
+  .proto:hover{transform:translateY(-.45cqh);box-shadow:0 2cqh 4.8cqh rgba(12,22,48,.3);}
+  .proto svg{width:2.6cqh;height:2.6cqh;transition:transform .3s cubic-bezier(.22,1,.36,1);}
+  .proto:hover svg{transform:translateX(.6cqh);}
+  .proto:focus-visible{outline:2px solid #fff;outline-offset:4px;}
+  /* outcomes */
+  .outs{display:grid;grid-template-columns:repeat(3,1fr);gap:3cqw;margin-top:5cqh;}
+  .out{border-top:.35cqh solid var(--ink);padding-top:2.4cqh;display:flex;flex-direction:column;gap:1.6cqh;}
+  .out .sign{font-size:5.4cqh;color:var(--azure);}
   .links{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:1.2cqh 4cqw;margin-top:1cqh;}
   .links a{display:flex;flex-direction:column;gap:.5cqh;color:#fff;text-decoration:none;position:relative;z-index:35;}
   .links a span:first-child{font-size:1.6cqh;color:rgba(255,255,255,.72);}
@@ -418,11 +427,34 @@
         </div>
       </section>
 
-      <!-- 12 · CLOSE -->
+      <!-- 12 · OUTCOMES -->
+      <section class="slide" aria-label="Outcomes">
+        <div class="pad" style="justify-content:center;">
+          <p class="by rise" style="color:var(--azure);margin-bottom:2cqh;">Outcomes</p>
+          <h2 class="h1 rise" style="max-width:26ch;">Built to move one number, not to look tidier.</h2>
+          <div class="outs">
+            <div class="out rise2">
+              <span class="sign">Started and finished</span>
+              <p class="body">Actions started, and Actions finished. The one number the plan answers to: whether people move from watching to doing.</p>
+            </div>
+            <div class="out rise2">
+              <span class="sign">Line for line</span>
+              <p class="body">A founding customer's unprompted feedback matched the scope we had already drawn. The whole thesis, in a user's own words.</p>
+            </div>
+            <div class="out rise3">
+              <span class="sign">No rebuild</span>
+              <p class="body">The first slice reuses what's already built. It's mostly data work, so it moves the number without new screens.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 13 · CLOSE -->
       <section class="slide g-azure" aria-label="Close">
         <div class="pad" style="justify-content:center;gap:4cqh;">
           <h2 class="display rise" style="max-width:15ch;">Organizing content only matters if it moves people.</h2>
           <p class="lede rise2" style="max-width:48ch;">Have a product people sign up for, then stall in? Let's talk.</p>
+          <a class="proto rise3" href="https://vickyrule22.github.io/decks/prototypes/candidate-pathways/" target="_blank" rel="noopener">Try the clickable prototype<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
           <div class="close-mark rise3"><span>Victoria Reed</span><span class="dot" aria-hidden="true"></span><span>victoriareed.ai</span></div>
           <div class="links rise3">
             <a href="https://vickyrule22.github.io/decks/candidate-pathways/" target="_blank" rel="noopener"><span>This deck</span><span>vickyrule22.github.io/decks/candidate-pathways</span></a>

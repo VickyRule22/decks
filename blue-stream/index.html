@@ -162,6 +162,11 @@
   /* close + links */
   .close-mark{display:flex;align-items:center;gap:1.4cqw;font-size:2.2cqh;color:#fff;}
   .close-mark .dot{width:1cqh;height:1cqh;border-radius:50%;background:var(--gold);}
+  .proto{display:inline-flex;align-items:center;gap:1.4cqh;align-self:flex-start;padding:1.9cqh 2.8cqh 1.9cqh 3.4cqh;border-radius:99px;background:#fff;color:var(--ink);font-size:2.4cqh;font-weight:700;line-height:1;text-decoration:none;position:relative;z-index:35;box-shadow:0 1.4cqh 3.6cqh rgba(2,27,41,.28);transition:transform .3s cubic-bezier(.22,1,.36,1),box-shadow .3s cubic-bezier(.22,1,.36,1);}
+  .proto:hover{transform:translateY(-.45cqh);box-shadow:0 2cqh 4.8cqh rgba(2,27,41,.28);}
+  .proto svg{width:2.6cqh;height:2.6cqh;transition:transform .3s cubic-bezier(.22,1,.36,1);}
+  .proto:hover svg{transform:translateX(.6cqh);}
+  .proto:focus-visible{outline:2px solid #fff;outline-offset:4px;}
   .links{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:1.2cqh 4cqw;margin-top:1cqh;}
   .links a{display:flex;flex-direction:column;gap:.5cqh;color:#fff;text-decoration:none;position:relative;z-index:35;}
   .links a span:first-child{font-size:1.6cqh;color:rgba(255,255,255,.72);}
@@ -411,6 +416,7 @@
       <!-- 13 · WHAT TESTING SAID -->
       <section class="slide" aria-label="What testing said">
         <div class="pad" style="justify-content:center;">
+          <p class="by rise" style="color:var(--blue);font-weight:700;margin-bottom:2cqh;">Outcomes</p>
           <h2 class="h1 rise" style="max-width:22ch;">The group we worried about most scored it highest.</h2>
           <div class="scores">
             <div class="score rise2">
@@ -428,6 +434,7 @@
               <p class="l"><strong>Likely to use the AI helper</strong>, from people who called themselves tech beginners.</p>
             </div>
           </div>
+          <p class="body rise3" style="margin-top:5cqh;max-width:64ch;">The scores were a signal, not the point. This was step one toward an app that <b>is</b> the support relationship, not the overflow channel for it.</p>
         </div>
       </section>
 
@@ -436,6 +443,7 @@
         <div class="pad" style="justify-content:center;gap:3.6cqh;position:relative;z-index:1;padding-bottom:18cqh;">
           <h2 class="display rise" style="max-width:17ch;font-size:7.6cqh;">Stop designing the absence of a phone call. Design the presence of the answer.</h2>
           <p class="lede rise2" style="max-width:50ch;">Have a product your customers call about instead of use? Let's talk.</p>
+          <a class="proto rise3" href="https://vickyrule22.github.io/decks/prototypes/blue-stream/" target="_blank" rel="noopener">Try the clickable prototype<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
           <div class="close-mark rise3"><span>Victoria Reed</span><span class="dot" aria-hidden="true"></span><span>victoriareed.ai</span></div>
           <div class="links rise3">
             <a href="https://vickyrule22.github.io/decks/blue-stream/" target="_blank" rel="noopener"><span>This deck</span><span>vickyrule22.github.io/decks/blue-stream</span></a>
