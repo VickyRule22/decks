@@ -146,6 +146,17 @@
   .asks{display:grid;grid-template-columns:repeat(3,1fr);gap:3cqw;margin-top:5cqh;}
   .asks div{border-top:1px solid rgba(255,255,255,.3);padding-top:2cqh;font-size:2.2cqh;line-height:1.4;color:rgba(255,255,255,.88);}
 
+  .links{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:1.2cqh 4cqw;margin-top:1cqh;}
+  .links a{display:flex;flex-direction:column;gap:.5cqh;color:#fff;text-decoration:none;position:relative;z-index:35;}
+  .links a span:first-child{font-size:1.6cqh;color:rgba(255,255,255,.72);}
+  .links a span:last-child{font-size:2.1cqh;font-weight:700;border-bottom:.2cqh solid rgba(255,255,255,.5);padding-bottom:.3cqh;}
+  .links a:hover span:last-child{border-bottom-color:#fff;}
+  .links a:focus-visible{outline:2px solid #fff;outline-offset:4px;}
+  .steps{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:1.6cqh 2cqw;max-width:52ch;counter-reset:st;}
+  .steps li{counter-increment:st;display:flex;flex-direction:column;gap:.4cqh;border-top:.3cqh solid var(--ink);padding-top:1.4cqh;}
+  .steps li::before{content:"0" counter(st);font-family:'Archivo','Arial Narrow',sans-serif;font-stretch:72%;font-variation-settings:"wdth" 72;font-weight:850;font-size:2.4cqh;color:var(--azure);}
+  .steps b{font-size:2.2cqh;}
+  .steps span{font-size:1.9cqh;line-height:1.4;color:var(--muted);}
   .close-mark{display:flex;align-items:center;gap:1.4cqw;font-size:2.2cqh;font-weight:600;color:#fff;}
   .close-mark .dot{width:1cqh;height:1cqh;border-radius:50%;background:#fff;opacity:.6;}
 
@@ -247,6 +258,44 @@
         </div>
       </section>
 
+      <!-- ONBOARDING -->
+      <section class="slide" aria-label="Onboarding">
+        <div class="split" style="grid-template-columns:.75fr 1.25fr;">
+          <div class="rail">
+            <h2 class="h2 rise" style="max-width:12ch;">Day one starts with their race, not a video library.</h2>
+            <p class="body rise2">Before anyone sees a lesson, four quick questions shape the plan around them. It takes about two minutes, and there are no deadlines yet.</p>
+            <ol class="steps rise3">
+              <li><b>Where they are</b><span>Just curious, or seriously thinking about it</span></li>
+              <li><b>Where they live</b><span>So local rules and deadlines show up</span></li>
+              <li><b>What office</b><span>The level first, then the seat</span></li>
+              <li><b>What's weighing on them</b><span>Fundraising, filings, their message</span></li>
+            </ol>
+          </div>
+          <div class="frame wipe">
+            <div class="bar"><div class="dots"><i></i><i></i><i></i></div><span class="where">Personalize your pathway</span></div>
+            <div class="view" style="aspect-ratio:16/10;"><video class="clip" src="clip/onboarding.mp4" poster="img/onboarding-poster.jpg" aria-label="Onboarding: welcome, where you're running, what office, what's weighing on you, all set" muted loop playsinline preload="auto"></video></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DASHBOARD -->
+      <section class="slide" aria-label="Home">
+        <div class="split rev">
+          <div class="frame wipe">
+            <div class="bar"><div class="dots"><i></i><i></i><i></i></div><span class="where">Home</span></div>
+            <div class="view"><img src="img/prospect-dashboard.png" alt="The candidate home: progress through 8 sections, a pick up where you left off card, local announcements and resources"></div>
+          </div>
+          <div class="rail">
+            <h2 class="h2 rise" style="max-width:12ch;">Home answers one question: where did I leave off?</h2>
+            <ul class="marks rise2">
+              <li>One progress bar across all <b>8 sections</b></li>
+              <li>One card to jump right back in</li>
+              <li>Local events and ready-made templates sit off to the side, not in the way</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <!-- 6 · TOPICS ARE THE SPINE -->
       <section class="slide" aria-label="Topics are the spine">
         <div class="split">
@@ -261,7 +310,7 @@
           </div>
           <div class="frame wipe">
             <div class="bar"><div class="dots"><i></i><i></i><i></i></div><span class="where">Your Campaign Pathways</span></div>
-            <div class="view"><img src="img/prospect-home.jpg" alt="The training home, with each topic's video, Action, and question grouped together"></div>
+            <div class="view"><img src="img/prospect-home.png" alt="The training home, with each topic's video, Action, and question grouped together"></div>
           </div>
         </div>
       </section>
@@ -300,7 +349,7 @@
         <div class="split rev">
           <div class="frame wipe">
             <div class="bar"><div class="dots"><i></i><i></i><i></i></div><span class="where">Coach home</span></div>
-            <div class="view"><img src="img/coach-home.jpg" alt="The coach dashboard, with each prospect marked Stalled, Slowing, or Active"></div>
+            <div class="view"><img src="img/coach-home.png" alt="The coach dashboard, with each prospect marked Stalled, Slowing, or Active"></div>
           </div>
           <div class="rail">
             <h2 class="h2 rise" style="max-width:12ch;">Give coaches one honest signal.</h2>
@@ -309,6 +358,26 @@
             <div class="chips rise3" aria-label="Engagement states">
               <span class="chip st">Stalled</span><span class="chip sl">Slowing</span><span class="chip ac">Active</span>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROSPECT PROFILE -->
+      <section class="slide" aria-label="Prospect profile">
+        <div class="split">
+          <div class="rail">
+            <h2 class="h2 rise" style="max-width:12ch;">Tap a name, and see the whole story.</h2>
+            <p class="body rise2">A coach shouldn't have to dig to find out why someone went quiet. The profile says it up top, in plain words.</p>
+            <ul class="marks rise3">
+              <li><b>Why they're stalled:</b> "0 lessons in the last week, down from 4"</li>
+              <li>Unread messages, flagged as waiting on the coach</li>
+              <li>Private coach notes the candidate never sees</li>
+              <li>Their next actions, and where they are in the training</li>
+            </ul>
+          </div>
+          <div class="frame wipe">
+            <div class="bar"><div class="dots"><i></i><i></i><i></i></div><span class="where">Prospect profile</span></div>
+            <div class="view"><img src="img/prospect-profile.png" alt="A prospect profile for a coach: stalled status, messages waiting, coach notes, next actions"></div>
           </div>
         </div>
       </section>
@@ -355,6 +424,11 @@
           <h2 class="display rise" style="max-width:15ch;">Organizing content only matters if it moves people.</h2>
           <p class="lede rise2" style="max-width:48ch;">Have a product people sign up for, then stall in? Let's talk.</p>
           <div class="close-mark rise3"><span>Victoria Reed</span><span class="dot" aria-hidden="true"></span><span>victoriareed.ai</span></div>
+          <div class="links rise3">
+            <a href="https://vickyrule22.github.io/decks/candidate-pathways/" target="_blank" rel="noopener"><span>This deck</span><span>vickyrule22.github.io/decks/candidate-pathways</span></a>
+            <a href="https://victoriareed.ai/work/candidate-recruitment-platform" target="_blank" rel="noopener"><span>Full case study</span><span>victoriareed.ai/work/candidate-recruitment-platform</span></a>
+            <a href="https://vickyrule22.github.io/decks/" target="_blank" rel="noopener"><span>All decks</span><span>vickyrule22.github.io/decks</span></a>
+          </div>
         </div>
       </section>
 
@@ -365,7 +439,7 @@
 <button class="nav-zone prev" id="prev" aria-label="Previous slide"></button>
 <button class="nav-zone next" id="next" aria-label="Next slide"></button>
 <div class="progress"><div class="bar" id="bar"></div></div>
-<div class="counter" id="counter">01 / 12</div>
+<div class="counter" id="counter">01 / 15</div>
 
 <script>
 (function(){
