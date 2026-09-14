@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Blue Stream Fiber - Tech Visit flow (senior redesign)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.0/dist/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+<script src="hifive-data.js"></script>
+<style>
+:root{
+  --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --color-background-secondary:#f3f1ec;
+  --border-radius-lg:12px;
+}
+html,body{margin:0;padding:0;background:transparent;}
+body{font-family:var(--font-sans);}
+.wrap{width:390px;max-width:none;}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div style="background:transparent;padding:0;display:block;">
+<h2 class="sr-only">Full Blue Stream Fiber tech-visit flow for older adults: home, notifications, arrival tracking, rating, and branching good or bad feedback screens.</h2>
+
+<style>
+.bs{--blue:#027BB4;--ink:#003A56;--ink2:#004160;--mist:#D9EFF9;--mist2:#EAF6FC;--go:#0A7D17;--gold:#FBC371;
+  width:100%;max-width:390px;aspect-ratio:390/844;background:#fff;border-radius:0;overflow:hidden;position:relative;
+  font-family:var(--font-sans);color:var(--ink2);}
+.bs *{box-sizing:border-box;}
+.bs button{font-family:inherit;border:0;background:none;cursor:pointer;color:inherit;width:100%;text-align:left;}
+.scr{position:absolute;inset:0;display:flex;flex-direction:column;background:#fff;opacity:0;transform:translateX(36px);
+  transition:opacity .42s ease,transform .5s cubic-bezier(.22,.61,.36,1);pointer-events:none;}
+.scr.active{opacity:1;transform:none;pointer-events:auto;}
+.scr.left{transform:translateX(-36px);}
+.tap{transition:transform .18s ease,background-color .18s ease,box-shadow .18s ease;-webkit-tap-highlight-color:transparent;}
+.tap:active{transform:scale(.97);}
+.tap:focus-visible{outline:none;box-shadow:0 0 0 4px rgba(2,123,180,.45);}
+.chev{transition:transform .18s ease;}
+.tap:active .chev{transform:translateX(4px);}
+.dot{width:13px;height:13px;border-radius:50%;background:#39D353;box-shadow:0 0 0 0 rgba(57,211,83,.6);animation:breathe 2.6s ease-in-out infinite;}
+@keyframes breathe{0%,100%{box-shadow:0 0 0 0 rgba(57,211,83,.55);}50%{box-shadow:0 0 0 7px rgba(57,211,83,0);}}
+.cal{position:relative;flex-shrink:0;width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;}
+.cal .rg{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,255,255,.7);animation:ripple 2.8s ease-out infinite;}
+.cal .rg.b{animation-delay:1.4s;}
+@keyframes ripple{0%{transform:scale(1);opacity:.7;}80%{opacity:0;}100%{transform:scale(2.15);opacity:0;}}
+.cal i{animation:shake 3.4s ease-in-out infinite;transform-origin:50% 55%;}
+@keyframes shake{0%,84%,100%{transform:rotate(0);}87%{transform:rotate(-9deg);}90%{transform:rotate(8deg);}93%{transform:rotate(-6deg);}96%{transform:rotate(3deg);}}
+.trkdot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background-color .4s ease,box-shadow .4s ease;}
+.rateBtn{opacity:0;transform:translateY(8px);transition:opacity .5s ease,transform .5s ease;pointer-events:none;}
+.rateBtn.show{opacity:1;transform:none;pointer-events:auto;}
+.star{line-height:0;}
+.star svg{fill:none;stroke:#fff;stroke-width:1.7;stroke-linejoin:round;stroke-linecap:round;transition:fill .15s ease,stroke .15s ease;}
+.star.on svg{fill:var(--gold);stroke:var(--gold);}
+.star.bounce{animation:starpop .5s cubic-bezier(.34,1.56,.64,1);}
+@keyframes starpop{0%{transform:scale(1);}32%{transform:scale(1.62);}100%{transform:scale(1);}}
+.shk{animation:shk .42s ease;}
+@keyframes shk{0%,100%{transform:translateX(0);}20%{transform:translateX(-8px);}40%{transform:translateX(8px);}60%{transform:translateX(-5px);}80%{transform:translateX(5px);}}
+.pop{animation:pop .5s cubic-bezier(.34,1.56,.64,1);}
+@keyframes pop{0%{transform:scale(.4);opacity:0;}100%{transform:scale(1);opacity:1;}}
+.autopress{transform:scale(.95)!important;box-shadow:0 0 0 5px rgba(255,255,255,.32)!important;transition:transform .13s ease,box-shadow .13s ease;}
+@media (prefers-reduced-motion: reduce){.bs *{animation:none!important;transition:none!important;}}
+</style>
+
+<div class="bs" data-cur="0">
+
+  <section class="scr active" data-i="0">
+    <div style="background:var(--blue);padding:46px 20px 22px;border-radius:0 0 26px 26px;color:#fff;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+        <img src="bluestreams.png" alt="Blue Stream Fiber" style="height:30px;width:auto;display:block;">
+        <div style="display:flex;gap:6px;">
+          <button class="tap" aria-label="Messages" style="width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.14);"><i class="ti ti-message-circle" style="font-size:24px;" aria-hidden="true"></i></button>
+          <button class="tap" aria-label="Notifications" onclick="go(1)" style="width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.14);position:relative;"><i class="ti ti-bell" style="font-size:24px;" aria-hidden="true"></i><span style="position:absolute;top:9px;right:10px;width:9px;height:9px;border-radius:50%;background:#FFCB30;border:2px solid var(--blue);"></span></button>
+        </div>
+      </div>
+      <p style="margin:0;font-size:30px;font-weight:500;letter-spacing:-.4px;">Welcome, Linda</p>
+    </div>
+
+    <div style="flex:1;padding:16px 16px 0;display:flex;flex-direction:column;gap:13px;overflow:hidden;">
+      <button class="tap" onclick="go(1)" style="display:flex;align-items:center;gap:14px;background:var(--go);color:#fff;padding:15px 16px;border-radius:16px;">
+        <span class="cal"><span class="rg"></span><span class="rg b"></span><i class="ti ti-calendar-event" style="font-size:26px;" aria-hidden="true"></i></span>
+        <span style="flex:1;line-height:1.25;">
+          <span style="display:block;font-size:14px;letter-spacing:1.5px;text-transform:uppercase;opacity:.92;">Today</span>
+          <span style="display:block;font-size:19px;font-weight:500;">Service visit, 3-5 PM</span>
+        </span>
+        <i class="ti ti-chevron-right chev" style="font-size:28px;" aria-hidden="true"></i>
+      </button>
+
+      <button class="tap" style="display:flex;align-items:center;gap:14px;background:var(--ink2);color:#fff;padding:15px 16px;border-radius:16px;">
+        <i class="ti ti-book-2" style="font-size:26px;" aria-hidden="true"></i>
+        <span style="flex:1;font-size:19px;font-weight:500;">Your Welcome Kit</span>
+        <i class="ti ti-chevron-right chev" style="font-size:28px;" aria-hidden="true"></i>
+      </button>
+
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin:4px 2px 10px;">
+          <span style="font-size:23px;font-weight:500;color:var(--ink);">My Services</span>
+          <button class="tap" style="width:auto;display:flex;align-items:center;gap:4px;font-size:16px;font-weight:500;color:var(--blue);background:var(--mist);padding:9px 14px;border-radius:50px;">All<i class="ti ti-chevron-right" style="font-size:18px;" aria-hidden="true"></i></button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;background:var(--mist2);width:fit-content;padding:7px 14px;border-radius:50px;margin:0 2px 12px;">
+          <span class="dot" aria-hidden="true"></span><span style="font-size:16px;font-weight:500;color:var(--go);">All connected</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <button class="tap" style="background:var(--mist);padding:15px;border-radius:16px;display:flex;flex-direction:column;gap:9px;min-height:92px;"><i class="ti ti-wifi" style="font-size:30px;color:var(--blue);" aria-hidden="true"></i><span style="font-size:18px;font-weight:500;">Internet</span></button>
+          <button class="tap" style="background:var(--mist);padding:15px;border-radius:16px;display:flex;flex-direction:column;gap:9px;min-height:92px;"><i class="ti ti-device-tv-old" style="font-size:30px;color:var(--blue);" aria-hidden="true"></i><span style="font-size:18px;font-weight:500;">TV &amp; Streaming</span></button>
+          <button class="tap" style="background:var(--mist);padding:15px;border-radius:16px;display:flex;flex-direction:column;gap:9px;min-height:92px;"><i class="ti ti-phone" style="font-size:30px;color:var(--blue);" aria-hidden="true"></i><span style="font-size:18px;font-weight:500;">Phone</span></button>
+          <button class="tap" style="background:#fff;border:2px solid var(--mist);padding:15px;border-radius:16px;display:flex;flex-direction:column;gap:9px;min-height:92px;justify-content:center;"><i class="ti ti-receipt" style="font-size:30px;color:var(--blue);" aria-hidden="true"></i><span style="font-size:18px;font-weight:500;">Pay Bill</span></button>
+        </div>
+      </div>
+
+      <button class="tap" style="margin-top:auto;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px;border:2px solid var(--blue);color:var(--blue);background:#fff;padding:13px;border-radius:50px;font-size:18px;font-weight:500;">
+        <i class="ti ti-headset" style="font-size:24px;" aria-hidden="true"></i>Talk to a real person
+      </button>
+    </div>
+
+    <nav style="display:flex;background:var(--blue);padding:9px 6px 24px;justify-content:space-around;border-radius:26px 26px 0 0;">
+      <button class="tap" aria-current="page" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:7px 2px;color:#fff;"><span style="background:rgba(255,255,255,.18);border-radius:14px;padding:3px 16px;"><i class="ti ti-home-2" style="font-size:27px;" aria-hidden="true"></i></span><span style="font-size:15px;font-weight:500;">Home</span></button>
+      <button class="tap" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:7px 2px;color:#fff;opacity:.85;"><i class="ti ti-cash" style="font-size:27px;" aria-hidden="true"></i><span style="font-size:15px;font-weight:500;">Billing</span></button>
+      <button class="tap" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:7px 2px;color:#fff;opacity:.85;"><i class="ti ti-devices" style="font-size:27px;" aria-hidden="true"></i><span style="font-size:15px;font-weight:500;">Services</span></button>
+      <button class="tap" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:7px 2px;color:#fff;opacity:.85;"><i class="ti ti-lifebuoy" style="font-size:27px;" aria-hidden="true"></i><span style="font-size:15px;font-weight:500;">Support</span></button>
+      <button class="tap" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:7px 2px;color:#fff;opacity:.85;"><i class="ti ti-user-circle" style="font-size:27px;" aria-hidden="true"></i><span style="font-size:15px;font-weight:500;">Account</span></button>
+    </nav>
+  </section>
+
+  <section class="scr" data-i="1">
+    <div style="padding:48px 20px 0;flex:1;display:flex;flex-direction:column;">
+      <button class="tap" onclick="go(0)" style="width:auto;display:flex;align-items:center;gap:6px;color:var(--ink2);font-size:18px;margin-bottom:14px;"><i class="ti ti-chevron-left" style="font-size:24px;" aria-hidden="true"></i>Back</button>
+      <p style="margin:0 0 18px;font-size:34px;font-weight:500;color:var(--ink2);">Notifications</p>
+      <button class="tap" onclick="go(2)" style="display:flex;align-items:flex-start;gap:12px;padding:18px 4px;border-bottom:1px solid var(--mist);">
+        <span style="display:flex;flex-direction:column;flex:1;gap:3px;">
+          <span style="display:flex;align-items:center;gap:9px;font-size:19px;font-weight:500;color:var(--ink2);">Now <span class="dot" style="width:11px;height:11px;background:#027BB4;" aria-hidden="true"></span></span>
+          <span style="font-size:17px;line-height:1.4;color:var(--ink2);">Marcus is on the way. Arriving between 3 and 5 PM today.</span>
+        </span>
+        <i class="ti ti-chevron-right chev" style="font-size:24px;color:var(--blue);margin-top:4px;" aria-hidden="true"></i>
+      </button>
+      <button class="tap" onclick="go(2)" style="display:flex;align-items:flex-start;gap:12px;padding:18px 4px;border-bottom:1px solid var(--mist);">
+        <span style="display:flex;flex-direction:column;flex:1;gap:3px;">
+          <span style="font-size:19px;font-weight:500;color:var(--ink2);">Yesterday, 1:00 PM</span>
+          <span style="font-size:17px;line-height:1.4;color:var(--ink2);">Your appointment is confirmed for today, 3 to 5 PM.</span>
+        </span>
+        <i class="ti ti-chevron-right chev" style="font-size:24px;color:var(--blue);margin-top:4px;" aria-hidden="true"></i>
+      </button>
+      <button class="tap" style="display:flex;align-items:flex-start;gap:12px;padding:18px 4px;border-bottom:1px solid var(--mist);">
+        <span style="display:flex;flex-direction:column;flex:1;gap:3px;">
+          <span style="font-size:19px;font-weight:500;color:var(--ink2);">Monday, 9:30 AM</span>
+          <span style="font-size:17px;line-height:1.4;color:var(--ink2);">Welcome to Blue Stream Fiber. Here is how to get started.</span>
+        </span>
+        <i class="ti ti-chevron-right chev" style="font-size:24px;color:var(--blue);margin-top:4px;" aria-hidden="true"></i>
+      </button>
+    </div>
+  </section>
+
+  <section class="scr" data-i="2">
+    <div style="padding:48px 20px 0;flex:1;display:flex;flex-direction:column;overflow-y:auto;">
+      <button class="tap" onclick="go(1)" style="width:auto;display:flex;align-items:center;gap:6px;color:var(--ink2);font-size:18px;margin-bottom:14px;"><i class="ti ti-chevron-left" style="font-size:24px;" aria-hidden="true"></i>Back</button>
+      <p style="margin:0 0 4px;font-size:16px;font-weight:500;color:var(--ink2);">Your appointment is confirmed</p>
+      <p style="margin:0 0 16px;font-size:34px;font-weight:500;color:var(--ink2);">Expected Arrival</p>
+      <div style="display:inline-flex;align-self:flex-start;align-items:baseline;gap:8px;background:var(--go);color:#fff;padding:12px 20px;border-radius:14px;margin-bottom:14px;">
+        <span style="font-size:34px;font-weight:500;line-height:1;">3-5</span><span style="font-size:18px;">PM Today</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px;font-size:17px;color:var(--ink2);margin-bottom:18px;"><i class="ti ti-map-pin" style="font-size:22px;color:var(--blue);" aria-hidden="true"></i>125 Cobblestone Blvd, Arcadia FL</div>
+      <div style="display:flex;align-items:center;gap:14px;padding:16px 0;border-top:1px solid var(--mist);border-bottom:1px solid var(--mist);">
+        <span style="width:56px;height:56px;border-radius:50%;background:var(--mist);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:500;color:var(--ink2);flex-shrink:0;">MH</span>
+        <span style="display:flex;flex-direction:column;">
+          <span style="font-size:16px;font-weight:500;color:var(--blue);">Your technician</span>
+          <span style="font-size:24px;color:var(--ink2);">Marcus Hill</span>
+        </span>
+        <button class="tap" aria-label="Call Marcus" style="width:auto;margin-left:auto;width:52px;height:52px;border-radius:50%;background:var(--mist);display:flex;align-items:center;justify-content:center;"><i class="ti ti-phone" style="font-size:26px;color:var(--blue);" aria-hidden="true"></i></button>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin:26px 8px 0;position:relative;">
+        <div style="position:absolute;top:13px;left:38px;right:38px;height:3px;background:var(--mist);border-radius:2px;"></div>
+        <div id="trkline" style="position:absolute;top:13px;left:38px;width:0;height:3px;background:var(--go);border-radius:2px;transition:width 1s ease;"></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:80px;z-index:1;">
+          <span class="trkdot" id="t0" style="background:var(--go);box-shadow:0 0 0 0 rgba(10,125,23,.5);animation:breathe 2.4s ease-in-out infinite;"><i class="ti ti-tools" style="font-size:15px;color:#fff;" aria-hidden="true"></i></span>
+          <span style="font-size:14px;text-align:center;color:var(--ink2);font-weight:500;">Getting ready</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:80px;z-index:1;">
+          <span class="trkdot" id="t1" style="background:var(--mist);"><i class="ti ti-truck-delivery" style="font-size:15px;color:var(--blue);" aria-hidden="true"></i></span>
+          <span style="font-size:14px;text-align:center;color:var(--ink2);">On route</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:80px;z-index:1;">
+          <span class="trkdot" id="t2" style="background:var(--mist);"><i class="ti ti-door" style="font-size:15px;color:var(--blue);" aria-hidden="true"></i></span>
+          <span style="font-size:14px;text-align:center;color:var(--ink2);">Arrived</span>
+        </div>
+      </div>
+      <p id="trkstatus" style="text-align:center;font-size:18px;font-weight:500;color:var(--go);margin:20px 0 0;min-height:24px;">Your technician is getting ready</p>
+      <button class="tap" style="margin-top:26px;display:flex;align-items:center;justify-content:center;gap:8px;border:2px solid var(--ink2);color:var(--ink2);background:#fff;padding:14px;border-radius:50px;font-size:17px;font-weight:500;">
+        <i class="ti ti-info-circle" style="font-size:22px;" aria-hidden="true"></i>What to expect during installation
+      </button>
+      <button class="tap rateBtn" id="rateBtn" onclick="go(3)" style="margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--gold);color:var(--ink2);padding:16px;border-radius:50px;font-size:18px;font-weight:500;">
+        Rate your visit<i class="ti ti-arrow-right" style="font-size:22px;" aria-hidden="true"></i>
+      </button>
+    </div>
+  </section>
+
+  <section class="scr" data-i="3" style="background:var(--ink2);">
+    <div style="padding:48px 28px 28px;flex:1;display:flex;flex-direction:column;align-items:center;color:#fff;">
+      <button class="tap" onclick="go(0)" aria-label="Close" style="width:auto;align-self:flex-end;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;"><i class="ti ti-x" style="font-size:28px;" aria-hidden="true"></i></button>
+      <div style="margin-top:30px;width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;"><i class="ti ti-circle-check" style="font-size:58px;color:#39D353;" aria-hidden="true"></i></div>
+      <p style="margin:34px 0 0;font-size:34px;font-weight:500;text-align:center;line-height:1.2;">Appointment<br>completed</p>
+      <p style="margin:14px 0 0;font-size:19px;text-align:center;opacity:.85;">You are all set, Linda. How'd it go?</p>
+      <div id="stars" style="display:flex;gap:10px;margin:34px 0;">
+        <button class="tap star" onclick="rate(1)" aria-label="1 star" style="width:auto;"><svg viewBox="0 0 24 24" width="46" height="46" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button>
+        <button class="tap star" onclick="rate(2)" aria-label="2 stars" style="width:auto;"><svg viewBox="0 0 24 24" width="46" height="46" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button>
+        <button class="tap star" onclick="rate(3)" aria-label="3 stars" style="width:auto;"><svg viewBox="0 0 24 24" width="46" height="46" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button>
+        <button class="tap star" onclick="rate(4)" aria-label="4 stars" style="width:auto;"><svg viewBox="0 0 24 24" width="46" height="46" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button>
+        <button class="tap star" onclick="rate(5)" aria-label="5 stars" style="width:auto;"><svg viewBox="0 0 24 24" width="46" height="46" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button>
+      </div>
+      <button class="tap" onclick="submitFeedback()" style="width:100%;background:var(--gold);color:var(--ink2);padding:16px;border-radius:50px;font-size:18px;font-weight:500;text-align:center;">Provide Feedback</button>
+    </div>
+  </section>
+
+  <section class="scr" data-i="4" style="background:var(--ink2);">
+    <div style="padding:48px 28px 28px;flex:1;display:flex;flex-direction:column;align-items:center;color:#fff;">
+      <button class="tap" onclick="go(0)" aria-label="Close" style="width:auto;align-self:flex-end;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;"><i class="ti ti-x" style="font-size:28px;" aria-hidden="true"></i></button>
+      <div id="hfLottie" style="margin-top:18px;width:140px;height:140px;"></div>
+      <p style="margin:30px 0 0;font-size:40px;font-weight:500;text-align:center;">Woohoo!</p>
+      <p style="margin:14px 0 0;font-size:22px;text-align:center;opacity:.9;">We are happy to hear that.</p>
+    </div>
+  </section>
+
+  <section class="scr" data-i="5" style="background:var(--ink2);">
+    <div style="padding:48px 28px 28px;flex:1;display:flex;flex-direction:column;align-items:center;color:#fff;">
+      <button class="tap" onclick="go(0)" aria-label="Close" style="width:auto;align-self:flex-end;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;"><i class="ti ti-x" style="font-size:28px;" aria-hidden="true"></i></button>
+      <div class="pop" style="margin-top:24px;width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;"><i class="ti ti-heart-handshake" style="font-size:56px;color:#9FE1CB;" aria-hidden="true"></i></div>
+      <p style="margin:30px 0 0;font-size:40px;font-weight:500;text-align:center;">Thank you</p>
+      <p style="margin:14px 0 0;font-size:22px;text-align:center;opacity:.9;line-height:1.45;">We appreciate your feedback and will make it right.</p>
+      <button class="tap" style="margin-top:40px;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;max-width:320px;background:var(--gold);color:var(--ink2);padding:16px;border-radius:50px;font-size:18px;font-weight:500;">
+        <i class="ti ti-headset" style="font-size:24px;" aria-hidden="true"></i>Talk to a real person
+      </button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  window.openLink=function(u){window.open(u,'_blank','noopener');};
+  var bs=document.querySelector('.bs'), scr=[].slice.call(bs.querySelectorAll('.scr')), timers=[], rating=0;
+  var hfAnim=null;
+  function initHF(){ if(hfAnim||!window.lottie||!window.HF_DATA) return; hfAnim=window.lottie.loadAnimation({container:document.getElementById('hfLottie'),renderer:'svg',loop:false,autoplay:false,animationData:window.HF_DATA}); }
+  function playHF(){ initHF(); if(hfAnim){ hfAnim.goToAndStop(0,true); hfAnim.goToAndPlay(0,true); } }
+  initHF();
+  window.go=function(n){
+    var cur=+bs.dataset.cur; if(n===cur)return; bs.dataset.cur=n;
+    scr.forEach(function(s){var i=+s.dataset.i; s.classList.remove('active','left'); if(i===n){s.classList.add('active');} else if(i<n){s.classList.add('left');}});
+    var body=scr[n].querySelector('[style*="overflow-y"]'); if(body&&body.scrollTo)body.scrollTo(0,0);
+    clearTimers();
+    if(n===2){ startTracker(); }
+    if(n===3){ rating=0; document.querySelectorAll('#stars .star').forEach(function(s){s.classList.remove('on');}); }
+    if(n===4){ playHF(); }
+  };
+  function clearTimers(){ timers.forEach(clearTimeout); timers=[]; }
+  var DOTICON=['ti-tools','ti-truck-delivery','ti-door'];
+  var TRK=[
+    {line:'0', status:'Your technician is getting ready'},
+    {line:'calc(50% - 38px)', status:'Marcus is on his way to you'},
+    {line:'calc(100% - 76px)', status:'Marcus has arrived'}
+  ];
+  function setStep(k){
+    document.getElementById('trkline').style.width=TRK[k].line;
+    for(var i=0;i<3;i++){
+      var d=document.getElementById('t'+i), lbl=d.parentElement.querySelector('span:last-child');
+      if(i<k){ d.style.background='var(--go)'; d.style.boxShadow='none'; d.style.animation='none'; d.innerHTML='<i class="ti ti-check" style="font-size:16px;color:#fff;" aria-hidden="true"></i>'; }
+      else if(i===k){ d.style.background='var(--go)'; d.style.boxShadow='0 0 0 0 rgba(10,125,23,.5)'; d.style.animation='breathe 2.4s ease-in-out infinite'; d.innerHTML='<i class="ti '+DOTICON[i]+'" style="font-size:15px;color:#fff;" aria-hidden="true"></i>'; }
+      else { d.style.background='var(--mist)'; d.style.boxShadow='none'; d.style.animation='none'; d.innerHTML='<i class="ti '+DOTICON[i]+'" style="font-size:15px;color:var(--blue);" aria-hidden="true"></i>'; }
+      if(lbl) lbl.style.fontWeight=(i===k)?'500':'400';
+    }
+    document.getElementById('trkstatus').textContent=TRK[k].status;
+  }
+  function startTracker(){
+    clearTimers();
+    document.getElementById('rateBtn').classList.remove('show');
+    var line=document.getElementById('trkline');
+    var dots=[document.getElementById('t0'),document.getElementById('t1'),document.getElementById('t2')];
+    line.style.transition='none';
+    dots.forEach(function(d){ d.style.transition='none'; });
+    setStep(0);
+    void line.offsetWidth;
+    line.style.transition='width 1s ease';
+    dots.forEach(function(d){ d.style.transition='background-color .4s ease,box-shadow .4s ease'; });
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){ setStep(2); document.getElementById('rateBtn').classList.add('show'); return; }
+    timers.push(setTimeout(function(){setStep(1);},2400));
+    timers.push(setTimeout(function(){setStep(2);},4800));
+    timers.push(setTimeout(function(){document.getElementById('rateBtn').classList.add('show');},5700));
+  }
+  window.rate=function(n){
+    rating=n;
+    var stars=document.querySelectorAll('#stars .star');
+    var rm=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    stars.forEach(function(s,i){
+      if(i>=n){ s.classList.remove('on','bounce'); return; }
+      if(rm){ s.classList.add('on'); return; }
+      setTimeout(function(){ s.classList.add('on'); s.classList.remove('bounce'); void s.offsetWidth; s.classList.add('bounce'); }, i*95);
+    });
+  };
+  window.submitFeedback=function(){
+    if(rating===0){ var st=document.getElementById('stars'); st.classList.remove('shk'); void st.offsetWidth; st.classList.add('shk'); return; }
+    go(rating>=4 ? 4 : 5);
+  };
+
+  /* ---- hands-free attract loop ---- */
+  var auto=true, atimers=[];
+  function A(fn,d){ atimers.push(setTimeout(function(){ if(auto) fn(); }, d)); }
+  function clearAuto(){ atimers.forEach(clearTimeout); atimers=[]; }
+  function press(el){ if(!el) return; el.classList.add('autopress'); setTimeout(function(){ el.classList.remove('autopress'); }, 240); }
+  function pick(s){ return document.querySelector(s); }
+  function apptCard(){ var l=document.querySelectorAll('.scr[data-i="0"] [onclick="go(1)"]'); return l[l.length-1]; }
+  function demo(){
+    if(!auto) return;
+    clearAuto();
+    if(+bs.dataset.cur!==0) go(0);
+    var t=1700;                                   // land on Home, let it breathe
+    A(function(){ press(apptCard()); }, t); t+=300;
+    A(function(){ go(1); }, t); t+=1900;          // read the notifications
+    A(function(){ press(pick('.scr[data-i="1"] [onclick="go(2)"]')); }, t); t+=300;
+    A(function(){ go(2); }, t); t+=6800;          // watch the tech come (tracker + rate btn ~5.7s)
+    A(function(){ press(pick('#rateBtn')); }, t); t+=300;
+    A(function(){ go(3); }, t); t+=1300;          // see "completed"
+    A(function(){ rate(5); }, t); t+=1700;        // tap five stars, watch them fill
+    A(function(){ press(pick('.scr[data-i="3"] [onclick="submitFeedback()"]')); }, t); t+=300;
+    A(function(){ go(4); }, t); t+=4200;          // high-five plays, hold a beat
+    A(function(){ demo(); }, t);                  // loop the reel
+  }
+  bs.addEventListener('pointerdown', function(){ if(auto){ auto=false; clearAuto(); } }, {once:true});
+  demo();
+})();
+</script>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Coach Home - Candidate Pathways</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Arimo:wght@400;700&family=Lato:wght@400;700;900&display=swap');
+
+  /* Figma baseline tokens (candidate-pathways-figma-baseline-spec.md) */
+  :root{
+    --ink:#2B2B2B;        /* Mine Shaft, primary text */
+    --text-2:#797979;     /* Boulder, secondary text */
+    --gray:#898989;       /* inactive nav */
+    --muted:#9B9B9B;      /* Dusty Gray */
+    --line:#E5E5E5;       /* Mercury hairline */
+    --line2:#EFEFEF;      /* faint row divider */
+    --bg:#F8FAFA;         /* Porcelain page bg */
+    --blue:#3A5FAD;       /* Azure, links / active / primary */
+    --cornflower:#5873FA;
+    --periwinkle:#CDD7EA; --pigeon:#B4C2DF;
+    --green:#30BC36;      /* Apple success */
+    --amber:#DC6803;      /* Warning */
+    --chip-active-bg:#E7F6EA; --chip-active-tx:#30BC36;
+    --chip-slow-bg:#FBEEDD;   --chip-slow-tx:#DC6803;
+    --chip-stall-bg:#F2F2F2;  --chip-stall-tx:#797979;
+    --seg-done:#3A5FAD; --seg-prog:#B4C2DF; --seg-none:#CDD7EA;
+  }
+  *{box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+  html,body{margin:0;height:100%;}
+  /* The product ships Arial (Arimo, its metric-compatible Google twin) as the
+     working face; Avenir does not load reliably in-browser, per the baseline spec. */
+  body{font-family:'Arimo','Arial','Helvetica Neue',sans-serif;color:var(--ink);background:var(--bg);
+    display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+  a{color:inherit;text-decoration:none;}
+  ::-webkit-scrollbar{width:10px;height:10px;}
+  ::-webkit-scrollbar-thumb{background:#D5D5D5;border-radius:6px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+
+  /* ---------- app shell ---------- */
+  .app{display:flex;flex:1;min-height:0;}
+
+  /* ---------- sidebar ---------- */
+  .sb{width:220px;flex:0 0 220px;background:#fff;border-right:1px solid var(--line);
+    display:flex;flex-direction:column;min-height:0;}
+  .sb-logo{display:flex;justify-content:center;padding:38px 0 24px;}
+  .sb-logo svg{width:112px;height:112px;}
+  .sb-nav{display:flex;flex-direction:column;gap:8px;padding:0 34px;}
+  .sb-nav a{padding:4px 0;font-size:15px;font-weight:800;color:var(--gray);line-height:1.3;
+    transition:color .12s;}
+  .sb-nav a:hover{color:var(--ink);}
+  .sb-nav a.active{color:var(--ink);font-weight:900;}
+  .sb-spacer{flex:1 1 auto;min-height:24px;}
+  .sb-foot{display:flex;flex-direction:column;padding:0 34px 41px;gap:11px;}
+  .sb-foot a{font-size:13px;color:var(--blue);font-weight:800;}
+  .sb-foot a.logout{font-weight:900;}
+
+  /* ---------- main ---------- */
+  .main{flex:1;min-width:0;min-height:0;overflow-y:auto;}
+
+  /* ---------- hero ---------- */
+  /* Per-org hero photo goes in --hero-image; a brand-tint overlay sits over it.
+     With no image set it falls back to the flat azure band. */
+  .hero{position:relative;overflow:hidden;min-height:150px;padding:22px 34px;color:#fff;
+    background-color:#3A5FAD;background-image:var(--hero-image,none);
+    background-size:cover;background-position:center;}
+  .hero::before{content:'';position:absolute;inset:0;z-index:0;background:rgba(58,95,173,.72);}
+  .hero-row{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:flex-start;}
+  .hero-title{font-size:35px;font-weight:900;line-height:40.85px;letter-spacing:-.005em;}
+  .hero-sub{font-size:16px;font-weight:400;opacity:.82;margin-top:2px;}
+  .send-invite{margin-top:16px;background:#fff;color:#3A5FAD;border:none;cursor:pointer;
+    padding:9px 24px;min-width:64px;border-radius:100px;font-family:inherit;font-weight:800;
+    font-size:14px;line-height:24.5px;}
+  .hero-top{display:flex;align-items:center;gap:13px;}
+  .hero-mail{display:inline-flex;color:#fff;opacity:.92;}
+  .hero-mail svg{width:22px;height:22px;stroke-width:1.8;}
+  .hero-who{text-align:right;line-height:1.2;}
+  .hero-who .n{font-size:14px;font-weight:800;}
+  .hero-who .r{font-size:12.5px;font-weight:400;opacity:.82;}
+  .hero-av{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;
+    border-radius:50%;background:rgba(255,255,255,.28);color:#fff;font-weight:800;font-size:15px;
+    border:1px solid rgba(255,255,255,.4);}
+
+  /* ---------- content ---------- */
+  .content{padding:26px 30px 40px;display:flex;flex-direction:column;gap:24px;}
+  .row-2{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(0,1fr);gap:24px;align-items:stretch;}
+  .row-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;align-items:stretch;}
+  .row-res{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:24px;align-items:stretch;}
+
+  .card{background:#fff;border-radius:9px;min-width:0;
+    box-shadow:0 0 6px 0 rgba(0,0,0,.08);padding:22px 24px;}
+  .card h2{margin:0 0 16px;font-size:18px;line-height:21.6px;font-weight:900;letter-spacing:0;}
+  .card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .card-hd h2{margin:0;}
+  .viewall{display:block;text-align:center;color:var(--blue);font-weight:900;font-size:13px;
+    margin-top:14px;padding-top:6px;}
+  .link{color:var(--blue);font-weight:900;font-size:13px;}
+
+  /* ---------- prospects table ---------- */
+  table{width:100%;border-collapse:collapse;}
+  .ptab thead th{font-size:12px;line-height:17.25px;font-weight:400;color:var(--text-2);text-align:left;
+    padding:0 7px 9px;white-space:nowrap;}
+  .ptab thead th .car{color:var(--muted);font-size:11px;margin-left:3px;}
+  .ptab tbody td{padding:13px 7px;border-top:1px solid var(--line2);vertical-align:middle;}
+  .ptab tbody tr:first-child td{border-top:1px solid var(--line2);padding-top:11px;}
+  .who-cell{display:flex;align-items:center;gap:12px;}
+  .av{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;
+    font-weight:800;font-size:13px;color:#fff;flex:0 0 40px;}
+  .av.blue{background:var(--blue);} .av.gray{background:#B4C2DF;}
+  .who-name{font-size:14px;font-weight:800;color:var(--ink);line-height:1.2;white-space:nowrap;}
+  .who-loc{font-size:12px;color:var(--text-2);margin-top:2px;font-weight:400;line-height:1.35;}
+
+  .prog-n{font-size:14px;font-weight:800;color:var(--ink);}
+  /* continuous azure fill on a periwinkle track (green is completion-only) */
+  .pbar{width:96px;height:6px;border-radius:100px;background:var(--periwinkle);overflow:hidden;margin-top:7px;}
+  .pbar > i{display:block;height:100%;border-radius:100px;background:var(--blue);}
+
+  .lastact{font-size:14px;color:var(--text-2);font-weight:400;}
+
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:100px;
+    font-size:12px;font-weight:800;white-space:nowrap;}
+  .chip svg{width:13px;height:13px;stroke-width:2.2;}
+  .chip.active{background:var(--chip-active-bg);color:var(--chip-active-tx);}
+  .chip.slowing{background:var(--chip-slow-bg);color:var(--chip-slow-tx);}
+  .chip.stalled{background:var(--chip-stall-bg);color:var(--chip-stall-tx);}
+
+  .ask-office{font-size:14px;font-weight:800;color:var(--ink);line-height:1.2;}
+  .ask-status{font-size:12px;font-weight:800;margin-top:2px;}
+  .ask-status.green{color:var(--green);}
+  .ask-status.amber{color:var(--amber);}
+  .ask-none{font-size:14px;color:var(--text-2);font-weight:400;}
+
+  .act-cell{display:flex;align-items:center;gap:14px;justify-content:flex-end;}
+  .msg-ico{color:var(--text-2);display:inline-flex;}
+  .msg-ico svg{width:20px;height:20px;stroke-width:1.7;}
+  .msg-ico:hover{color:var(--blue);}
+
+  /* ---------- prospect activity ---------- */
+  .act{display:flex;flex-direction:column;}
+  .act-item{padding:14px 0;border-top:1px solid var(--line2);}
+  .act-item:first-child{border-top:none;padding-top:2px;}
+  .act-top{display:flex;align-items:center;gap:12px;}
+  .act-av{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;
+    border-radius:50%;font-weight:800;font-size:12px;color:#fff;flex:0 0 34px;background:var(--blue);}
+  .act-name{font-size:14px;font-weight:800;color:var(--ink);flex:1;}
+  .act-date{font-size:12px;color:var(--text-2);font-weight:400;white-space:nowrap;}
+  .act-verb{font-size:13px;color:var(--ink);font-weight:400;margin:5px 0 0 46px;}
+  .act-tag{display:inline-block;font-size:10px;line-height:16px;font-weight:800;letter-spacing:.05em;
+    color:var(--blue);background:#EAF0FB;padding:2px 8px;border-radius:100px;margin:6px 0 0 46px;}
+  .act-bot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:5px 0 0 46px;}
+  .act-cap{font-size:12px;color:var(--text-2);font-weight:400;min-width:0;overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap;}
+
+  /* ---------- announcements ---------- */
+  .ann{background:var(--fill-subtle,#F2F2F2);border-radius:9px;padding:18px 18px 14px;}
+  .ann-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+  .ann-title{color:var(--blue);font-weight:900;font-size:14px;line-height:1.3;}
+  .ann-date{font-size:12px;color:var(--text-2);white-space:nowrap;font-weight:400;}
+  .ann-body{background:#fff;border-radius:6px;padding:12px 13px;margin:12px 0 12px;
+    font-family:'Lato',Arial,sans-serif;font-size:14px;line-height:1.5;color:#2B2B2B;font-weight:400;}
+  .ann-join{font-family:'Lato',Arial,sans-serif;font-size:14px;color:#2B2B2B;}
+  .ann-show{text-align:right;margin-top:12px;}
+  .ann-peek{margin-top:14px;padding-top:14px;border-top:1px solid var(--line);display:flex;
+    align-items:center;justify-content:space-between;gap:12px;opacity:.85;}
+
+  /* ---------- elections ---------- */
+  .el-head{display:flex;justify-content:space-between;font-size:12px;color:var(--text-2);font-weight:400;
+    padding-bottom:10px;border-bottom:1px solid var(--line2);}
+  .el-item{display:flex;justify-content:space-between;gap:14px;padding:14px 0;border-top:1px solid var(--line2);}
+  .el-item:first-of-type{border-top:none;}
+  .el-office{font-size:14px;font-weight:800;color:var(--ink);line-height:1.25;}
+  .el-sub{font-size:12px;color:var(--text-2);margin-top:2px;font-weight:400;}
+  .el-links{margin-top:8px;font-size:12px;}
+  .el-links a{color:var(--blue);font-weight:900;margin-right:14px;}
+  .el-right{text-align:right;flex:0 0 auto;}
+  .el-date{font-size:13px;color:var(--text-2);font-weight:400;white-space:nowrap;}
+  .el-status{font-size:13px;color:var(--text-2);font-weight:400;margin-top:22px;}
+
+  /* ---------- needs your attention ---------- */
+  .att-item{display:flex;align-items:center;gap:12px;padding:13px 0;border-top:1px solid var(--line2);}
+  .att-item:first-of-type{border-top:none;padding-top:2px;}
+  .att-dot{width:9px;height:9px;border-radius:50%;flex:0 0 9px;}
+  .att-name{font-size:14px;font-weight:800;color:var(--ink);line-height:1.2;}
+  .att-reason{font-size:12px;font-weight:400;margin-top:2px;}
+  .att-view{color:var(--blue);font-weight:900;font-size:13px;white-space:nowrap;}
+  .att-empty{padding:26px 0;text-align:center;color:var(--text-2);font-size:14px;font-weight:400;}
+
+  /* ---------- resource links ---------- */
+  .res-item{padding:16px 0;border-top:1px solid var(--line2);}
+  .res-item:first-of-type{border-top:none;padding-top:2px;}
+  .res-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .res-title{font-size:14px;font-weight:800;color:var(--ink);}
+  .res-ico{color:var(--blue);display:inline-flex;}
+  .res-ico svg{width:18px;height:18px;stroke-width:1.9;}
+  .res-sub{font-size:12px;color:var(--text-2);margin-top:4px;font-weight:400;}
+  .res-body{font-family:'Lato',Arial,sans-serif;font-size:13px;color:var(--text-2);line-height:1.55;margin-top:6px;}
+
+  /* ---------- upcoming events / calendar ---------- */
+  .ue-wrap{display:flex;gap:30px;align-items:flex-start;}
+  .cal{width:380px;flex:0 0 380px;}
+  .cal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .cal-title{font-size:16px;font-weight:900;}
+  .cal-title span{color:var(--text-2);font-weight:400;margin-left:6px;}
+  .cal-navs{display:flex;gap:8px;}
+  .cal-btn{width:34px;height:30px;border:1px solid var(--line);border-radius:9px;background:#fff;
+    display:inline-flex;align-items:center;justify-content:center;color:var(--text-2);cursor:pointer;}
+  .cal-btn svg{width:16px;height:16px;stroke-width:2;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);row-gap:10px;text-align:center;}
+  .cal-dow{font-size:11px;font-weight:800;color:var(--text-2);padding-bottom:6px;}
+  .cal-day{font-size:14px;color:var(--ink);font-weight:400;padding:6px 0;}
+  .cal-day.muted{color:var(--muted);}
+  .cal-day .today{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;
+    border-radius:50%;background:var(--blue);color:#fff;font-weight:800;}
+  .ue-empty{color:var(--text-2);font-size:15px;font-weight:400;padding-top:8px;}
+
+  @media (max-width:1180px){
+    .row-2,.row-3,.row-res{grid-template-columns:1fr;}
+    .ue-wrap{flex-direction:column;}
+    .cal{width:100%;flex:1 1 auto;}
+  }
+  @media (max-width:900px){ .sb{display:none;} }
+</style>
+</head>
+<body>
+
+<!-- CP-PROTOTYPE-NAV:start -->
+<div id="cp-proto-nav" role="navigation" aria-label="Prototype navigator">
+  <style>
+    #cp-proto-nav{display:flex;align-items:center;gap:12px;height:42px;padding:0 14px;flex:0 0 42px;
+      background:#0b0e14;color:#e5e9f0;border-bottom:1px solid #232a36;
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;line-height:1;
+      overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+    #cp-proto-nav::-webkit-scrollbar{display:none}
+    #cp-proto-nav .cpn-brand{flex:0 0 auto;display:flex;align-items:center;gap:8px;
+      text-transform:uppercase;letter-spacing:.14em;font-size:10px;font-weight:700;color:#7d8799}
+    #cp-proto-nav .cpn-dot{width:7px;height:7px;border-radius:50%;background:#f0b429;
+      box-shadow:0 0 0 3px rgba(240,180,41,.18)}
+    #cp-proto-nav .cpn-sep{flex:0 0 auto;width:1px;height:18px;background:#2a3140}
+    #cp-proto-nav .cpn-group{flex:0 0 auto;text-transform:uppercase;letter-spacing:.14em;font-size:10px;font-weight:700;color:#9aa6b8;padding-left:2px}
+    #cp-proto-nav a{flex:0 0 auto;text-decoration:none;color:#c3cad6;padding:5px 11px;
+      border-radius:999px;border:1px solid transparent;
+      transition:background .12s ease,color .12s ease}
+    #cp-proto-nav a:hover{background:#1a2130;color:#fff}
+    #cp-proto-nav a.is-active{background:#f0b429;color:#0b0e14;font-weight:700}
+    @media print{#cp-proto-nav{display:none}}
+  </style>
+  <span class="cpn-brand"><span class="cpn-dot"></span>Candidate Pathways &middot; prototype</span>
+  <span class="cpn-sep"></span>
+    <span class="cpn-group">Prospect</span>
+    <a href="prospect-dashboard.html">Home</a>
+    <a href="prospect-home.html">Training-Home</a>
+    <a href="values-flow.html">Training-Content</a>
+    <span class="cpn-sep"></span>
+    <span class="cpn-group">Coach</span>
+    <a href="coach-home.html">Home</a>
+    <a href="prospect-profile.html">Prospect Profile</a>
+  <script>(function(){
+    var b=(location.pathname.split('/').pop()||'').toLowerCase();
+    if(!b||b.indexOf('.')<0)b='coach-home.html';
+    document.querySelectorAll('#cp-proto-nav a').forEach(function(a){
+      if(a.getAttribute('href').toLowerCase()===b)a.classList.add('is-active');
+    });
+  })();</script>
+</div>
+<!-- CP-PROTOTYPE-NAV:end -->
+
+<div class="app">
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sb">
+    <div class="sb-logo">
+      <svg viewBox="0 0 100 100" aria-label="Build the Bench Oregon">
+        <circle cx="50" cy="50" r="48" fill="#fff" stroke="#2b2b2b" stroke-width="1.4"/>
+        <circle cx="50" cy="50" r="40.5" fill="none" stroke="#2b2b2b" stroke-width="0.7"/>
+        <defs>
+          <path id="topArc" d="M20,50 A30,30 0 0 1 80,50"/>
+          <path id="botArc" d="M22,50 A28,28 0 0 0 78,50"/>
+        </defs>
+        <text font-size="7.4" font-weight="700" letter-spacing="1.1" fill="#2b2b2b">
+          <textPath href="#topArc" startOffset="50%" text-anchor="middle">BUILD THE BENCH</textPath>
+        </text>
+        <text font-size="7.4" font-weight="700" letter-spacing="1.8" fill="#2b2b2b">
+          <textPath href="#botArc" startOffset="50%" text-anchor="middle">OREGON</textPath>
+        </text>
+        <g fill="#2b2b2b">
+          <path d="M50 33 L57 45 L52.5 45 L59 55 L41 55 L47.5 45 L43 45 Z"/>
+          <rect x="48.2" y="55" width="3.6" height="6"/>
+        </g>
+        <circle cx="31" cy="50" r="1.4" fill="#2b2b2b"/>
+        <circle cx="69" cy="50" r="1.4" fill="#2b2b2b"/>
+      </svg>
+    </div>
+
+    <nav class="sb-nav">
+      <a href="coach-home.html" class="active">Home</a>
+      <a href="prospect-profile.html">My Prospects</a>
+      <!-- Training is now a single link to the lessons page (Courses / Actions sub-items removed) -->
+      <a href="#">Training</a>
+      <a href="#">Elections</a>
+      <a href="#">Knowledge Base</a>
+      <a href="#">Members</a>
+      <a href="#">Coaching Tips</a>
+      <a href="#" style="margin-top:14px;">Profile</a>
+      <a href="#">Notifications</a>
+      <a href="#">Messages</a>
+    </nav>
+
+    <div class="sb-spacer"></div>
+    <div class="sb-foot">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms Of Use</a>
+      <a href="#" class="logout">Logout</a>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main class="main">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-row">
+        <div class="hero-left">
+          <div class="hero-title">League of Our Own MI2</div>
+          <div class="hero-sub">Coach</div>
+          <button class="send-invite">Send Invite</button>
+        </div>
+        <div class="hero-top">
+          <span class="hero-mail" aria-label="Messages">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+          </span>
+          <div class="hero-who"><div class="n">Leon Carter</div><div class="r">Coach</div></div>
+          <span class="hero-av">LC</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="content">
+
+      <!-- ===== ROW 1: My Prospects + Prospect Activity ===== -->
+      <div class="row-2">
+
+        <!-- My Prospects -->
+        <section class="card">
+          <h2>My Prospects</h2>
+          <table class="ptab">
+            <thead>
+              <tr>
+                <th>Name <span class="car">&#9650;</span></th>
+                <th>Progress</th>
+                <th>Last active</th>
+                <th>Engagement</th>
+                <th>Asked to run</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+
+              <!-- Stalled first -->
+              <tr>
+                <td>
+                  <div class="who-cell">
+                    <span class="av gray">RD</span>
+                    <div><div class="who-name">Rosa Delgado</div><div class="who-loc">Macomb County, Clinton Township</div></div>
+                  </div>
+                </td>
+                <td>
+                  <div class="prog-n">1 of 8</div>
+                  <div class="pbar"><i style="width:12.5%"></i></div>
+                </td>
+                <td class="lastact">5 weeks ago</td>
+                <td><span class="chip stalled"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Stalled</span></td>
+                <td><div class="ask-none">None</div></td>
+                <td>
+                  <div class="act-cell">
+                    <a class="msg-ico" href="#" aria-label="Message Rosa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2Z"/></svg></a>
+                    <a class="link" href="prospect-profile.html">View Profile</a>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Slowing next -->
+              <tr>
+                <td>
+                  <div class="who-cell">
+                    <span class="av gray">NP</span>
+                    <div><div class="who-name">Nina Patel</div><div class="who-loc">Wayne County, Detroit</div></div>
+                  </div>
+                </td>
+                <td>
+                  <div class="prog-n">3 of 8</div>
+                  <div class="pbar"><i style="width:37.5%"></i></div>
+                </td>
+                <td class="lastact">12 days ago</td>
+                <td><span class="chip slowing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v9l6 3"/><circle cx="12" cy="12" r="9"/></svg>Slowing</span></td>
+                <td>
+                  <div class="ask-office">Wayne County Treasurer</div>
+                  <div class="ask-status amber">Not This Time</div>
+                </td>
+                <td>
+                  <div class="act-cell">
+                    <a class="msg-ico" href="#" aria-label="Message Nina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2Z"/></svg></a>
+                    <a class="link" href="prospect-profile.html">View Profile</a>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Active last -->
+              <tr>
+                <td>
+                  <div class="who-cell">
+                    <span class="av blue">CW</span>
+                    <div><div class="who-name">Claire Watson</div><div class="who-loc">Belding</div></div>
+                  </div>
+                </td>
+                <td>
+                  <div class="prog-n">5 of 8</div>
+                  <div class="pbar"><i style="width:62.5%"></i></div>
+                </td>
+                <td class="lastact">2 days ago</td>
+                <td><span class="chip active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg>Active</span></td>
+                <td>
+                  <div class="ask-office">Ada Township Clerk</div>
+                  <div class="ask-status green">Asked To Run</div>
+                </td>
+                <td>
+                  <div class="act-cell">
+                    <a class="msg-ico" href="#" aria-label="Message Claire"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2Z"/></svg></a>
+                    <a class="link" href="prospect-profile.html">View Profile</a>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div class="who-cell">
+                    <span class="av blue">OP</span>
+                    <div><div class="who-name">Owen Price</div><div class="who-loc">Wayne County, Detroit</div></div>
+                  </div>
+                </td>
+                <td>
+                  <div class="prog-n">6 of 8</div>
+                  <div class="pbar"><i style="width:75%"></i></div>
+                </td>
+                <td class="lastact">Today</td>
+                <td><span class="chip active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg>Active</span></td>
+                <td>
+                  <div class="ask-office">Wayne County Treasurer</div>
+                  <div class="ask-status green">Accepted To Run</div>
+                </td>
+                <td>
+                  <div class="act-cell">
+                    <a class="msg-ico" href="#" aria-label="Message Owen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2Z"/></svg></a>
+                    <a class="link" href="prospect-profile.html">View Profile</a>
+                  </div>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+          <a class="viewall" href="#">View All</a>
+        </section>
+
+        <!-- Prospect Activity -->
+        <section class="card">
+          <h2>Prospect Activity</h2>
+          <div class="act">
+
+            <div class="act-item">
+              <div class="act-top">
+                <span class="act-av">RD</span>
+                <span class="act-name">Rosa Delgado</span>
+                <span class="act-date">09/22/2025</span>
+              </div>
+              <div class="act-verb">Completed &ldquo;Role of a State Representative&rdquo;</div>
+              <div class="act-bot">
+                <span class="act-cap">Candidate Foundations</span>
+                <a class="link" href="prospect-profile.html">View Profile</a>
+              </div>
+            </div>
+
+            <div class="act-item">
+              <div class="act-top">
+                <span class="act-av">OP</span>
+                <span class="act-name">Owen Price</span>
+                <span class="act-date">09/22/2025</span>
+              </div>
+              <div class="act-verb">Completed &ldquo;Role of a State Representative&rdquo;</div>
+              <div class="act-bot">
+                <span class="act-cap">Candidate Foundations</span>
+                <a class="link" href="prospect-profile.html">View Profile</a>
+              </div>
+            </div>
+
+            <!-- Updated election status kept as its own event type -->
+            <div class="act-item">
+              <div class="act-top">
+                <span class="act-av">JH</span>
+                <span class="act-name">Jamal Hayes</span>
+                <span class="act-date">09/21/2025</span>
+              </div>
+              <span class="act-tag">ELECTION STATUS</span>
+              <div class="act-verb" style="margin-top:5px;">Updated election status</div>
+              <div class="act-bot">
+                <span class="act-cap">Ada Township Clerk, Interested in Running</span>
+                <a class="link" href="prospect-profile.html">View Profile</a>
+              </div>
+            </div>
+
+            <div class="act-item">
+              <div class="act-top">
+                <span class="act-av">EN</span>
+                <span class="act-name">Elena Novak</span>
+                <span class="act-date">09/20/2025</span>
+              </div>
+              <div class="act-verb">Completed &ldquo;Prospect Readiness Questionnaire&rdquo;</div>
+              <div class="act-bot">
+                <span class="act-cap">Getting Started</span>
+                <a class="link" href="prospect-profile.html">View Profile</a>
+              </div>
+            </div>
+
+          </div>
+          <a class="viewall" href="#">View All</a>
+        </section>
+      </div>
+
+      <!-- ===== ROW 2: Announcements + Elections + Needs your attention ===== -->
+      <div class="row-3">
+
+        <!-- Announcements (unchanged) -->
+        <section class="card">
+          <h2>Announcements</h2>
+          <div class="ann">
+            <div class="ann-hd">
+              <div class="ann-title">Policy Circle Event Threat of China</div>
+              <div class="ann-date">June 13, 2023</div>
+            </div>
+            <div class="ann-body">The Policy Circle will discuss the threats of China Committee on China, and Dr. Helen Park, a foreign policy researcher. Stay tuned for more this month.</div>
+            <div class="ann-join">You can join by <a class="link" href="#">clicking here</a>.</div>
+            <div class="ann-show"><a class="link" href="#">Show All</a></div>
+          </div>
+          <div class="ann-peek">
+            <div class="ann-title">Join the Conversation</div>
+            <div class="ann-date">February 2, 2023</div>
+          </div>
+        </section>
+
+        <!-- Elections (unchanged) -->
+        <section class="card">
+          <h2>Elections</h2>
+          <div class="el-head"><span>Office</span><span>Election Date</span></div>
+
+          <div class="el-item">
+            <div>
+              <div class="el-office">State Representative District 79</div>
+              <div class="el-sub">State Election: Michigan, Kent County</div>
+              <div class="el-links"><a href="#">2 Prospects</a><a href="#">6 Scouts in area</a></div>
+            </div>
+            <div class="el-right"><div class="el-date">09/22/2025</div><div class="el-status">Open</div></div>
+          </div>
+
+          <div class="el-item">
+            <div>
+              <div class="el-office">Wilmette Precinct Committeemen Dist. 48</div>
+              <div class="el-sub">City Election: Illinois, Wilmette, Cook County</div>
+              <div class="el-links"><a href="#">2 Prospects</a><a href="#">6 Scouts in area</a></div>
+            </div>
+            <div class="el-right"><div class="el-date">09/22/2025</div><div class="el-status">Challenge</div></div>
+          </div>
+
+          <div class="el-item">
+            <div>
+              <div class="el-office">Wilmette Precinct Committeemen Dist. 48</div>
+              <div class="el-sub">City Election: Illinois, Wilmette, Cook County</div>
+              <div class="el-links"><a href="#">2 Prospects</a><a href="#">6 Scouts in area</a></div>
+            </div>
+            <div class="el-right"><div class="el-date">09/22/2025</div><div class="el-status">Challenge</div></div>
+          </div>
+
+          <a class="viewall" href="#">View All</a>
+        </section>
+
+        <!-- Prospect Readiness (list of prospects who need attention, same slot) -->
+        <section class="card">
+          <h2>Prospect Readiness</h2>
+
+          <div class="att-item">
+            <span class="att-dot" style="background:#898989"></span>
+            <div style="flex:1;min-width:0;">
+              <div class="att-name">Rosa Delgado</div>
+              <div class="att-reason" style="color:#797979">Stalled 5 weeks</div>
+            </div>
+            <a class="att-view" href="prospect-profile.html">View profile</a>
+          </div>
+
+          <div class="att-item">
+            <span class="att-dot" style="background:#DC6803"></span>
+            <div style="flex:1;min-width:0;">
+              <div class="att-name">Nina Patel</div>
+              <div class="att-reason" style="color:#DC6803">Slowing, quiet 12 days</div>
+            </div>
+            <a class="att-view" href="prospect-profile.html">View profile</a>
+          </div>
+
+          <div class="att-item">
+            <span class="att-dot" style="background:#DC6803"></span>
+            <div style="flex:1;min-width:0;">
+              <div class="att-name">Claire Watson</div>
+              <div class="att-reason" style="color:#DC6803">Questionnaire unanswered</div>
+            </div>
+            <a class="att-view" href="prospect-profile.html">View profile</a>
+          </div>
+
+          <div class="att-item">
+            <span class="att-dot" style="background:#3A5FAD"></span>
+            <div style="flex:1;min-width:0;">
+              <div class="att-name">Jamal Hayes</div>
+              <div class="att-reason" style="color:#3A5FAD">Election in 12 days</div>
+            </div>
+            <a class="att-view" href="prospect-profile.html">View profile</a>
+          </div>
+
+          <div class="att-item">
+            <span class="att-dot" style="background:#898989"></span>
+            <div style="flex:1;min-width:0;">
+              <div class="att-name">Elena Novak</div>
+              <div class="att-reason" style="color:#797979">Invited, never started</div>
+            </div>
+            <a class="att-view" href="prospect-profile.html">View profile</a>
+          </div>
+
+          <!-- Empty state (when nobody needs attention):
+               <div class="att-empty">Everyone&rsquo;s on track.</div> -->
+        </section>
+      </div>
+
+      <!-- ===== ROW 3: Resource Links + Upcoming Events ===== -->
+      <div class="row-res">
+
+        <!-- Resource Links (unchanged) -->
+        <section class="card">
+          <h2>Resource Links</h2>
+          <div class="res-item">
+            <div class="res-hd">
+              <div class="res-title">Video Testing</div>
+              <a class="res-ico" href="#" aria-label="Open link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></a>
+            </div>
+            <div class="res-sub">Testing Video Link</div>
+          </div>
+          <div class="res-item">
+            <div class="res-hd">
+              <div class="res-title">Understanding the Constitution</div>
+              <a class="res-ico" href="#" aria-label="Open link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></a>
+            </div>
+            <div class="res-body">The Constitution has been deeply debated since before its inception, and these debates continue today. If this democracy (i.e. constitutional republic) is going to work we all have to be active, educated players in the debate. To do so, knowing the origins and basics of the Constitution is essential. How did the founders develop the Constitution, and what does it cover? Who does it govern and how? What is its meaning today, and how does this relate to debates occurring in today's courts and civil society?</div>
+          </div>
+        </section>
+
+        <!-- Upcoming Events (unchanged) -->
+        <section class="card">
+          <h2>Upcoming Events</h2>
+          <div class="ue-wrap">
+            <div class="cal">
+              <div class="cal-top">
+                <div class="cal-title">June <span>2025</span></div>
+                <div class="cal-navs">
+                  <button class="cal-btn" aria-label="Previous month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m6 15 6-6 6 6"/></svg></button>
+                  <button class="cal-btn" aria-label="Next month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m6 9 6 6 6-6"/></svg></button>
+                </div>
+              </div>
+              <div class="cal-grid">
+                <div class="cal-dow">SUN</div><div class="cal-dow">MON</div><div class="cal-dow">TUE</div><div class="cal-dow">WED</div><div class="cal-dow">THU</div><div class="cal-dow">FRI</div><div class="cal-dow">SAT</div>
+                <div class="cal-day">01</div><div class="cal-day">02</div><div class="cal-day">03</div><div class="cal-day">04</div><div class="cal-day"><span class="today">05</span></div><div class="cal-day">06</div><div class="cal-day">07</div>
+                <div class="cal-day">08</div><div class="cal-day">09</div><div class="cal-day">10</div><div class="cal-day">11</div><div class="cal-day">12</div><div class="cal-day">13</div><div class="cal-day">14</div>
+                <div class="cal-day">15</div><div class="cal-day">16</div><div class="cal-day">17</div><div class="cal-day">18</div><div class="cal-day">19</div><div class="cal-day">20</div><div class="cal-day">21</div>
+                <div class="cal-day">22</div><div class="cal-day">23</div><div class="cal-day">24</div><div class="cal-day">25</div><div class="cal-day">26</div><div class="cal-day">27</div><div class="cal-day">28</div>
+                <div class="cal-day">29</div><div class="cal-day">30</div><div class="cal-day muted">01</div><div class="cal-day muted">02</div><div class="cal-day muted">03</div><div class="cal-day muted">04</div><div class="cal-day muted">05</div>
+              </div>
+            </div>
+            <div class="ue-empty">No upcoming events.</div>
+          </div>
+        </section>
+      </div>
+
+    </div>
+  </main>
+</div>
+<!-- CP-DEMO-NOTICE:start (shared: any dead link says "just a demo") -->
+<style>
+  #cp-demo{position:fixed;inset:0;z-index:2147483000;display:none;place-items:center;padding:16px;
+    background:rgba(21,20,26,.42);font-family:Avenir,Arial,Arimo,Helvetica,sans-serif}
+  #cp-demo.is-on{display:grid}
+  #cp-demo .cpd-card{width:100%;max-width:360px;background:#fff;border-radius:9px;padding:24px;
+    text-align:center;box-shadow:0 0 6px 0 rgba(0,0,0,.08)}
+  #cp-demo .cpd-t{font-size:18px;font-weight:900;color:#2B2B2B;letter-spacing:.005em}
+  #cp-demo .cpd-b{margin:8px 0 0;font-size:14px;line-height:1.5;color:#797979;font-weight:400}
+  #cp-demo .cpd-x{margin-top:20px;border:0;cursor:pointer;border-radius:999px;background:#3A5FAD;
+    color:#fff;padding:10px 20px;font-size:13px;font-weight:800;font-family:inherit}
+  #cp-demo .cpd-x:hover{filter:brightness(.95)}
+</style>
+<div id="cp-demo" role="dialog" aria-modal="true" aria-labelledby="cp-demo-title">
+  <div class="cpd-card">
+    <div class="cpd-t" id="cp-demo-title">Just a demo</div>
+    <p class="cpd-b"></p>
+    <button class="cpd-x" type="button">Got it</button>
+  </div>
+</div>
+<script>(function(){
+  var DEFAULT = 'This part of the prototype is not built yet.';
+  var el = document.getElementById('cp-demo');
+  var body = el.querySelector('.cpd-b');
+  function show(msg){ body.textContent = msg || DEFAULT; el.classList.add('is-on'); }
+  function hide(){ el.classList.remove('is-on'); }
+  el.addEventListener('click', function(e){ if (e.target === el) hide(); });
+  el.querySelector('.cpd-x').addEventListener('click', hide);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') hide(); });
+
+  // Any anchor that goes nowhere (href="#", empty, or opted in with data-demo)
+  // is a dead end in the prototype: say so instead of doing nothing.
+  document.addEventListener('click', function(e){
+    if (e.defaultPrevented) return;
+    var a = e.target.closest && e.target.closest('a,[data-demo]');
+    if (!a) return;
+    if (a.closest('#cp-proto-nav') || a.closest('#cp-demo')) return;  // internal nav + this dialog
+    var href = a.getAttribute('href');
+    var dead = a.hasAttribute('data-demo') || !href || href === '' || href.charAt(0) === '#'
+               || href.indexOf('javascript:') === 0;
+    if (!dead) return;
+    e.preventDefault();
+    show(a.getAttribute('data-demo'));
+  });
+})();</script>
+<!-- CP-DEMO-NOTICE:end -->
+</body>
+</html>

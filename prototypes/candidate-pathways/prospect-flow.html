@@ -1,0 +1,1252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Candidate Pathways - Guided Actions Flow</title>
+
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script>
+  Babel.registerPreset('react-classic', {
+    presets: [[Babel.availablePresets['react'], { runtime: 'classic' }]],
+  });
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+  // Same tokens as onboarding.html / index.html. Nothing new.
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Avenir', 'Avenir Next', 'Arial', 'Arimo', 'Helvetica', 'sans-serif'] },
+        colors: {
+          azure:'#3A5FAD', orient:'#00567E', cornflower:'#5873FA', periwinkle:'#CDD7EA',
+          pigeon:'#B4C2DF', apple:'#30BC36', appledark:'#30BC36', bpurple:'#7F56D9',
+          warning:'#DC6803', error:'#D92D20', woodsmoke:'#15141A', mineshaft:'#2B2B2B',
+          boulder:'#797979', dusty:'#9B9B9B', silver:'#BDBDBD', alto:'#D5D5D5',
+          mercury:'#E5E5E5', concrete:'#F2F2F2', porcelain:'#F8FAFA',
+        },
+      },
+    },
+  };
+</script>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Arimo:wght@400;700&display=swap');
+  /* Polish treatment (full-screen guided flow): porcelain + faint brand dot grid. */
+  html, body {
+    background-color: #F8FAFA;
+    background-image: radial-gradient(circle at 1px 1px, rgba(58,95,173,0.055) 1px, transparent 0);
+    background-size: 22px 22px;
+  }
+  * { -webkit-font-smoothing: antialiased; }
+
+  /* dot grid lives on html,body; this hook is kept for markup compatibility. */
+  .grid-bg { }
+
+  /* Restrained motion set (style guide section 7). All honor reduced-motion below. */
+  .step-in { animation: stepIn .34s cubic-bezier(.16,.84,.44,1) both; }
+  @keyframes stepIn { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
+  .fade-in { animation: fadeIn .24s ease both; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
+  .pop { animation: pop .5s cubic-bezier(.16,.84,.44,1) both; }
+  @keyframes pop { 0% { transform:scale(.9); opacity:0; } 100% { transform:scale(1); opacity:1; } }
+  .ring-pulse { animation: ringPulse 2.2s ease-in-out infinite; }
+  @keyframes ringPulse { 0%,100% { box-shadow:0 0 0 0 rgba(58,95,173,.28); } 50% { box-shadow:0 0 0 6px rgba(58,95,173,0); } }
+  .blink { animation: none; }
+  /* wrapped-line reveal: each line rises + fades as it mounts. */
+  .line-mask { display: block; overflow: hidden; }
+  .line-rise { display: block; animation: lineRise .55s cubic-bezier(.16,.84,.44,1) both; }
+  @keyframes lineRise { from { opacity:0; transform:translateY(100%); } to { opacity:1; transform:none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .step-in, .fade-in, .pop, .ring-pulse, .line-rise { animation: none; }
+  }
+  /* celebration: a one-shot (non-looping) confetti burst on the completion screen. */
+  .confetti { position: fixed; inset: 0; z-index: 60; overflow: hidden; pointer-events: none; }
+  .confetti i {
+    position: absolute; top: -14px; display: block;
+    animation: confettiFall 2.6s cubic-bezier(.3,.6,.4,1) forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-12vh) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(112vh) rotate(720deg); opacity: 0; }
+  }
+  .badge-pop { animation: pop .5s cubic-bezier(.16,.84,.44,1) both; }
+  .ring-burst { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .confetti { display: none; }
+    .badge-pop, .ring-burst { animation: none; }
+  }
+  /* AI / smart surfaces: blue-to-purple gradient border (padding-box / border-box). */
+  .ai-border {
+    background:
+      linear-gradient(#fff,#fff) padding-box,
+      linear-gradient(135deg,#3A5FAD,#5873FA 55%,#7F56D9) border-box;
+    border: 1px solid transparent;
+  }
+</style>
+</head>
+
+<body class="grid-bg text-mineshaft font-sans">
+<!-- CP-PROTOTYPE-NAV:start -->
+<div id="cp-proto-nav" role="navigation" aria-label="Prototype navigator">
+  <style>
+    #cp-proto-nav{position:fixed;top:0;left:0;right:0;z-index:2147483647;display:flex;align-items:center;gap:12px;height:42px;padding:0 14px;
+      background:#0b0e14;color:#e5e9f0;border-bottom:1px solid #232a36;
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;line-height:1;
+      overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+    #cp-proto-nav::-webkit-scrollbar{display:none}
+    body.cp-nav-on{padding-top:42px}
+    body.cp-nav-on #root .fixed.inset-0{top:42px}
+    #cp-proto-nav .cpn-brand{flex:0 0 auto;display:flex;align-items:center;gap:8px;
+      text-transform:uppercase;letter-spacing:.14em;font-size:10px;font-weight:700;color:#7d8799}
+    #cp-proto-nav .cpn-dot{width:7px;height:7px;border-radius:50%;background:#f0b429;
+      box-shadow:0 0 0 3px rgba(240,180,41,.18)}
+    #cp-proto-nav .cpn-sep{flex:0 0 auto;width:1px;height:18px;background:#2a3140}
+    #cp-proto-nav a{flex:0 0 auto;text-decoration:none;color:#c3cad6;padding:5px 11px;
+      border-radius:999px;border:1px solid transparent;
+      transition:background .12s ease,color .12s ease}
+    #cp-proto-nav a:hover{background:#1a2130;color:#fff}
+    #cp-proto-nav a.is-active{background:#f0b429;color:#0b0e14;font-weight:700}
+    @media print{#cp-proto-nav{display:none}}
+  </style>
+  <span class="cpn-brand"><span class="cpn-dot"></span>Candidate Pathways &middot; prototype</span>
+  <span class="cpn-sep"></span>
+    <a href="prospect-dashboard.html">Prospect Home</a>
+    <a href="prospect-home.html">Campaign Pathway</a>
+    <a href="values-flow.html">Values Flow</a>
+    <a href="prospect-profile.html">Prospect Profile</a>
+  <script>(function(){
+    var nav=document.getElementById('cp-proto-nav');
+    // Show the internal navigator even when embedded (e.g. the live subdomain iframe),
+    // so the team can navigate the whole prototype from the live URL.
+    document.body.classList.add('cp-nav-on');
+    var b=(location.pathname.split('/').pop()||'').toLowerCase();
+    if(!b||b.indexOf('.')<0)b='prospect-dashboard.html';
+    document.querySelectorAll('#cp-proto-nav a').forEach(function(a){
+      if(a.getAttribute('href').toLowerCase()===b)a.classList.add('is-active');
+    });
+  })();</script>
+</div>
+<!-- CP-PROTOTYPE-NAV:end -->
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react-classic">
+const { useState, useEffect, useLayoutEffect, useRef, useMemo } = React;
+
+/* ------------------------------- icons ---------------------------------- */
+const Icon = ({ d, size = 20, stroke = 1.75, fill = 'none', cls = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="currentColor"
+       strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" className={cls}>{d}</svg>
+);
+const I = {
+  arrowRight:<Icon d={<><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></>} />,
+  arrowLeft: <Icon d={<><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></>} />,
+  check:     <Icon d={<path d="M20 6 9 17l-5-5"/>} />,
+  x:         <Icon d={<path d="M18 6 6 18M6 6l12 12"/>} />,
+  play:      <Icon d={<path d="m5 3 14 9-14 9z"/>} fill="currentColor" stroke="none" />,
+  film:      <Icon d={<><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 3v18M17 3v18M3 12h18M3 7.5h4M3 16.5h4M17 7.5h4M17 16.5h4"/></>} />,
+  sparkles:  <Icon d={<path d="M9.94 14.34 12 21l2.06-6.66L21 12l-6.94-2.34L12 3 9.94 9.66 3 12z"/>} />,
+  target:    <Icon d={<><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></>} />,
+  bookmark:  <Icon d={<path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>} />,
+  clock:     <Icon d={<><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></>} />,
+  copy:      <Icon d={<><rect width="13" height="13" x="9" y="9" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></>} />,
+  landmark:  <Icon d={<><path d="M3 22h18M6 18V11M10 18V11M14 18V11M18 18V11M12 2 21 8H3z"/></>} />,
+  rocket:    <Icon d={<><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></>} />,
+  save:      <Icon d={<><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7H7v7M7 3v4h8"/></>} />,
+  mapPin:    <Icon d={<><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></>} />,
+  calendar:  <Icon d={<><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></>} />,
+  dollar:    <Icon d={<><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></>} />,
+  fileCheck: <Icon d={<><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h5M9 15l2 2 4-4"/></>} />,
+  users:     <Icon d={<><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></>} />,
+  penTool:   <Icon d={<><path d="m12 19 7-7 3 3-7 7-3-3z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="m2 2 7.586 7.586"/><circle cx="11" cy="11" r="2"/></>} />,
+};
+
+/* --------------------------- the user's profile -------------------------- */
+/* onboarding.html writes its answers here. We read the same key, so whatever
+   the prospect told us about location, office, and timeline flows straight in.
+   Falls back to a persona when someone lands here without onboarding first. */
+const ONBOARDING_LS = 'cp-onboarding-v1';
+const FALLBACK_PROFILE = {
+  name: 'Sarah', status: 'preparing',
+  location: { city: 'Las Vegas', county: 'Clark County', state: 'NV' },
+  level: 'Statewide', office: 'Treasurer', timeline: '2026-03-13',
+  worries: ['fundraising', 'compliance'],
+};
+function loadProfile() {
+  try {
+    const raw = localStorage.getItem(ONBOARDING_LS);
+    const a = raw && JSON.parse(raw).answers;
+    if (a && a.location && a.location.city) return { ...FALLBACK_PROFILE, ...a };
+  } catch (e) {}
+  return FALLBACK_PROFILE;
+}
+
+const TODAY = '2026-01-10'; // demo clock, matches onboarding.html
+const toDate = (iso) => { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d); };
+const daysBetween = (a, b) => Math.round((toDate(b) - toDate(a)) / 86400000);
+const prettyDate = (iso) => toDate(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+
+/* Same filing table onboarding.html reasons over. */
+const FILING_DEADLINES = [
+  { state: 'NV', office: 'Treasurer',                     iso: '2026-03-13' },
+  { state: 'NV', office: 'State Senate',                  iso: '2026-03-13' },
+  { state: 'CA', office: 'State Assembly',                iso: '2026-03-06' },
+  { state: 'CA', office: 'U.S. House of Representatives', iso: '2026-03-06' },
+  { state: 'FL', office: 'Mayor',                         iso: '2026-06-12' },
+  { state: 'TX', office: 'State Senate',                  iso: '2026-12-14' },
+  { state: 'AZ', office: 'County Commissioner',           iso: '2026-04-06' },
+  { state: 'CO', office: 'Governor',                      iso: '2026-08-25' },
+  { state: 'OR', office: 'Mayor',                         iso: '2026-08-25' },
+];
+
+/* Stand-in for the civic-data lookup a real build would hit (polling places,
+   county clerk, party offices). Known cities get real-looking specifics;
+   anything else is derived from the county so the copy never goes generic. */
+const CIVIC = {
+  'Las Vegas':     { poll: 'Sunset Park Community Center',   pollAddr: '2601 E Sunset Rd',        hq: 'Clark County Party HQ, 3900 Meadows Ln' },
+  'Henderson':     { poll: 'Whitney Recreation Center',      pollAddr: '5712 Missouri Ave',       hq: 'Henderson Field Office, 240 Water St' },
+  'Sacramento':    { poll: 'Coloma Community Center',        pollAddr: '4623 T St',               hq: 'Sacramento Organizing Hub, 1119 K St' },
+  'Denver':        { poll: 'Barnum Recreation Center',       pollAddr: '360 Hooker St',           hq: 'Denver Party Office, 789 Sherman St' },
+  'Portland':      { poll: 'Multnomah County Elections',     pollAddr: '1040 SE Morrison St',     hq: 'Portland Volunteer Center, 2828 SE Taylor' },
+  'Austin':        { poll: 'Carver Branch Library',          pollAddr: '1161 Angelina St',        hq: 'Travis County Field Office, 1704 E 12th' },
+  'Miami':         { poll: 'Coral Gables Branch Library',    pollAddr: '3443 Segovia St',         hq: 'Miami-Dade Party HQ, 1400 NW 107th Ave' },
+  'Phoenix':       { poll: 'Burton Barr Central Library',    pollAddr: '1221 N Central Ave',      hq: 'Maricopa Field Office, 5150 N 16th St' },
+};
+function civic(p) {
+  const c = CIVIC[p.location.city] || {};
+  return {
+    poll:     c.poll     || `${p.location.city} Community Center`,
+    pollAddr: c.pollAddr || `Main St, ${p.location.city}`,
+    hq:       c.hq       || `${p.location.county} party headquarters`,
+    clerk:    `${p.location.county} Clerk's Office`,
+  };
+}
+
+/* Per-individual contribution ceiling. 0 means the state sets no statutory cap. */
+const CAPS = { NV: 10000, CA: 5500, TX: 0, FL: 1000, AZ: 5300, CO: 400, OR: 0, GA: 3300 };
+const capLabel = (st) => (CAPS[st] ? `$${CAPS[st].toLocaleString()} per individual, per election` : 'No statutory per-donor cap in this state');
+
+/* Signatures needed to reach the ballot, by seat. */
+const SIGS = { 'U.S. House of Representatives': 1000, 'Governor': 1500, 'State Senate': 500, 'State Assembly': 500, 'Treasurer': 250, 'Mayor': 200, 'City Council': 100, 'School Board': 50, 'County Commissioner': 300 };
+const sigsFor = (office) => SIGS[office] || 300;
+
+function deadlineFor(p) {
+  const row = FILING_DEADLINES.find((r) => r.state === p.location.state && r.office === p.office);
+  const iso = (row && row.iso) || p.timeline || null;
+  if (!iso) return { iso: null, days: null, pretty: null };
+  return { iso, days: daysBetween(TODAY, iso), pretty: prettyDate(iso) };
+}
+
+/* Token substitution for the drafts. Keeps the copy in the content model
+   instead of scattering profile lookups through the components. */
+function fill(str, p) {
+  const c = civic(p), d = deadlineFor(p);
+  return str
+    // whole sentences that only make sense with a known filing date
+    .replace(/\{\{if:deadline\}\}([\s\S]*?)\{\{\/if\}\}/g, d.iso ? '$1' : '')
+    .replace(/[ \t]{2,}/g, ' ')
+    .replace(/\{name\}/g, p.name)
+    .replace(/\{city\}/g, p.location.city)
+    .replace(/\{county\}/g, p.location.county)
+    .replace(/\{state\}/g, p.location.state)
+    .replace(/\{office\}/g, p.office || 'your seat')
+    .replace(/\{poll\}/g, c.poll)
+    .replace(/\{pollAddr\}/g, c.pollAddr)
+    .replace(/\{hq\}/g, c.hq)
+    .replace(/\{clerk\}/g, c.clerk)
+    .replace(/\{cap\}/g, capLabel(p.location.state))
+    .replace(/\{sigs\}/g, String(sigsFor(p.office)))
+    .replace(/\{sigTarget\}/g, String(Math.round(sigsFor(p.office) * 1.5)))
+    .replace(/\{deadline\}/g, d.pretty || 'your filing date')
+    .replace(/\{days\}/g, d.days == null ? 'some' : String(d.days));
+}
+
+/* --------------------------- content model ------------------------------- */
+/* Same 8 phases and the same action items as index.html's DEFAULT_SECTIONS.
+   Each phase gains two prospect-facing beats the cinematic flow needs:
+   `prompt` (the "Have you ever..." opener) and `why` (the AI sentence).
+   Courses collapse into the phase's single video. */
+const SECTIONS = [
+  {
+    id: 'explore', no: 1, phase: 'Know Your Values',
+    prompt: 'Have you ever talked to your family about running for office?',
+    why: 'Because you told us you are still deciding, the honest conversations come first. Candidates who square this with the people closest to them before filing are the ones who make it through a hard October.',
+    video: { title: 'Should You Run? The Honest Checklist', len: '10:00', kicker: 'Course' },
+    actions: [
+      { id: 'ex-family', title: 'Have the Family Conversation', desc: 'The conversation everyone skips. Do it first, on purpose.', time: '~1 hr',
+        context: (p) => [
+          deadlineFor(p).iso && { icon: I.calendar, label: 'Your filing date', value: `{deadline}, which is {days} days out` },
+          { icon: I.clock, label: 'What you are asking of them', value: 'About 15 hours a week through the spring' },
+        ],
+        helper: 'Draft a conversation opener', draft: `"I have been thinking about running for {office} here in {city}. Before I do anything else, I want to talk it through with you, because it changes our year, not just mine.
+
+Here is what I think it would take: about fifteen hours a week through the spring, some weekends knocking doors, and my name in the paper.{{if:deadline}} Filing closes {deadline}, so I need to decide inside the next {days} days.{{/if}}
+
+I do not need an answer tonight. I need to know what worries you."` },
+      { id: 'ex-vol', title: 'Volunteer on One Local Campaign', desc: 'See the work up close before you sign up for it.', time: '~4 hrs',
+        context: (p) => [
+          { icon: I.mapPin, label: 'Closest polling place', value: `{poll}, {pollAddr}` },
+          { icon: I.users,  label: 'Nearest campaign office', value: `{hq}` },
+          { icon: I.fileCheck, label: 'Who runs elections here', value: `{clerk}` },
+        ],
+        helper: 'Draft an outreach email', draft: `Subject: Volunteer for the final push
+
+Hi [Campaign Manager],
+
+I live in {city}, in {county}, and I would like to help. I have four hours this Saturday and I am happy to do whatever is least glamorous: data entry, doors, phones.
+
+I am told you run poll coverage out of {poll}. I can be there, or wherever you are shortest.
+
+I am also weighing a run of my own for {office}, so I want to see the work from the inside before I ask anyone to do it for me.
+
+Where should I show up?
+
+{name}` },
+    ],
+  },
+  {
+    id: 'district', no: 2, phase: 'Know Your District & Issues',
+    prompt: 'Have you ever looked up how your district actually voted?',
+    why: 'You are running for {office} in {county}, a district that swung nine points in the last cycle. Knowing who moved and why is the difference between a message that lands and one that echoes.',
+    video: { title: 'Reading Your District', len: '14:00', kicker: 'Course' },
+    actions: [
+      { id: 'di-issues', title: 'Map the Top 3 Local Issues', desc: 'Name the fights that actually move your voters.', time: '45 min',
+        context: (p) => [
+          { icon: I.mapPin,    label: 'Your district', value: `{county}, {state}` },
+          { icon: I.fileCheck, label: 'Records to pull', value: `Precinct results from {clerk}` },
+        ],
+        helper: 'Pull the top issues for your district', draft: `Based on {county}'s last three cycles and local coverage:
+
+1. Property taxes. Reassessments hit the north precincts hardest. This is the doorstep issue.
+2. School capacity. Two elementaries are over enrollment. Parents organize on this.
+3. Water infrastructure. A slow burn, but the bond vote failed twice. People are watching.
+
+Your opening line at a door should name one of these in the first ten seconds.` },
+    ],
+  },
+  {
+    id: 'brand', no: 3, phase: 'Build Your Presence & Brand',
+    prompt: 'Have you ever had to describe yourself in thirty seconds?',
+    why: 'Your background is unusual for this seat, which is an asset if you can say it in one breath. Most first-time candidates lose the room by minute two.',
+    video: { title: 'Your Story in 30 Seconds', len: '8:00', kicker: 'Course' },
+    actions: [
+      { id: 'a-personal', title: 'Write Your Two-Line Bio', desc: 'The version you would say out loud at a door. AI can tighten it.', time: '20 min',
+        context: (p) => [
+          { icon: I.mapPin, label: 'Where you are running', value: `{city}, {county}` },
+          { icon: I.target, label: 'The seat', value: `{office}` },
+        ],
+        helper: 'Draft your two-line bio', draft: `I have lived in {city} for eleven years, raised two kids in its schools, and spent a decade fixing supply chains that other people gave up on.
+
+I am running for {office} because the same problems I solved for a living are sitting unsolved in {county}.` },
+      { id: 'a-social', title: 'Claim Your Social Handles', desc: 'Same name across every platform before someone else takes it.', time: '25 min',
+        context: (p) => [
+          { icon: I.users, label: 'Suggested handle', value: `@{name}For{state}` },
+        ],
+        helper: 'Check handle availability', draft: `Recommended handle: @{name}For{state}
+
+Available:
+  X / Twitter        available
+  Instagram          available
+  Facebook Page      available
+  Bluesky            available
+  TikTok             taken, try @{name}For{state}Official
+
+Claim all five today, even the ones you will not use. Reclaiming a squatted handle takes weeks.` },
+    ],
+  },
+  {
+    id: 'fund', no: 4, phase: 'Fundraising',
+    prompt: 'Have you ever asked someone for money, out loud, for something you believe in?',
+    why: '{state} allows {cap}, so your first ten calls matter more than your next hundred. Members who bank early money file calm instead of scrambling.',
+    video: { title: 'Fundraising Fundamentals', len: '12:00', kicker: 'Course' },
+    actions: [
+      { id: 'a-seed', title: 'Call 10 Seed Donors', desc: 'Your first ten calls set the tone for the quarter.', time: '~2 hrs',
+        context: (p) => [
+          { icon: I.dollar, label: `{state} contribution limit`, value: `{cap}` },
+          deadlineFor(p).iso && { icon: I.calendar, label: 'Report these before', value: `{deadline}, {days} days out` },
+          { icon: I.fileCheck, label: 'File with', value: `{clerk}` },
+        ],
+        helper: 'Generate a compliant call script', draft: `Hi [Donor Name], this is {name} calling from the campaign. I am reaching out personally to a small group of founding supporters before our public launch.
+
+We are building toward{{if:deadline}} the filing deadline on {deadline}, and{{/if}} an early contribution from you would help us hit the threshold that unlocks our field program. Would you be able to commit at the individual cap today?
+
+(Compliance note: {state} allows {cap}. Confirm {state} residency and log the gift to the candidate committee.)` },
+      { id: 'a-asks', title: 'Draft Your Ask Script', desc: 'Write the close before you dial. Name the number, then pause.', time: '30 min',
+        context: (p) => [
+          { icon: I.dollar, label: 'The number you will name', value: `{cap}` },
+        ],
+        helper: 'Draft the close', draft: `"I am asking you for the individual maximum, which in {state} is {cap}."
+
+Then stop talking. Count to five in your head. Do not fill the silence, do not soften the number, do not offer a smaller amount before they do.
+
+If they counter, take the counter and thank them. If they say yes, confirm the method on the call and log it the same day.` },
+    ],
+  },
+  {
+    id: 'skills', no: 5, phase: 'Core Campaign Skills',
+    prompt: 'Have you ever knocked on a stranger’s door and asked for their vote?',
+    why: 'Twenty-five doors will teach you more about your message than twenty-five hours of strategy. You said name recognition worries you. This is the only cure.',
+    video: { title: 'Message Discipline', len: '15:00', kicker: 'Course' },
+    actions: [
+      { id: 'a-voter', title: 'Knock 25 Doors', desc: 'The rep that teaches everything else. Track the conversations.', time: '~3 hrs',
+        context: (p) => [
+          { icon: I.mapPin, label: 'Start in', value: `The highest-turnout {county} precincts` },
+          deadlineFor(p).iso && { icon: I.calendar, label: 'Days until filing', value: `{days}` },
+        ],
+        helper: 'Draft your door script', draft: `"Hi, I'm {name}. I'm running for {office} here in {county}, and I'm not going to keep you.
+
+I'm asking everyone the same thing: what is the one thing about living here that you wish somebody would fix?"
+
+Listen. Do not pitch. Write down the answer.
+
+Close: "That helps. I'll be back through before November."` },
+      { id: 'sk-stump', title: 'Record Your Stump Speech', desc: 'Two minutes, one take, phone camera. We review it together.', time: '30 min',
+        helper: 'Outline the two minutes', draft: `0:00  Name, district, one sentence about why you live here.
+0:15  The moment you decided to run. Be specific. One scene, not a summary.
+0:45  The three things you will do. Name them plainly.
+1:30  What you are asking for today.
+1:50  Say your name again.
+
+Film it in one take. Do not script it word for word, or your face will go flat.` },
+    ],
+  },
+  {
+    id: 'ballot', no: 6, phase: 'Get Ready & Get on the Ballot',
+    prompt: 'Have you ever collected signatures for anything?',
+    why: '{{if:deadline}}Your filing deadline is {days} days out, and {{/if}}{office} needs {sigs} valid signatures. The math punishes anyone who collects exactly the minimum.',
+    video: { title: 'Ballot Access, Step by Step', len: '12:00', kicker: 'Course' },
+    actions: [
+      { id: 'bl-sign', title: 'Collect Your Signatures', desc: 'Hit the threshold with a cushion. Track pages as they come in.', time: '~1 wk',
+        context: (p) => [
+          { icon: I.penTool, label: `Valid signatures for {office}`, value: `{sigs} required, collect {sigTarget}` },
+          deadlineFor(p).iso && { icon: I.calendar, label: 'Filing closes', value: `{deadline}, {days} days out` },
+          { icon: I.mapPin, label: 'Best collection spot near you', value: `{poll}, {pollAddr}` },
+        ],
+        helper: 'Build the signature plan', draft: `Requirement for {office} in {state}: {sigs} valid. Target: {sigTarget} collected.
+
+Expect a 20 to 30 percent invalidation rate. Wrong district, unregistered, illegible.
+
+Week 1  Farmers market, two Saturdays.
+Week 2  Door canvass in the highest-turnout {county} precincts.
+Week 3  {poll} and the public library.
+Week 4  Validate with {clerk}, then file. Do not file on the last day.{{if:deadline}}
+
+Filing closes {deadline}. You have {days} days.{{/if}}` },
+    ],
+  },
+  {
+    id: 'run', no: 7, phase: 'Run the Campaign',
+    prompt: 'Have you ever had to say something hard in public, fast?',
+    why: 'Every campaign has one bad week. The ones that survive it wrote the plan before they needed it, when nobody was panicking.',
+    video: { title: 'Launch Week Playbook', len: '16:00', kicker: 'Course' },
+    actions: [
+      { id: 'rn-crisis', title: 'Draft Your Crisis Plan', desc: 'One page: who speaks, what you say, how fast. Before you need it.', time: '40 min',
+        helper: 'Draft the one-pager', draft: `WHO SPEAKS
+  You, on the record. Nobody else. Your manager handles logistics only.
+
+FIRST HOUR
+  Confirm the facts internally before you say anything externally.
+  Silence for sixty minutes is survivable. A wrong statement is not.
+
+THE HOLDING STATEMENT
+  "I have seen the report. I am looking into it, and I will have more to say
+   by [specific time]. I am not going to speculate before then."
+
+THEN
+  Say the specific thing at the specific time. Every time you slip that
+  deadline, the story gets one more day.` },
+      { id: 'rn-gotv', title: 'Build Your GOTV List', desc: 'Know exactly who you are turning out before the last weekend.', time: '~2 hrs',
+        helper: 'Segment the list', draft: `Tier 1  Supporters who vote every cycle. Do not spend on them, just remind them.
+Tier 2  Supporters who vote sometimes. This is your entire GOTV budget.
+Tier 3  Undecided, high propensity. Persuasion, not turnout. Different script.
+
+Ignore Tier 4. Do not spend the last weekend convincing people who will not show up.` },
+    ],
+  },
+  {
+    id: 'after', no: 8, phase: 'After the Election',
+    prompt: 'Have you ever thanked everyone who helped you, by name?',
+    why: 'Win or lose, the relationships outlast the race. The candidates who run twice are the ones who closed the first one clean.',
+    video: { title: 'Staying Engaged After Election Day', len: '9:00', kicker: 'Course' },
+    actions: [
+      { id: 'af-thanks', title: 'Send Thank-You Notes', desc: 'Every volunteer, every donor. Win or lose, this is the follow-through.', time: '~2 hrs',
+        helper: 'Draft the note', draft: `[Name],
+
+You knocked doors in the rain for me in October. I have not forgotten which house you were standing in front of when you called to say you were out of literature.
+
+Whatever happens next, I am glad you were in it.
+
+Sarah` },
+      { id: 'af-report', title: 'File Your Final Report', desc: 'Close the books clean so the next race starts clean.', time: '~1 hr',
+        helper: 'Build the closeout checklist', draft: `1. Reconcile the committee account against every logged contribution.
+2. Resolve any over-the-limit gifts. Refund or reattribute, then document both.
+3. Zero out vendor invoices. An open invoice is an in-kind contribution.
+4. File the final report inside the window. Late is a fine, not a footnote.
+5. Keep the records seven years. You will want them if you run again.` },
+    ],
+  },
+];
+
+/* ------------------------- step-list construction ------------------------ */
+/* One screen at a time. Every section expands into the same beat sequence:
+   title -> "have you ever" -> why it matters -> video -> one screen per action. */
+function buildSteps(sections) {
+  const steps = [];
+  sections.forEach((s) => {
+    steps.push({ kind: 'title',    section: s });
+    steps.push({ kind: 'prompt',   section: s });
+    steps.push({ kind: 'why',      section: s });
+    steps.push({ kind: 'video',    section: s });
+    s.actions.forEach((a) => steps.push({ kind: 'action', section: s, action: a }));
+    steps.push({ kind: 'sectionDone', section: s });
+  });
+  steps.push({ kind: 'done' });
+  return steps;
+}
+const STEPS = buildSteps(SECTIONS);
+
+/* ------------------------------ UI atoms -------------------------------- */
+const PrimaryBtn = ({ children, onClick, disabled }) => (
+  <button onClick={onClick} disabled={disabled}
+    className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-extrabold text-white transition ${
+      disabled ? 'cursor-not-allowed bg-silver' : 'bg-[linear-gradient(to_right,#3A5FAD,#5873FA)]'}`}>
+    {children}
+  </button>
+);
+const GhostBtn = ({ children, onClick }) => (
+  <button onClick={onClick}
+    className="inline-flex items-center gap-2 rounded-full border border-mercury bg-white px-5 py-2.5 text-sm font-extrabold text-boulder transition hover:text-mineshaft">
+    {children}
+  </button>
+);
+const Kicker = ({ children }) => (
+  <div className="mb-2 text-[12px] font-extrabold uppercase tracking-[0.14em] text-dusty">{children}</div>
+);
+
+/* Reveal a paragraph one wrapped line at a time, each rising off its baseline.
+   Wrapped lines do not exist until layout runs, so this goes in two passes:
+   render invisible word spans, group them by offsetTop to find the real break
+   points, then re-render those lines as masked rows with a staggered rise.
+   Re-measures on resize so a reflow never leaves a line stranded mid-mask. */
+const LINE_STAGGER = 95;   // ms between line starts
+const LINE_DURATION = 660; // must match .line-rise
+
+function RevealLines({ text, cls, onDone }) {
+  const hostRef = useRef(null);
+  const measureRef = useRef(null);
+  const measuredW = useRef(0);   // container width the current lines were measured at
+  const settled = useRef(false); // has the rise already finished once
+  const [lines, setLines] = useState(null);
+  const [tick, setTick] = useState(0);
+  const [animate, setAnimate] = useState(true);
+
+  // Nothing may be measured until the webfont has landed and one frame has
+  // painted. Tailwind's CDN injects its stylesheet after first render, so an
+  // eager measure sizes the text against a container that has no max-width yet
+  // and every wrapped line comes out far too long.
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    let live = true;
+    const paint = () => requestAnimationFrame(() => requestAnimationFrame(() => { if (live) setReady(true); }));
+    if (document.fonts && document.fonts.status !== 'loaded') document.fonts.ready.then(paint);
+    else paint();
+    return () => { live = false; };
+  }, []);
+
+  // new text: measure again, and animate it in
+  useLayoutEffect(() => { setLines(null); setAnimate(true); settled.current = false; }, [text]);
+
+  // pass 1: group words into their real wrapped lines by offsetTop. Bails when
+  // the element has no layout (hidden tab, zero width) since measuring then
+  // would put every word on its own line.
+  useLayoutEffect(() => {
+    if (lines || !ready) return;
+    const el = measureRef.current;
+    if (!el || !el.offsetWidth) return;   // the observer below retries
+    const words = Array.from(el.querySelectorAll('[data-w]'));
+    if (!words.length) return;
+    measuredW.current = el.offsetWidth;
+    const rows = [];
+    let top = null;
+    words.forEach((w) => {
+      if (top === null || Math.abs(w.offsetTop - top) > 2) { rows.push([]); top = w.offsetTop; }
+      rows[rows.length - 1].push(w.textContent.trim());
+    });
+    setLines(rows.map((r) => r.join(' ')));
+  });
+
+  // Width watcher, live for the whole component. Before the first measure it
+  // pokes the attempt above; after it, any width change invalidates the wrap
+  // points and forces a re-measure.
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!host || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => {
+      const w = host.clientWidth;
+      if (!w) return;
+      if (!lines) { setTick((t) => t + 1); return; }
+      if (Math.abs(w - measuredW.current) > 1) {
+        if (settled.current) setAnimate(false);   // a resize must not replay the rise
+        setLines(null);
+      }
+    });
+    ro.observe(host);
+    return () => ro.disconnect();
+  }, [lines]);
+
+  // hand control back once the last line has landed
+  useEffect(() => {
+    if (!lines || !onDone) return;
+    if (!animate) { settled.current = true; onDone(); return; }
+    const total = (lines.length - 1) * LINE_STAGGER + LINE_DURATION;
+    const t = setTimeout(() => { settled.current = true; onDone(); }, total);
+    return () => clearTimeout(t);
+  }, [lines, animate]);
+
+  return (
+    <div ref={hostRef}>
+      {!lines ? (
+        <p ref={measureRef} key={tick} className={cls} aria-hidden="true" style={{ visibility: 'hidden' }}>
+          {text.split(' ').map((w, i) => <span key={i} data-w>{w} </span>)}
+        </p>
+      ) : (
+        <p className={cls} aria-label={text}>
+          {lines.map((ln, i) => (
+            <span key={i} className="line-mask" aria-hidden="true">
+              <span className={animate ? 'line-rise' : 'block'}
+                    style={animate ? { animationDelay: `${i * LINE_STAGGER}ms` } : undefined}>{ln}</span>
+            </span>
+          ))}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/* stream a string in, character by character */
+function useStream(text, on, speed = 12, chunk = 2) {
+  const [out, setOut] = useState('');
+  const [running, setRunning] = useState(false);
+  useEffect(() => {
+    if (!on) { setOut(''); setRunning(false); return; }
+    setOut(''); setRunning(true);
+    let i = 0;
+    const t = setInterval(() => {
+      i += chunk;
+      setOut(text.slice(0, i));
+      if (i >= text.length) { clearInterval(t); setRunning(false); }
+    }, speed);
+    return () => clearInterval(t);
+  }, [text, on]);
+  return [out, running];
+}
+
+/* ------------------------------- screens -------------------------------- */
+
+/* Beat 1. Section title. Holds for a moment, then moves itself along. */
+function TitleScreen({ section, onNext }) {
+  useEffect(() => { const t = setTimeout(onNext, 1900); return () => clearTimeout(t); }, [section.id]);
+  return (
+    <div className="text-center">
+      <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-periwinkle bg-periwinkle/40 px-4 py-1.5 text-[12px] font-extrabold uppercase tracking-[0.14em] text-orient">
+        Section {section.no} of {SECTIONS.length}
+      </div>
+      <h1 className="text-[40px] font-extrabold leading-[1.1] tracking-tight text-mineshaft sm:text-[52px]">
+        {section.phase}
+      </h1>
+      <div className="mx-auto mt-8 h-1 w-40 overflow-hidden rounded-full bg-mercury">
+        <div className="h-full rounded-full bg-[linear-gradient(to_right,#3A5FAD,#5873FA)]" style={{ width: '100%' }} />
+      </div>
+    </div>
+  );
+}
+
+/* Beat 2. The opener. Answering it moves you on by itself. */
+function PromptScreen({ section, answer, onAnswer }) {
+  const pick = (v) => { onAnswer(v); };
+  return (
+    <div>
+      <Kicker>{section.phase}</Kicker>
+      <h1 className="text-[30px] font-extrabold leading-tight text-mineshaft sm:text-[36px]">{section.prompt}</h1>
+      <p className="mt-3 text-[15px] leading-relaxed text-boulder">
+        No wrong answer. It just changes what we show you next.
+      </p>
+      <div className="mt-8 grid grid-cols-2 gap-3">
+        {[{ v: 'yes', label: 'Yes' }, { v: 'no', label: 'Not yet' }].map((o) => {
+          const on = answer === o.v;
+          return (
+            <button key={o.v} onClick={() => pick(o.v)}
+              className={`rounded-2xl border px-5 py-6 text-[17px] font-extrabold transition ${
+                on ? 'border-azure bg-azure/[0.05] text-azure' : 'border-mercury bg-white text-mineshaft hover:bg-concrete/40'}`}>
+              {o.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* Beat 3. The AI sentence: why this section, for this person. */
+function WhyScreen({ section, answer, profile, onNext }) {
+  const line = fill((answer === 'yes'
+    ? 'You have done a version of this before, so we are going to move fast. '
+    : 'This is new territory for you, so we start at the beginning. ') + section.why, profile);
+  const [settled, setSettled] = useState(false);
+  useEffect(() => { setSettled(false); }, [line]);
+
+  return (
+    <div>
+      <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-bpurple/25 bg-bpurple/10 px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.12em] text-bpurple">
+        <span className="scale-90">{I.sparkles}</span> Why this matters for you
+      </div>
+      <RevealLines
+        text={line}
+        cls="text-[24px] font-normal leading-[1.45] text-mineshaft sm:text-[28px]"
+        onDone={() => setSettled(true)}
+      />
+      <div className={`mt-10 ${settled ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
+        <PrimaryBtn onClick={onNext}>Watch the briefing {I.arrowRight}</PrimaryBtn>
+      </div>
+    </div>
+  );
+}
+
+/* Beat 4. The video. Lifted from index.html's VideoPoster, full width, and it
+   advances on its own the moment the watch completes. */
+function VideoScreen({ section, onNext }) {
+  const [playing, setPlaying] = useState(false);
+  const [prog, setProg] = useState(0);
+  const [watched, setWatched] = useState(false);
+  const timer = useRef(null);
+
+  const toggle = () => {
+    if (watched) { onNext(); return; }
+    if (playing) { clearInterval(timer.current); setPlaying(false); return; }
+    const DURATION = 2600;
+    const t0 = performance.now() - prog * DURATION;
+    setPlaying(true);
+    timer.current = setInterval(() => {
+      const next = Math.min(1, (performance.now() - t0) / DURATION);
+      setProg(next);
+      if (next >= 1) {
+        clearInterval(timer.current);
+        setPlaying(false); setWatched(true);
+        setTimeout(onNext, 900);
+      }
+    }, 30);
+  };
+  useEffect(() => () => clearInterval(timer.current), []);
+
+  const secs = Math.round(prog * 272);
+  const stamp = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
+
+  return (
+    <div>
+      <Kicker>{section.phase}</Kicker>
+      <h1 className="mb-5 text-[26px] font-extrabold leading-tight text-mineshaft sm:text-[30px]">{section.video.title}</h1>
+
+      <button onClick={toggle}
+        className="group relative block aspect-video w-full overflow-hidden rounded-2xl ring-1 ring-mercury">
+        <div className="absolute inset-0 bg-concrete" />
+        <div className="absolute inset-0 grid place-items-center text-mineshaft/20">
+          <span className="scale-[2.4] opacity-40">{I.film}</span>
+        </div>
+
+        <div className="absolute left-4 top-4 rounded bg-black/40 px-2 py-1 text-[10px] font-extrabold uppercase tracking-wide text-white">
+          {section.video.kicker}
+        </div>
+        <div className={`absolute right-4 top-4 rounded px-2 py-1 text-[11px] font-extrabold tabular-nums ${watched ? 'bg-apple text-white' : 'bg-black/50 text-white'}`}>
+          {watched ? 'Watched' : section.video.len}
+        </div>
+
+        <div className="absolute inset-0 grid place-items-center">
+          <span className={`grid h-16 w-16 place-items-center rounded-full ${
+            watched && !playing ? 'bg-apple text-white' : 'bg-white text-mineshaft'}`}>
+            {playing ? <span className="text-base font-extrabold tracking-tighter">II</span>
+                     : watched ? <span>{I.check}</span>
+                     : <span className="ml-0.5">{I.play}</span>}
+          </span>
+        </div>
+
+        <div className="absolute inset-x-0 bottom-0 px-4 pb-3 pt-10">
+          <div className="flex items-center gap-3">
+            <div className="h-1 flex-1 overflow-hidden rounded-full bg-black/15">
+              <div className={`h-full rounded-full ${watched ? 'bg-apple' : 'bg-[linear-gradient(to_right,#3A5FAD,#5873FA)]'}`}
+                   style={{ width: `${prog * 100}%` }} />
+            </div>
+            <span className="text-[10px] tabular-nums text-boulder">{stamp}</span>
+          </div>
+        </div>
+      </button>
+
+      <div className="mt-6 flex items-center justify-between">
+        <span className="text-[12px] text-dusty">
+          {watched ? 'Nice. Taking you to your action.' : 'Press play. We move you along when it ends.'}
+        </span>
+        <button onClick={onNext} className="text-[13px] font-extrabold text-dusty transition hover:text-boulder">Skip the video</button>
+      </div>
+    </div>
+  );
+}
+
+/* The personalized panel. Shown on the deciding screen so "Do it now" is an
+   informed choice rather than a leap, and again above the draft so the helper
+   feels continuous with what was promised. Everything here is resolved from
+   the onboarding profile. */
+function AiPreview({ action, profile, excerpt }) {
+  // context entries may be conditional (a missing filing date drops its row)
+  const rows = (action.context ? action.context(profile) : [])
+    .filter(Boolean)
+    .map((r) => ({ ...r, value: fill(r.value, profile), label: fill(r.label, profile) }));
+  if (!rows.length && !excerpt) return null;
+
+  // First paragraph with real substance. Skipping the short ones keeps email
+  // subject lines and greetings out of the preview.
+  let preview = null;
+  if (excerpt) {
+    const paras = fill(action.draft, profile).split(/\n\s*\n/).map((s) => s.replace(/\s+/g, ' ').trim()).filter(Boolean);
+    preview = paras.find((s) => s.length > 60) || paras[0] || null;
+  }
+
+  return (
+    <div className="ai-border mt-6 rounded-2xl shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-mercury px-4 py-2.5">
+        <div className="flex items-center gap-1.5 text-[11px] font-extrabold text-bpurple">
+          <span className="scale-90">{I.sparkles}</span> Pulled for you
+        </div>
+        <div className="inline-flex items-center gap-1.5 text-[11px] font-normal text-dusty">
+          <span className="scale-90">{I.mapPin}</span>
+          {profile.location.city}, {profile.location.state}
+        </div>
+      </div>
+
+      {rows.length > 0 && (
+        <div className="divide-y divide-mercury/70">
+          {rows.map((r, i) => (
+            <div key={i} className="flex items-start gap-3 px-4 py-3">
+              <span className="mt-0.5 shrink-0 scale-90 text-azure">{r.icon}</span>
+              <div className="min-w-0 flex-1">
+                <div className="text-[11px] font-extrabold uppercase tracking-[0.1em] text-dusty">{r.label}</div>
+                <div className="mt-0.5 text-[14px] font-normal leading-snug text-mineshaft">{r.value}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {preview && (
+        <div className="border-t border-mercury bg-concrete/40 px-4 py-3">
+          <div className="mb-1.5 text-[11px] font-extrabold uppercase tracking-[0.1em] text-dusty">If you do it now, AI opens with</div>
+          <p className="line-clamp-2 text-[13px] italic leading-relaxed text-boulder">{preview}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* Beat 5. The action. Two doors: do it now, or save it.
+   "Do it now" opens the AI helper in place, and the helper offers the same
+   two exits so the user is never trapped inside a draft. */
+function ActionScreen({ section, action, profile, status, onSave, onDone }) {
+  const [mode, setMode] = useState('choose');           // choose | helper | saved | done
+  const draftText = useMemo(() => fill(action.draft, profile), [action.id, profile]);
+  const [draft, running] = useStream(draftText, mode === 'helper', 9, 3);
+
+  // A second click lands before React repaints the button away, so without this
+  // guard both handlers fire, both schedule a hand-off, and the flow jumps two
+  // steps, silently skipping the next action.
+  const resolved = useRef(false);
+  const timer = useRef(null);
+  useEffect(() => { setMode('choose'); resolved.current = false; }, [action.id]);
+  useEffect(() => () => clearTimeout(timer.current), []);
+
+  const resolve = (nextMode, handoff, delay) => {
+    if (resolved.current) return;
+    resolved.current = true;
+    setMode(nextMode);
+    timer.current = setTimeout(handoff, delay);
+  };
+  const save = () => resolve('saved', onSave, 1100);
+  const finish = () => resolve('done', onDone, 1900);
+
+  if (mode === 'done') {
+    return (
+      <>
+        <div className="text-center">
+          <span className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-apple text-white">
+            <span className="scale-150">{I.check}</span>
+          </span>
+          <h1 className="mt-6 text-[34px] font-extrabold leading-tight text-mineshaft">Look at you go.</h1>
+          <p className="mx-auto mt-2 max-w-sm text-[15px] leading-relaxed text-boulder">
+            "{action.title}" is done. That is the one most people put off.
+          </p>
+        </div>
+      </>
+    );
+  }
+
+  if (mode === 'saved') {
+    return (
+      <div className="text-center">
+        <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-apple/12 text-apple">
+          <span className="scale-125">{I.bookmark}</span>
+        </span>
+        <h1 className="mt-5 text-[28px] font-extrabold text-mineshaft">Saved</h1>
+        <p className="mt-2 text-[15px] text-boulder">
+          "{action.title}" is on your list. We will bring it back when the timing is right.
+        </p>
+      </div>
+    );
+  }
+
+  if (mode === 'helper') {
+    return (
+      <div>
+        <Kicker>{section.phase}</Kicker>
+        <h1 className="text-[26px] font-extrabold leading-tight text-mineshaft sm:text-[30px]">{action.title}</h1>
+        <p className="mt-2 text-[14px] text-boulder">{action.helper}. Edit anything. It is yours.</p>
+
+        <div className="ai-border mt-6 rounded-2xl shadow-sm">
+          <div className="flex items-center justify-between border-b border-mercury px-4 py-2.5">
+            <div className="flex items-center gap-1.5 text-[11px] font-extrabold text-bpurple">
+              <span className="scale-90">{I.sparkles}</span>
+              {running ? `Drafting for ${profile.location.city}` : 'Draft ready'}
+            </div>
+            <button className="flex items-center gap-1 text-[11px] font-normal text-dusty transition hover:text-mineshaft">
+              <span className="scale-90">{I.copy}</span> Copy
+            </button>
+          </div>
+          <pre className="max-h-[38vh] overflow-y-auto whitespace-pre-wrap px-4 py-4 font-sans text-[14px] leading-relaxed text-mineshaft">
+            {draft}
+            {running && <span className="ml-0.5 inline-block h-4 w-1.5 -translate-y-px bg-bpurple align-middle" />}
+          </pre>
+        </div>
+
+        <div className="mt-7 flex flex-wrap items-center gap-3">
+          <PrimaryBtn onClick={finish}>{I.check} I did it</PrimaryBtn>
+          <GhostBtn onClick={save}>{I.bookmark} Save for later</GhostBtn>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <Kicker>{section.phase}</Kicker>
+      <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-azure/25 bg-azure/10 px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.12em] text-azure">
+        <span className="scale-90">{I.target}</span> Your action
+      </div>
+      <h1 className="text-[30px] font-extrabold leading-tight text-mineshaft sm:text-[36px]">{action.title}</h1>
+      <p className="mt-3 text-[16px] leading-relaxed text-boulder">{action.desc}</p>
+
+      {/* no time estimate here: the team felt it discourages people */}
+
+      {/* what AI already knows, so the choice below is informed */}
+      <AiPreview action={action} profile={profile} excerpt />
+
+      <div className="mt-8 flex flex-wrap items-center gap-3">
+        <PrimaryBtn onClick={() => setMode('helper')}>
+          <span className="scale-90">{I.sparkles}</span> Do it now
+        </PrimaryBtn>
+        <GhostBtn onClick={save}>{I.bookmark} Save it for later</GhostBtn>
+      </div>
+      <p className="mt-5 text-[12px] text-dusty">
+        Do it now opens the full draft, ready to edit. Save it for later keeps your place and moves you on.
+      </p>
+    </div>
+  );
+}
+
+/* Section cleared. A beat of credit before the next title card, sized to the
+   moment: a real burst, but shorter than the one at the end of the pathway. */
+function SectionDoneScreen({ section, log, onNext }) {
+  useEffect(() => { const t = setTimeout(onNext, 2600); return () => clearTimeout(t); }, [section.id]);
+
+  // When embedded in index.html, tell the shell so the campaign-trail nav can
+  // light up its completion beat. Same-origin only; a no-op standalone.
+  useEffect(() => {
+    if (window.parent && window.parent !== window) {
+      const target = window.location.origin === 'null' ? '*' : window.location.origin;
+      window.parent.postMessage({ type: 'cp:section-complete', section: section.id }, target);
+    }
+  }, [section.id]);
+  const ids = section.actions.map((a) => a.id);
+  const did = ids.filter((id) => log[id] === 'done').length;
+  const saved = ids.filter((id) => log[id] === 'saved').length;
+  const remaining = SECTIONS.length - section.no;
+
+  return (
+    <>
+      <div className="text-center">
+        <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-azure text-white">
+          <span className="scale-125">{I.check}</span>
+        </span>
+        <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-periwinkle bg-periwinkle/40 px-4 py-1.5 text-[12px] font-extrabold uppercase tracking-[0.14em] text-orient">
+          Section {section.no} complete
+        </div>
+        <h1 className="mt-4 text-[34px] font-extrabold leading-tight text-mineshaft sm:text-[40px]">
+          {section.phase}
+        </h1>
+        <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-boulder">
+          {did > 0 && `${did} action${did === 1 ? '' : 's'} done`}
+          {did > 0 && saved > 0 && ', '}
+          {saved > 0 && `${saved} saved for later`}
+          {did === 0 && saved === 0 && 'Section cleared'}
+          {remaining > 0
+            ? `. ${remaining} section${remaining === 1 ? '' : 's'} to go.`
+            : '. That was the last one.'}
+        </p>
+
+        {/* how far along the whole pathway you are */}
+        <div className="mx-auto mt-7 w-56">
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-periwinkle">
+            <div className="h-full rounded-full bg-[linear-gradient(to_right,#3A5FAD,#5873FA)] transition-[width] duration-700"
+                 style={{ width: `${(section.no / SECTIONS.length) * 100}%` }} />
+          </div>
+          <div className="mt-2 text-[12px] font-normal text-dusty">
+            {section.no} of {SECTIONS.length} sections
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* The end of the line. */
+function DoneScreen({ log, onRestart }) {
+  const doneCount = Object.values(log).filter((v) => v === 'done').length;
+  const savedCount = Object.values(log).filter((v) => v === 'saved').length;
+  // one-shot completion confetti: index-derived (deterministic), the CSS animation
+  // is non-looping and is disabled under prefers-reduced-motion.
+  const CONFETTI_COLORS = ['#3A5FAD', '#5873FA', '#30BC36', '#7F56D9', '#CDD7EA'];
+  const confetti = Array.from({ length: 46 }, (_, i) => ({
+    left: (i * 97 + 11) % 100,
+    delay: (i % 12) * 0.11,
+    dur: 2.2 + (i % 5) * 0.24,
+    color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+    w: 6 + (i % 3) * 2,
+    h: 9 + (i % 4) * 3,
+  }));
+  return (
+    <div className="text-center">
+      <div className="confetti" aria-hidden="true">
+        {confetti.map((p, i) => (
+          <i key={i} style={{ left: p.left + '%', width: p.w + 'px', height: p.h + 'px',
+                              background: p.color, borderRadius: '2px',
+                              animationDelay: p.delay + 's', animationDuration: p.dur + 's' }} />
+        ))}
+      </div>
+      <span className="pop mx-auto grid h-20 w-20 place-items-center rounded-full bg-azure text-white">
+        <span className="scale-125">{I.rocket}</span>
+      </span>
+      <h1 className="mt-5 text-[34px] font-extrabold leading-tight text-mineshaft">That is the whole pathway.</h1>
+      <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-boulder">
+        You finished {doneCount} action{doneCount === 1 ? '' : 's'} and saved {savedCount} for later.
+        Your saved list is waiting on your dashboard whenever you are ready.
+      </p>
+      <div className="mt-8 flex justify-center gap-3">
+        <PrimaryBtn onClick={() => { window.location.href = 'index.html'; }}>Go to my dashboard {I.arrowRight}</PrimaryBtn>
+        <GhostBtn onClick={onRestart}>Run it again</GhostBtn>
+      </div>
+    </div>
+  );
+}
+
+/* ===================== In-lesson stepper ================================= */
+/* A quiet, collapsed control that shows the pieces of the current section and
+   lets you jump between them. Hidden by default; opens on hover (desktop) or
+   tap (mobile). Each piece is tagged with an icon: lesson, question, or action.
+   The pieces are derived straight from the step list so a jump always lands on
+   a real beat. */
+const PIECE_ICON = {
+  lesson:   { label: 'Lesson',   node: <Icon d={<path d="m5 3 14 9-14 9z" />} size={15} fill="currentColor" stroke="none" /> },
+  question: { label: 'Question', node: <Icon d={<><circle cx="12" cy="12" r="9" /><path d="M9.2 9.3a3 3 0 0 1 5.6 1.2c0 1.9-2.8 2.3-2.8 2.3" /><path d="M12 17h.01" /></>} size={15} /> },
+  action:   { label: 'Action',   node: <Icon d={<><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" /><path d="m8.5 11.7 2.4 2.4 4.6-5" /></>} size={15} /> },
+};
+
+function sectionPieces(steps, section) {
+  const out = [];
+  steps.forEach((st, i) => {
+    if (!st.section || st.section.id !== section.id) return;
+    if (st.kind === 'prompt')      out.push({ idx: i, type: 'question', label: 'Quick reflection' });
+    else if (st.kind === 'video')  out.push({ idx: i, type: 'lesson',   label: st.section.video.title });
+    else if (st.kind === 'action') out.push({ idx: i, type: 'action',   label: st.action.title });
+  });
+  return out;
+}
+
+function LessonStepper({ steps, idx, onJump }) {
+  // hover drives it on desktop, tap on mobile; leaving clears both so there is
+  // never a stuck-open panel.
+  const [hovered, setHovered] = useState(false);
+  const [tapped, setTapped] = useState(false);
+  const open = hovered || tapped;
+  const section = steps[idx] && steps[idx].section;
+  if (!section) return null;
+  const pieces = sectionPieces(steps, section);
+  if (pieces.length === 0) return null;
+
+  // the piece you are inside now = the last one whose entry step you have passed
+  let active = 0;
+  pieces.forEach((p, i) => { if (idx >= p.idx) active = i; });
+
+  const dot = (i) => (i < active ? 'w-4 bg-apple' : i === active ? 'w-5 bg-azure' : 'w-4 bg-mercury');
+  const close = () => { setTapped(false); setHovered(false); };
+
+  return (
+    <div onMouseEnter={() => setHovered(true)} onMouseLeave={() => { setHovered(false); setTapped(false); }}
+         className="fixed z-40 flex flex-col-reverse items-center gap-2 inset-x-0 bottom-16 px-3
+                    sm:inset-x-auto sm:right-6 sm:top-24 sm:bottom-auto sm:flex-col sm:items-end sm:px-0">
+      {/* collapsed trigger: a little progress strip */}
+      <button onClick={() => setTapped((t) => !t)} aria-expanded={open}
+              className="flex items-center gap-2.5 rounded-full border border-mercury bg-white px-4 py-2.5 shadow-sm">
+        <span className="text-boulder"><Icon d={<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />} size={16} /></span>
+        <span className="hidden text-[13px] font-extrabold text-mineshaft sm:inline">In this lesson</span>
+        <span className="flex items-center gap-1">
+          {pieces.map((p, i) => <span key={p.idx} className={`h-1.5 rounded-full ${dot(i)}`} />)}
+        </span>
+        <span className="whitespace-nowrap text-[12px] font-extrabold text-boulder">{active + 1} of {pieces.length}</span>
+        <span className="text-dusty"><Icon d={<path d="m6 9 6 6 6-6" />} size={16} /></span>
+      </button>
+
+      {/* expanded list of the section's pieces */}
+      {open && (
+        <div className="w-[320px] max-w-[calc(100vw-1.5rem)] rounded-2xl border border-mercury bg-white p-1.5 shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
+          <div className="flex items-center justify-between px-3 py-2">
+            <span className="text-[11px] font-extrabold uppercase tracking-wide text-dusty">In this lesson</span>
+            <span className="text-[11.5px] font-extrabold text-boulder">{active + 1} of {pieces.length}</span>
+          </div>
+          <div className="space-y-0.5">
+            {pieces.map((p, i) => {
+              const status = i < active ? 'done' : i === active ? 'current' : 'upcoming';
+              return (
+                <button key={p.idx} onClick={() => { onJump(p.idx); close(); }}
+                        className={`flex w-full items-center gap-3 rounded-[9px] px-2.5 py-2.5 text-left transition-colors ${status === 'current' ? 'bg-azure/10' : 'hover:bg-porcelain'}`}>
+                  <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full ${
+                    status === 'done' ? 'bg-apple text-white'
+                    : status === 'current' ? 'bg-azure text-white'
+                    : 'border border-alto'}`}>
+                    {status === 'done'
+                      ? <Icon d={<path d="M20 6 9 17l-5-5" />} size={14} />
+                      : status === 'current'
+                        ? <span className="h-2 w-2 rounded-full bg-white" />
+                        : <span className="h-1.5 w-1.5 rounded-full bg-silver" />}
+                  </span>
+                  <span className={`min-w-0 flex-1 text-[13.5px] font-extrabold leading-tight ${
+                    status === 'current' ? 'text-azure' : status === 'upcoming' ? 'text-boulder' : 'text-mineshaft'}`}>{p.label}</span>
+                  <span className={`shrink-0 ${status === 'current' ? 'text-azure' : 'text-dusty'}`} title={PIECE_ICON[p.type].label}>{PIECE_ICON[p.type].node}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* --------------------------------- shell -------------------------------- */
+/* Deep link: prospect-home.html sends ?phase=<sectionId>. Start the flow on
+   that section's title beat; fall back to the very beginning when absent. */
+function initialIdx() {
+  const phase = new URLSearchParams(window.location.search).get('phase');
+  if (!phase) return 0;
+  const i = STEPS.findIndex((s) => s.kind === 'title' && s.section && s.section.id === phase);
+  return i >= 0 ? i : 0;
+}
+
+function App() {
+  const [idx, setIdx] = useState(initialIdx);
+  const [answers, setAnswers] = useState({});   // sectionId -> 'yes' | 'no'
+  const [log, setLog] = useState({});           // actionId  -> 'done' | 'saved'
+  const profile = useMemo(loadProfile, []);     // whatever onboarding.html saved
+
+  const step = STEPS[idx];
+  const next = () => setIdx((i) => Math.min(i + 1, STEPS.length - 1));
+  const back = () => setIdx((i) => Math.max(i - 1, 0));
+
+  const answer = (sectionId, v) => {
+    setAnswers((a) => ({ ...a, [sectionId]: v }));
+    setTimeout(next, 320);
+  };
+  const record = (actionId, state) => { setLog((l) => ({ ...l, [actionId]: state })); next(); };
+
+  // Enter advances anywhere the current beat is happy to be advanced past
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key !== 'Enter') return;
+      if (step.kind === 'why' || step.kind === 'video') { e.preventDefault(); next(); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [step]);
+
+  const progress = idx / (STEPS.length - 1);
+  const sectionNo = step.section ? step.section.no : SECTIONS.length;
+
+  return (
+    <div className="fixed inset-0 flex flex-col bg-porcelain">
+      <header className="flex items-center justify-between gap-4 px-6 py-4 sm:px-10">
+        <div className="flex items-center gap-2.5">
+          <span className="grid h-8 w-8 place-items-center rounded-2xl bg-azure text-white">{I.landmark}</span>
+          <div className="leading-tight">
+            <div className="text-[13px] font-extrabold text-mineshaft">Your pathway</div>
+            <div className="text-[11px] text-dusty">
+              {profile.location.city}, {profile.location.state}
+              {profile.office ? ` · ${profile.office}` : ''} · Section {sectionNo} of {SECTIONS.length}
+            </div>
+          </div>
+        </div>
+        <button onClick={() => { window.location.href = 'index.html'; }}
+          className="inline-flex items-center gap-2 rounded-full border border-mercury bg-white px-3.5 py-2 text-[13px] font-extrabold text-boulder transition hover:text-mineshaft">
+          {I.save} Save &amp; close
+        </button>
+      </header>
+
+      <div className="h-1 w-full bg-periwinkle">
+        <div className="h-full bg-[linear-gradient(to_right,#3A5FAD,#5873FA)] transition-[width] duration-500"
+             style={{ width: `${progress * 100}%` }} />
+      </div>
+
+      <div className="flex-1 overflow-y-auto px-6 py-8 sm:px-10">
+        <div key={idx} className="mx-auto flex min-h-full max-w-xl flex-col justify-center">
+          {step.kind === 'title'  && <TitleScreen section={step.section} onNext={next} />}
+          {step.kind === 'prompt' && <PromptScreen section={step.section} answer={answers[step.section.id]}
+                                        onAnswer={(v) => answer(step.section.id, v)} />}
+          {step.kind === 'why'    && <WhyScreen section={step.section} answer={answers[step.section.id]} profile={profile} onNext={next} />}
+          {step.kind === 'video'  && <VideoScreen section={step.section} onNext={next} />}
+          {step.kind === 'action' && <ActionScreen section={step.section} action={step.action} profile={profile}
+                                        status={log[step.action.id]}
+                                        onSave={() => record(step.action.id, 'saved')}
+                                        onDone={() => record(step.action.id, 'done')} />}
+          {step.kind === 'sectionDone' && <SectionDoneScreen section={step.section} log={log} onNext={next} />}
+          {step.kind === 'done'   && <DoneScreen log={log} onRestart={() => { setIdx(0); setLog({}); setAnswers({}); }} />}
+        </div>
+      </div>
+
+      {/* one quiet way back, never a way to get lost */}
+      {idx > 0 && step.kind !== 'done' && step.kind !== 'sectionDone' && step.kind !== 'title' && (
+        <div className="px-6 pb-5 sm:px-10">
+          <div className="mx-auto max-w-xl">
+            <button onClick={back} className="inline-flex items-center gap-1.5 text-[13px] font-extrabold text-dusty transition hover:text-boulder">
+              {I.arrowLeft} Back
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* see and move between the pieces of this section */}
+      {step.kind !== 'done' && <LessonStepper steps={STEPS} idx={idx} onJump={setIdx} />}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

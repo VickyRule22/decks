@@ -1,0 +1,915 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Your Campaign Pathways - Candidate Pathways</title>
+
+<!-- React + Babel (kept a real React component so it can be lifted out) -->
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script>
+  Babel.registerPreset('react-classic', {
+    presets: [[Babel.availablePresets['react'], { runtime: 'classic' }]],
+  });
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+  // Candidate Pathway Style Guide tokens (Figma CP coach dashboard)
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Avenir', 'Arial', 'Arimo', 'sans-serif'],
+          lato: ['Lato', 'Arial', 'sans-serif'],
+        },
+        colors: {
+          azure:      '#3A5FAD',
+          orient:     '#00567E',
+          cornflower: '#5873FA',
+          periwinkle: '#CDD7EA',
+          pigeon:     '#B4C2DF',
+          apple:      '#30BC36',
+          appledark:  '#30BC36',
+          bpurple:    '#7F56D9',
+          warning:    '#DC6803',
+          error:      '#D92D20',
+          woodsmoke:  '#15141A',
+          mineshaft:  '#2B2B2B',
+          boulder:    '#797979',
+          dusty:      '#9B9B9B',
+          silver:     '#BDBDBD',
+          alto:       '#D5D5D5',
+          mercury:    '#E5E5E5',
+          concrete:   '#F2F2F2',
+          porcelain:  '#F8FAFA',
+        },
+      },
+    },
+  };
+</script>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Arimo:wght@400;700&family=Lato:wght@400;700;900&display=swap');
+
+  html, body { background: #F8FAFA; }
+  * { -webkit-font-smoothing: antialiased; }
+
+  /* Figma baseline: flat porcelain, no dot grid. */
+  .grid-bg { background-image: none; }
+
+  /* Baseline card: white, 9px radius, one soft even shadow, no hard border. */
+  .cp-card { background:#fff; border-radius:9px; box-shadow:0 0 6px 0 rgba(0,0,0,0.08); }
+
+  /* AI summary card uses the same baseline card fill (radius + shadow set in markup). */
+  .ai-border { background:#ffffff; }
+
+  /* Baseline is static: motion + custom scrollbar removed, class hooks kept as no-ops. */
+  .fade-in { animation: none; }
+  .card-hover { transition: none; }
+</style>
+</head>
+<body class="grid-bg font-sans text-mineshaft cp-shell-on">
+<!-- CP-PROTOTYPE-NAV:start -->
+<div id="cp-proto-nav" role="navigation" aria-label="Prototype navigator">
+  <style>
+    #cp-proto-nav{display:flex;align-items:center;gap:12px;height:42px;padding:0 14px;
+      background:#0b0e14;color:#e5e9f0;border-bottom:1px solid #232a36;
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;line-height:1;
+      overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+    #cp-proto-nav::-webkit-scrollbar{display:none}
+    #cp-proto-nav .cpn-brand{flex:0 0 auto;display:flex;align-items:center;gap:8px;
+      text-transform:uppercase;letter-spacing:.14em;font-size:10px;font-weight:700;color:#7d8799}
+    #cp-proto-nav .cpn-dot{width:7px;height:7px;border-radius:50%;background:#f0b429;
+      box-shadow:0 0 0 3px rgba(240,180,41,.18)}
+    #cp-proto-nav .cpn-sep{flex:0 0 auto;width:1px;height:18px;background:#2a3140}
+    #cp-proto-nav .cpn-group{flex:0 0 auto;text-transform:uppercase;letter-spacing:.14em;font-size:10px;font-weight:700;color:#9aa6b8;padding-left:2px}
+    #cp-proto-nav a{flex:0 0 auto;text-decoration:none;color:#c3cad6;padding:5px 11px;
+      border-radius:999px;border:1px solid transparent;
+      transition:background .12s ease,color .12s ease}
+    #cp-proto-nav a:hover{background:#1a2130;color:#fff}
+    #cp-proto-nav a.is-active{background:#f0b429;color:#0b0e14;font-weight:700}
+    @media print{#cp-proto-nav{display:none}}
+  </style>
+  <span class="cpn-brand"><span class="cpn-dot"></span>Candidate Pathways &middot; prototype</span>
+  <span class="cpn-sep"></span>
+    <span class="cpn-group">Prospect</span>
+    <a href="prospect-dashboard.html">Home</a>
+    <a href="prospect-home.html">Training-Home</a>
+    <a href="values-flow.html">Training-Content</a>
+    <span class="cpn-sep"></span>
+    <span class="cpn-group">Coach</span>
+    <a href="coach-home.html">Home</a>
+    <a href="prospect-profile.html">Prospect Profile</a>
+  <script>(function(){
+    var nav=document.getElementById('cp-proto-nav');
+    // Show the internal navigator even when embedded (e.g. the live subdomain iframe),
+    // so the team can navigate the whole prototype from the live URL.
+    document.body.classList.add('cp-nav-on');
+    var b=(location.pathname.split('/').pop()||'').toLowerCase();
+    if(!b||b.indexOf('.')<0)b='prospect-dashboard.html';
+    document.querySelectorAll('#cp-proto-nav a').forEach(function(a){
+      if(a.getAttribute('href').toLowerCase()===b)a.classList.add('is-active');
+    });
+  })();</script>
+</div>
+<!-- CP-PROTOTYPE-NAV:end -->
+
+<!-- CP-APP-SHELL:start (BTB chrome: top bar + role sidebar; omitted on onboarding + full-screen training) -->
+<style>
+  :root{
+    --cp-azure:#3A5FAD; --cp-corn:#5873FA; --cp-ink:#2B2B2B; --cp-boulder:#797979;
+    --cp-dusty:#9B9B9B; --cp-merc:#E5E5E5; --cp-conc:#F2F2F2; --cp-porc:#F8FAFA;
+    --cp-pigeon:#B4C2DF; --cp-red:#C4161C;  /* Build the Bench org brand red (logo + wordmark only) */
+    --cp-error:#D92D20;                     /* CP Error token, for status dots */
+  }
+  body.cp-shell-on{display:flex;flex-direction:column;height:100vh;min-height:0;overflow:hidden;margin:0;}
+  .cp-shell{display:flex;flex:1;min-height:0;}
+
+  /* ---- sidebar ---- */
+  .cp-side{width:220px;flex:0 0 220px;display:flex;flex-direction:column;
+    background:#fff;border-right:1px solid var(--cp-merc);}
+  .cp-side__brand{display:flex;align-items:center;gap:11px;padding:18px 20px 15px;}
+  .cp-logo{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;
+    border-radius:9px;background:var(--cp-red);color:#fff;font-weight:900;font-size:14px;
+    letter-spacing:.01em;}
+  .cp-wordmark{font-weight:900;font-size:17px;color:var(--cp-ink);letter-spacing:.005em;line-height:1;}
+  .cp-wordmark span{color:var(--cp-red);}
+  .cp-wordmark small{display:block;font-size:9.5px;font-weight:800;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--cp-dusty);margin-top:3px;}
+  .cp-side__nav{flex:1;overflow-y:auto;padding:4px 12px 10px;}
+  .cp-navsec{display:flex;flex-direction:column;gap:2px;}
+  .cp-navsec + .cp-navsec{margin-top:14px;padding-top:14px;border-top:1px solid var(--cp-conc);}
+  .cp-navlabel{font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--cp-dusty);padding:4px 11px 3px;}
+  .cp-item{position:relative;display:flex;align-items:center;gap:11px;padding:9px 12px;
+    border-radius:9px;color:#898989;font-size:13.5px;font-weight:800;text-decoration:none;
+    transition:background .13s ease,color .13s ease;}
+  .cp-item svg{width:24px;height:24px;flex:0 0 24px;stroke-width:1.9;}
+  .cp-item:hover{background:var(--cp-porc);color:var(--cp-ink);}
+  .cp-item.is-active{color:var(--cp-ink);font-weight:900;}
+
+  .cp-side__footer{padding:11px 16px 16px;border-top:1px solid var(--cp-conc);
+    display:flex;flex-direction:column;gap:1px;}
+  .cp-foot{display:flex;align-items:center;gap:9px;padding:6px 8px;border-radius:8px;
+    font-size:11.5px;font-weight:800;color:var(--cp-azure);text-decoration:none;opacity:.85;
+    transition:background .13s,opacity .13s;}
+  .cp-foot svg{width:15px;height:15px;stroke-width:1.9;}
+  .cp-foot:hover{background:rgba(58,95,173,.07);opacity:1;}
+  .cp-foot--logout{font-weight:900;opacity:1;}
+
+  /* ---- body column ---- */
+  .cp-body{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0;}
+  .cp-top{flex:0 0 62px;height:62px;display:flex;align-items:center;justify-content:flex-end;
+    gap:16px;padding:0 22px;background:#fff;
+    border-bottom:1px solid var(--cp-merc);}
+  .cp-mail{position:relative;display:inline-flex;align-items:center;justify-content:center;
+    width:40px;height:40px;border-radius:20px;background:#fff;
+    color:var(--cp-boulder);cursor:pointer;transition:.13s;}
+  .cp-mail svg{width:24px;height:24px;stroke-width:1.9;}
+  .cp-mail:hover{color:var(--cp-azure);border-color:var(--cp-pigeon);}
+  .cp-dot{position:absolute;top:8px;right:9px;width:8px;height:8px;border-radius:50%;
+    background:var(--cp-error);box-shadow:0 0 0 2px #fff;}
+  .cp-sepv{width:1px;height:30px;background:var(--cp-merc);}
+  .cp-me{display:flex;align-items:center;gap:11px;}
+  .cp-me__text{text-align:right;line-height:1.2;}
+  .cp-me__name{font-size:13px;font-weight:800;color:var(--cp-ink);}
+  .cp-me__role{font-size:11px;font-weight:400;color:var(--cp-boulder);margin-top:1px;}
+  .cp-me__avatar{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;
+    border-radius:50%;background:#F2F2F2;
+    color:#797979;font-weight:800;font-size:14px;}
+
+  .cp-main{flex:1;min-height:0;overflow-y:auto;}
+
+  @media (max-width:900px){
+    .cp-side{display:none;}
+    .cp-me__text{display:none;}
+  }
+</style>
+
+<div class="cp-shell">
+  <style>
+    /* Icon-free sidebar, matched to the coach-home baseline spec */
+    .sb{width:220px;flex:0 0 220px;background:#fff;border-right:1px solid #E5E5E5;
+      display:flex;flex-direction:column;min-height:0;}
+    .sb-logo{display:flex;justify-content:center;padding:30px 0 22px;}
+    .sb-logo svg{width:104px;height:104px;}
+    .sb-nav{display:flex;flex-direction:column;gap:8px;padding:0 34px;overflow-y:auto;}
+    .sb-nav a{padding:4px 0;font-size:15px;font-weight:800;color:#898989;line-height:1.3;
+      text-decoration:none;transition:color .12s;}
+    .sb-nav a:hover{color:#2B2B2B;}
+    .sb-nav a.active{color:#2B2B2B;font-weight:900;}
+    .sb-spacer{flex:1 1 auto;min-height:20px;}
+    .sb-foot{display:flex;flex-direction:column;padding:0 34px 34px;gap:11px;}
+    .sb-foot a{font-size:13px;color:#3A5FAD;font-weight:800;text-decoration:none;}
+    .sb-foot a.logout{font-weight:900;}
+    @media (max-width:900px){ .sb{display:none;} }
+  </style>
+  <aside class="sb">
+    <div class="sb-logo">
+      <svg viewBox="0 0 100 100" aria-label="Build the Bench Oregon">
+        <circle cx="50" cy="50" r="48" fill="#fff" stroke="#2b2b2b" stroke-width="1.4"/>
+        <circle cx="50" cy="50" r="40.5" fill="none" stroke="#2b2b2b" stroke-width="0.7"/>
+        <defs>
+          <path id="topArc" d="M20,50 A30,30 0 0 1 80,50"/>
+          <path id="botArc" d="M22,50 A28,28 0 0 0 78,50"/>
+        </defs>
+        <text font-size="7.4" font-weight="700" letter-spacing="1.1" fill="#2b2b2b">
+          <textPath href="#topArc" startOffset="50%" text-anchor="middle">BUILD THE BENCH</textPath>
+        </text>
+        <text font-size="7.4" font-weight="700" letter-spacing="1.8" fill="#2b2b2b">
+          <textPath href="#botArc" startOffset="50%" text-anchor="middle">OREGON</textPath>
+        </text>
+        <g fill="#2b2b2b">
+          <path d="M50 33 L57 45 L52.5 45 L59 55 L41 55 L47.5 45 L43 45 Z"/>
+          <rect x="48.2" y="55" width="3.6" height="6"/>
+        </g>
+        <circle cx="31" cy="50" r="1.4" fill="#2b2b2b"/>
+        <circle cx="69" cy="50" r="1.4" fill="#2b2b2b"/>
+      </svg>
+    </div>
+    <nav class="sb-nav" aria-label="Primary">
+      <a href="prospect-dashboard.html">Home</a>
+      <a href="prospect-home.html" class="active">Training</a>
+      <a href="#">Elections</a>
+      <a href="#">Knowledge Base</a>
+      <a href="#">Members</a>
+      <a href="#" style="margin-top:14px;">Profile</a>
+      <a href="#">Notifications</a>
+      <a href="#">Messages</a>
+    </nav>
+    <div class="sb-spacer"></div>
+    <div class="sb-foot">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms Of Use</a>
+      <a href="#" class="logout">Logout</a>
+    </div>
+  </aside>
+
+  <div class="cp-body">
+    <header class="cp-top">
+      <button class="cp-mail" aria-label="Messages">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+        <span class="cp-dot"></span>
+      </button>
+      <div class="cp-sepv"></div>
+      <div class="cp-me">
+        <div class="cp-me__text">
+          <div class="cp-me__name">Sarah Mitchell</div>
+          <div class="cp-me__role">Prospect</div>
+        </div>
+        <span class="cp-me__avatar">SM</span>
+      </div>
+    </header>
+    <main class="cp-main">
+      <div id="root"></div>
+    </main>
+  </div>
+</div>
+<!-- CP-APP-SHELL:end -->
+
+<script type="text/babel" data-presets="react-classic">
+/* =========================================================================
+   DATA: the same eight-module pathway model used by the coach dashboard
+   (index.html). Copied here so this page stands alone. `current: true`
+   marks where the candidate is right now; `watched`, `action.done`, and
+   `questionnaire.submitted` drive every derived state on the page.
+   ========================================================================= */
+const CANDIDATE = { name: 'Sarah Mitchell', monogram: 'SM', location: 'Travis County, TX' };
+
+const MODULES = [
+  { id: 'explore', num: 1, label: 'Know your values',
+    insight: null,
+    subtopics: [
+      /* Section 1 is the built one: each subsection carries the exact items the
+         Values Flow runs, so the pathway and the flow agree on the content. */
+      { id: 'exp-start', title: 'Getting started', kind: 'read',
+        items: [
+          { id: 'O-01', type: 'question', mins: 3, mins: 3, title: 'In an ideal world, what office are you most interested in pursuing?' },
+          { id: 'O-02', type: 'question', mins: 3, mins: 3, title: 'Are you currently running for office? If yes, please provide office, district, and timeframe' },
+          { id: 'O-03', type: 'question', mins: 5, mins: 5, title: 'What are the gaps in your experience where you think you need development?' },
+        ] },
+      { id: 'exp-family', title: 'Family & personal decision', kind: 'video',
+        items: [
+          { id: 'A-69', type: 'action', mins: 30, mins: 30,   title: 'Discuss running for office with your family' },
+          { id: 'A-70', type: 'action', mins: 20, mins: 20,   title: 'Speak with friends and extended family about running' },
+        ] },
+      { id: 'exp-volly', title: 'Low-stakes volunteering', kind: 'video',
+        items: [
+          { id: 'Q-03.1', type: 'question', mins: 3, mins: 3, title: 'Have you volunteered for a candidate or political party?' },
+          { id: 'A-61',   type: 'action', mins: 120,   title: 'Volunteer to prep candidate mailing' },
+          { id: 'A-62',   type: 'action', mins: 240,   title: 'Volunteer in campaign / party headquarters' },
+          { id: 'A-64',   type: 'action', mins: 120,   title: 'Practice door to door' },
+          { id: 'A-68',   type: 'action', mins: 60,   title: 'Speak at a public hearing on issues or legislation' },
+        ] },
+      { id: 'exp-position', title: 'Personal positioning basics', kind: 'read',
+        items: [
+          { id: 'Q-03.2',  type: 'question', mins: 3, title: 'Have you ever worked in government?' },
+          { id: 'Q-03.6',  type: 'question', mins: 3, title: 'Have you ever been elected or appointed to public office?' },
+          { id: 'Q-03.10', type: 'question', mins: 2, mins: 2, title: 'Have you participated in professional development classes?' },
+          { id: 'Q-03.14', type: 'question', mins: 2, mins: 2, title: 'How would you describe your personal or professional presentation?' },
+          { id: 'A-63',    type: 'action', mins: 45,   title: 'Update your resume and LinkedIn with local engagement' },
+          { id: 'A-65',    type: 'action', mins: 20,   title: 'Write a 300-word bio (use AI)' },
+          { id: 'A-66',    type: 'action', mins: 60,   title: 'Complete a BallotPedia candidate questionnaire, off the record' },
+          { id: 'A-67',    type: 'action', mins: 30,   title: 'Define your look, your event uniform' },
+        ] },
+      { id: 'exp-values', title: 'Values alignment', kind: 'read',
+        items: [
+          { id: 'Q-01.1', type: 'question', mins: 5, mins: 5, title: 'What do our three guiding principles mean to you?' },
+          { id: 'Q-01.4', type: 'question', mins: 5, mins: 5, title: 'Do you have a position on the following?' },
+          { id: 'Q-02.8', type: 'question', mins: 2, mins: 2, title: 'Do you consider yourself...' },
+          { id: 'Q-02.9', type: 'question', mins: 2, mins: 2, title: 'How well-formed are your political beliefs and ideas?' },
+          { id: 'C-03',   type: 'video', mins: 12,    title: 'How Do Your Values Align with Your District?' },
+          { id: 'C-01',   type: 'video', mins: 18,    title: 'Understanding Your District: The Foundation of Effective Representation' },
+        ] },
+    ],
+    questionnaire: { title: 'Values Alignment questionnaire', submitted: '2 weeks ago' },
+  },
+  { id: 'district', num: 2, label: 'Know your district and issues',
+    insight: null,
+    subtopics: [
+      { id: 'dist-research', title: 'District research', kind: 'video',
+        action: { title: 'Map your precinct chairs' } },
+      { id: 'dist-network', title: 'Community networking', kind: 'video',
+        action: { title: 'Attend one commission meeting' } },
+      { id: 'dist-party', title: 'Party ecosystem', kind: 'read', action: null },
+      { id: 'dist-policy', title: 'Policy foundations', kind: 'read',
+        action: { title: 'Read the school bond summary' } },
+      { id: 'dist-offices', title: 'Understanding offices', kind: 'read', action: null },
+      { id: 'dist-visibility', title: 'Early visibility', kind: 'video',
+        action: { title: 'Introduce yourself at a neighborhood association' } },
+    ],
+    questionnaire: { title: 'Policy Awareness questionnaire', submitted: '2 weeks ago' },
+  },
+  { id: 'brand', num: 3, label: 'Build your presence and brand',
+    insight: null,
+    subtopics: [
+      { id: 'brand-civic', title: 'Civic leadership', kind: 'video',
+        action: { title: 'Join one board or committee' } },
+      { id: 'brand-personal', title: 'Personal brand', kind: 'video',
+        action: { title: 'Take a headshot' } },
+      { id: 'brand-social', title: 'Social media brand', kind: 'read',
+        action: { title: 'Claim your handles' } },
+    ],
+    questionnaire: { title: 'Publicly Sharing Information questionnaire', submitted: null },
+  },
+  { id: 'fund', num: 4, label: 'Fundraising', 
+    insight: 'Most first-time candidates lose the race before they ever knock a door, because they never built a seed-donor list. This is the work that funds everything else.',
+    subtopics: [
+      { id: 'fund-fund', title: 'Fundraising fundamentals', kind: 'video',
+        action: { title: 'Open the campaign account' } },
+      { id: 'fund-asks', title: 'Intro to asks', kind: 'video',
+        action: { title: 'Draft your ask script' } },
+      { id: 'fund-making', title: 'Making the ask', kind: 'video',
+        action: { title: 'Call 10 seed donors' } },
+      { id: 'fund-comply', title: 'Contribution limits and compliance', kind: 'read',
+        action: { title: 'File your treasurer designation' } },
+      { id: 'fund-channel', title: 'Build your seed-donor list', kind: 'read',
+        action: { title: 'Set up your online donate page' } },
+    ],
+    questionnaire: { title: 'Fundraising Readiness questionnaire', submitted: '5 days ago' },
+  },
+  { id: 'skills', num: 5, label: 'Core campaign skills',
+    insight: 'Voter contact and a tight stump speech are what turn money into votes. Start with 25 doors.',
+    subtopics: [
+      { id: 'skill-voter', title: 'Voter contact', kind: 'video',
+        action: { title: 'Knock 25 doors with a volunteer' } },
+      { id: 'skill-media', title: 'Media and messaging', kind: 'video',
+        action: { title: 'Draft your stump speech' } },
+      { id: 'skill-self', title: 'Self-management', kind: 'read',
+        action: { title: 'Block your calendar for the next 8 weeks' } },
+      { id: 'skill-lit', title: 'Campaign literacy', kind: 'read', action: null },
+    ],
+    questionnaire: { title: 'Campaign Readiness questionnaire', submitted: null },
+  },
+  { id: 'ballot', num: 6, label: 'Get ready and get on the ballot',
+    insight: 'Confirm your filing window and vote goal, then sync with your coach that the foundation holds before you file.',
+    // before filing, the candidate confirms readiness with their coach
+    coachCheckIn: {
+      title: 'Sync with your coach before you file',
+      body: 'Getting on the ballot is the point of no return. Check in with your coach to confirm your foundation is solid and you are truly ready.',
+    },
+    subtopics: [
+      { id: 'ballot-filing', title: 'Filing and ballot access', kind: 'read',
+        action: { title: 'Confirm your filing window' } },
+      { id: 'ballot-math', title: 'The math', kind: 'video',
+        action: { title: 'Build your vote goal' } },
+      { id: 'ballot-plan', title: 'Campaign plan and team', kind: 'video', action: null },
+      { id: 'ballot-tech', title: 'Tech and logistics', kind: 'read', action: null },
+    ],
+    questionnaire: { title: 'Ballot Access questionnaire', submitted: null },
+  },
+  { id: 'run', num: 7, label: 'Run the campaign',
+    insight: 'Set your launch date and your election-day captains now. Momentum is built before day one, not during it.',
+    subtopics: [
+      { id: 'run-launch', title: 'Launch', kind: 'video',
+        action: { title: 'Set your launch date' } },
+      { id: 'run-opp', title: 'Opposition and strategy', kind: 'read', action: null },
+      { id: 'run-crisis', title: 'Crisis management', kind: 'read', action: null },
+      { id: 'run-gotv', title: 'GOTV and voting', kind: 'video',
+        action: { title: 'Recruit your election day captains' } },
+    ],
+    questionnaire: { title: 'Launch Readiness questionnaire', submitted: null },
+  },
+  { id: 'after', num: 8, label: 'After the election',
+    insight: 'Win or lose, gratitude and a clean financial closeout protect the relationships you will run on next time.',
+    subtopics: [
+      { id: 'after-grat', title: 'Gratitude', kind: 'read', action: null },
+      { id: 'after-pres', title: 'Preservation', kind: 'read', action: null },
+      { id: 'after-fin', title: 'Financial closeout', kind: 'read',
+        action: { title: 'File your final report' } },
+      { id: 'after-engage', title: 'Staying engaged', kind: 'read', action: null },
+    ],
+    questionnaire: null,
+  },
+];
+
+/* ------------------------------- helpers -------------------------------- */
+/* Only Section 1 ("Know your values") is actually built out. Its four lessons
+   map one-to-one onto the stops in the Values Flow, so clicking a lesson opens
+   that exact stop. Everything else is a demo shell and says so when tapped. */
+const STOP_BY_SUB = {
+  'exp-start':    'start',
+  'exp-family':   'family',
+  'exp-volly':    'volunteer',
+  'exp-position': 'positioning',
+  'exp-values':   'values',
+};
+function flowHref(sub) {
+  const stop = sub && STOP_BY_SUB[sub.id];
+  return stop ? `values-flow.html?stop=${stop}` : null;
+}
+// A single piece of content is linkable on its own, so it can be texted around.
+function itemHref(sub, it) { return flowHref(sub) ? `values-flow.html?item=${it.id}` : null; }
+// A section's link points at the first stop that actually exists inside it.
+function moduleHref(m) {
+  const first = m.subtopics.find((s) => flowHref(s));
+  return first ? flowHref(first) : null;
+}
+// A module is prototyped only if at least one of its lessons opens the flow.
+function moduleBuilt(m) { return m.subtopics.some((s) => !!STOP_BY_SUB[s.id]); }
+
+/* ---------------------------------------------------------------------------
+   Progress is NOT baked into the data. It comes from the same store the Values
+   Flow writes as you go, so this page only ever claims what you actually did.
+   --------------------------------------------------------------------------- */
+const STORE_LS = 'cp-values-flow-v3';
+/* First visit seeds a realistic in-progress state (Section 1 partway, a few
+   actions skipped) so the pathway has something to show; real activity in the
+   Values Flow overrides it. Shared with the coach's Prospect Profile view. */
+const DEFAULT_LOG = {
+  'O-01': 'a', 'O-02': 'a', 'O-03': 'a',   // Getting started: answered
+  'A-69': 'done', 'A-70': 'done',          // Family & personal decision: done
+  'Q-03.1': 'yes',                         // Low-stakes volunteering: reached
+  'A-61': 'done',                          // one action done; A-62 / A-64 / A-68 left open
+};
+function loadLog() {
+  try {
+    const raw = localStorage.getItem(STORE_LS);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  try { localStorage.setItem(STORE_LS, JSON.stringify(DEFAULT_LOG)); } catch (e) {}
+  return { ...DEFAULT_LOG };
+}
+/* what the flow records: 'done' / 'saved' for an action, 'watched' for a video,
+   and the answer itself for a question. */
+function itemDone(it, log) {
+  const v = log[it.id];
+  if (it.type === 'action') return v === 'done';
+  if (it.type === 'video')  return v === 'watched';
+  return v !== undefined && v !== null && v !== '';
+}
+function itemSaved(it, log) { return it.type === 'action' && log[it.id] === 'saved'; }
+
+/* A subsection holds items (a built section) or is a bare lesson with one
+   attached action (the demo shells). Both shapes answer the same questions. */
+function subItems(s) {
+  if (s.items) return s.items;
+  return s.action ? [{ id: s.id + '-a', type: 'action', title: s.action.title }] : [];
+}
+function subStarted(s, log) { return subItems(s).some((i) => log[i.id] !== undefined); }
+// An action is only "open" once you have actually reached it, or parked it.
+function subOpenActions(s, log) {
+  return subItems(s).filter((i) => i.type === 'action' && !itemDone(i, log)
+                                   && (subStarted(s, log) || itemSaved(i, log)));
+}
+
+/* Time estimates are deliberately NOT shown anywhere: the team felt they
+   discourage people. The per-item `mins` data stays for future use. */
+
+// A lesson is done only when every item inside it is done. An empty subsection
+// (a demo shell with nothing built) is never done.
+function subComplete(s, log) {
+  const its = subItems(s);
+  return its.length > 0 && its.every((i) => itemDone(i, log));
+}
+function lessonsDone(m, log) { return m.subtopics.filter((s) => subComplete(s, log)).length; }
+function openActions(m, log) { return m.subtopics.flatMap((s) => subOpenActions(s, log)); }
+function moduleComplete(m, log) {
+  return m.subtopics.length > 0 && lessonsDone(m, log) === m.subtopics.length && openActions(m, log).length === 0;
+}
+
+// The green fill counts every item, so nothing is filled until you do it.
+function moduleUnits(m) { return m.subtopics.reduce((n, s) => n + subItems(s).length, 0); }
+function moduleUnitsDone(m, log) {
+  return m.subtopics.reduce((n, s) => n + subItems(s).filter((i) => itemDone(i, log)).length, 0);
+}
+function moduleProgress(m, log) { const u = moduleUnits(m); return u ? moduleUnitsDone(m, log) / u : 0; }
+// The lesson you stopped on: the first one not finished.
+function stoppedAt(m, log) { return m.subtopics.find((s) => !subComplete(s, log)) || null; }
+// Within a subsection, the first item not finished: the exact spot to resume.
+function stoppedItem(s, log) { return subItems(s).find((i) => !itemDone(i, log)) || null; }
+// Where you are in the pathway: the first section you have not finished.
+function currentModule(log) { return MODULES.find((m) => !moduleComplete(m, log)) || MODULES[0]; }
+
+function statusLine(m, log) {
+  const total = m.subtopics.length, done = lessonsDone(m, log);
+  if (done === 0 && !moduleUnitsDone(m, log)) {
+    return `Not started · ${total} lessons`;
+  }
+  if (moduleComplete(m, log)) return `${done} of ${total} lessons · all actions done`;
+  return `${done} of ${total} lessons done`;
+}
+
+// Everything you have reached but not finished, across the whole pathway.
+function buildTodo(log) {
+  return MODULES.flatMap((m) =>
+    m.subtopics.flatMap((s) => subOpenActions(s, log).map((a) => ({ mod: m, sub: s, action: a }))));
+}
+
+/* -------------------------------- icons --------------------------------- */
+const Icon = {
+  video: (cls) => (
+    <svg viewBox="0 0 24 24" fill="none" className={cls}><path d="M15 10l4.55-2.28A1 1 0 0121 8.62v6.76a1 1 0 01-1.45.9L15 14M5 6h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+  ),
+  read: (cls) => (
+    <svg viewBox="0 0 24 24" fill="none" className={cls}><path d="M4 5.5A1.5 1.5 0 015.5 4H11v15H5.5A1.5 1.5 0 014 17.5v-12zM20 5.5A1.5 1.5 0 0018.5 4H13v15h5.5a1.5 1.5 0 001.5-1.5v-12z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/></svg>
+  ),
+  check: (cls) => (
+    <svg viewBox="0 0 24 24" fill="none" className={cls}><path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+  ),
+  spark: (cls) => (
+    <svg viewBox="0 0 24 24" fill="none" className={cls}><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><path d="M19 15l.7 1.8L21.5 17.5l-1.8.7L19 20l-.7-1.8L16.5 17.5l1.8-.7L19 15z" fill="currentColor" opacity="0.85"/></svg>
+  ),
+  arrow: (cls) => (
+    <svg viewBox="0 0 24 24" fill="none" className={cls}><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+  ),
+  chevron: (cls) => (
+    <svg viewBox="0 0 24 24" fill="none" className={cls}><path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+  ),
+  action: (cls) => (
+    <svg viewBox="0 0 24 24" fill="none" className={cls}><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round"/></svg>
+  ),
+  square: (cls) => (
+    <svg viewBox="0 0 24 24" fill="none" className={cls}><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" stroke="currentColor" strokeWidth="1.6"/></svg>
+  ),
+  question: (cls) => (
+    <svg viewBox="0 0 24 24" fill="none" className={cls}><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6"/><path d="M9.2 9.3a3 3 0 0 1 5.6 1.2c0 1.9-2.8 2.3-2.8 2.3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/><path d="M12 17h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+  ),
+  link: (cls) => (
+    <svg viewBox="0 0 24 24" fill="none" className={cls}><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1.5-1.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/></svg>
+  ),
+  alert: (cls) => (
+    <svg viewBox="0 0 24 24" fill="none" className={cls}><path d="M12 9v4m0 3.5h.01M10.3 4.3l-7.5 13A1.5 1.5 0 004.1 19.5h15.8a1.5 1.5 0 001.3-2.2l-7.5-13a1.5 1.5 0 00-2.6 0z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+  ),
+  coach: (cls) => (
+    <svg viewBox="0 0 24 24" fill="none" className={cls}><circle cx="9" cy="8" r="3.2" stroke="currentColor" strokeWidth="1.6"/><path d="M3.5 20c.6-3.2 2.9-5 5.5-5 1.2 0 2.3.3 3.2.9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/><path d="m14.5 18 2 2 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+  ),
+  message: (cls) => (
+    <svg viewBox="0 0 24 24" fill="none" className={cls}><path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2Z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/></svg>
+  ),
+};
+
+/* Which module the candidate is on now; drives the default-open section. */
+
+
+/* Sections with no content carry this note; the shared CP-DEMO-NOTICE handler at
+   the bottom of the page catches the click and shows the "Just a demo" dialog. */
+const NOT_BUILT = 'Only the first section, Know your values, is prototyped out. The rest of the pathway is not built yet.';
+
+/* ===================== Modules list (all sections, expandable) ==========
+   The alternate view. Every section is a collapsible row; expanding it lists
+   its subsections with a completion check. No action/video labels here: a
+   subsection can hold several courses, videos and actions, so we only show
+   whether it is done. Tapping any subsection jumps into the full-screen flow.
+   ========================================================================= */
+/* Copies a shareable link to any section, subsection or piece of content, so it
+   can be pasted into a text. Absolute URL, so it survives the trip. */
+function CopyLink({ href, label }) {
+  const [copied, setCopied] = React.useState(false);
+  const copy = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const url = new URL(href, window.location.href).href;
+    const flash = () => { setCopied(true); setTimeout(() => setCopied(false), 1500); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(flash, flash);
+    } else { flash(); }
+  };
+  return (
+    <button type="button" onClick={copy}
+            title={copied ? 'Copied to clipboard' : `Copy link to ${label}`}
+            aria-label={copied ? 'Link copied to clipboard' : `Copy link to ${label}`}
+            className={`relative z-30 inline-flex shrink-0 items-center gap-1 rounded p-1 text-[11px] font-extrabold transition ${copied ? 'text-appledark' : 'text-silver hover:text-azure'}`}>
+      {copied ? Icon.check('h-4 w-4') : Icon.link('h-4 w-4')}
+      {copied && <span>Copied</span>}
+    </button>
+  );
+}
+
+/* what each piece of content is, so you can tell an action from a lesson */
+const ITEM_ICON = { action: Icon.action, video: Icon.video, question: Icon.question, read: Icon.read };
+const ITEM_LABEL = { action: 'Action', video: 'Video', question: 'Question', read: 'Reading' };
+
+function ModulesList({ openId, onToggle, openSubId, onToggleSub, log, current }) {
+  return (
+    <section className="rounded-[9px] bg-white p-3 shadow-[0_0_6px_0_rgba(0,0,0,0.08)] sm:p-4">
+      <div className="space-y-2.5">
+        {MODULES.map((m) => {
+          const total = m.subtopics.length;
+          const done = lessonsDone(m, log);
+          const open = openActions(m, log).length;
+          const complete = moduleComplete(m, log);
+          const isCurrent = m.id === current.id;
+          const stop = isCurrent ? stoppedAt(m, log) : null;
+          const isOpen = openId === m.id;
+          return (
+            <div key={m.id} className="overflow-hidden rounded-[9px] bg-white shadow-[0_0_6px_0_rgba(0,0,0,0.08)]">
+              {/* section header: a full-row toggle, with the copy link sitting above it */}
+              <div className="relative flex w-full items-center gap-3.5 overflow-hidden bg-white px-3.5 py-3 transition-colors hover:bg-porcelain">
+                {/* faint periwinkle track, then an azure fill left-to-right (lessons
+                    AND actions), so a section is never fully filled while actions are
+                    still open. Blue is progress; green is reserved for completion. */}
+                <span aria-hidden="true" className="pointer-events-none absolute inset-0" style={{ background: 'rgba(205,215,234,0.18)' }} />
+                <span aria-hidden="true"
+                      className="pointer-events-none absolute inset-y-0 left-0 transition-[width] duration-700"
+                      style={{ width: (moduleProgress(m, log) * 100) + '%', background: 'linear-gradient(to right, rgba(58,95,173,0.20), rgba(88,115,250,0.10))' }} />
+                <button onClick={() => onToggle(m.id)} aria-expanded={isOpen} aria-label={`${isOpen ? 'Collapse' : 'Expand'} ${m.label}`}
+                        className="absolute inset-0 z-10" />
+                {/* number badge (neutral; the current section is tinted azure) */}
+                <span className={`pointer-events-none relative z-20 grid h-11 w-11 shrink-0 place-items-center rounded-[9px] text-[12.5px] font-extrabold ${isCurrent ? 'bg-azure/10 text-azure' : 'bg-concrete text-boulder'}`}>{m.num}</span>
+                <div className="pointer-events-none relative z-20 min-w-0 flex-1">
+                  {isCurrent && <div className="text-[12px] font-extrabold leading-tight text-azure">Pick up where you left off</div>}
+                  <div className="text-[16px] font-extrabold leading-tight text-mineshaft">{m.label}</div>
+                  <div className="mt-0.5 text-[11px] font-normal text-dusty">{statusLine(m, log)}</div>
+                </div>
+                {open > 0 && (
+                  <span className="pointer-events-none relative z-20 shrink-0 rounded-md bg-warning/[0.12] px-2 py-1 text-[11px] font-extrabold text-warning">
+                    {open} action{open > 1 ? 's' : ''} open
+                  </span>
+                )}
+                {complete && (
+                  <span className="pointer-events-none relative z-20 grid h-5 w-5 shrink-0 place-items-center rounded-full text-appledark ring-1 ring-appledark/50">{Icon.check('h-3 w-3')}</span>
+                )}
+                {m.coachCheckIn && (
+                  <span className="pointer-events-none relative z-20 inline-flex shrink-0 items-center gap-1 rounded-full bg-azure/10 px-2 py-1 text-[9.5px] font-extrabold uppercase tracking-wide text-azure">
+                    {Icon.coach('h-3.5 w-3.5')}<span className="hidden sm:inline">Coach check-in</span>
+                  </span>
+                )}
+                {moduleHref(m) && <CopyLink href={moduleHref(m)} label={m.label} />}
+                <span className={`pointer-events-none relative z-20 shrink-0 ${isOpen ? 'rotate-180 text-azure' : 'text-silver'}`}>{Icon.chevron('h-4 w-4')}</span>
+              </div>
+
+              {/* lessons in this section */}
+              {isOpen && (
+                <div className="border-t border-mercury bg-porcelain/60 px-3 py-2.5 fade-in">
+                  {/* special gate: confirm readiness with the coach before filing */}
+                  {m.coachCheckIn && (
+                    <div className="mb-2.5 flex items-start gap-3 rounded-[9px] bg-white px-3.5 py-3 shadow-[0_0_6px_0_rgba(0,0,0,0.08)]">
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-azure/10 text-azure">{Icon.coach('h-5 w-5')}</span>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[13px] font-extrabold leading-tight text-mineshaft">{m.coachCheckIn.title}</div>
+                        <div className="mt-1 text-[12px] font-normal leading-snug text-boulder">{m.coachCheckIn.body}</div>
+                        <button type="button"
+                                className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-azure px-4 py-1.5 text-[12px] font-extrabold text-white">
+                          {Icon.message('h-3.5 w-3.5')} Message your coach
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  {m.insight && (
+                    <p className="mb-3 border-l-2 border-azure/40 py-0.5 pl-4 font-lato text-[15px] leading-relaxed text-boulder">{m.insight}</p>
+                  )}
+                  <div className="space-y-1">
+                    {m.subtopics.map((s, i) => {
+                      const watched = subComplete(s, log);
+                      const isStop = !!stop && s.id === stop.id;
+                      const href = flowHref(s);
+                      const open = subOpenActions(s, log).length;
+                      const done = subComplete(s, log);
+
+                      /* A built subsection opens a second caret onto its items. */
+                      if (s.items) {
+                        const isSubOpen = openSubId === s.id;
+                        const stopIt = isStop ? stoppedItem(s, log) : null;
+                        return (
+                          <div key={s.id} className={`rounded-[9px] bg-white ${isStop ? 'ring-1 ring-azure/50' : ''}`}>
+                            <div className={`relative flex w-full items-center gap-3 rounded-[9px] px-2.5 py-2.5 transition-colors ${isStop ? 'bg-azure/[0.06] hover:bg-azure/[0.10]' : 'hover:bg-porcelain'}`}>
+                              <button onClick={() => onToggleSub(s.id)} aria-expanded={isSubOpen}
+                                      aria-label={`${isSubOpen ? 'Collapse' : 'Expand'} ${s.title}`}
+                                      className="absolute inset-0 z-10 rounded-[9px]" />
+                              <span className={`pointer-events-none relative z-20 shrink-0 ${isStop ? 'grid h-6 w-6 place-items-center rounded-full bg-azure text-[12px] font-extrabold text-white' : 'w-4 text-[12px] font-normal text-dusty'}`}>{i + 1}</span>
+                              <span className="pointer-events-none relative z-20 min-w-0 flex-1">
+                                {isStop && <span className="block text-[10.5px] font-extrabold uppercase tracking-wide text-azure">Continue here</span>}
+                                <span className={`block text-[13.5px] font-extrabold leading-tight ${isStop ? 'text-azure' : done ? 'text-boulder' : 'text-mineshaft'}`}>{s.title}</span>
+                                {subItems(s).length > 0 && (
+                                  <span className="mt-0.5 block text-[11.5px] font-normal text-dusty">
+                                    {subItems(s).length} items
+                                  </span>
+                                )}
+                              </span>
+                              {open > 0
+                                ? <span className="pointer-events-none relative z-20 shrink-0 rounded-md bg-warning/[0.12] px-2 py-0.5 text-[11px] font-extrabold text-warning">{open} action{open > 1 ? 's' : ''} open</span>
+                                : done
+                                  ? <span className="pointer-events-none relative z-20 grid h-5 w-5 shrink-0 place-items-center rounded-full text-appledark ring-1 ring-appledark/50">{Icon.check('h-3 w-3')}</span>
+                                  : null}
+                              {href && <CopyLink href={href} label={s.title} />}
+                              <span className={`pointer-events-none relative z-20 shrink-0 ${isSubOpen ? 'rotate-180 text-azure' : 'text-silver'}`}>{Icon.chevron('h-4 w-4')}</span>
+                            </div>
+                            {isSubOpen && (
+                              <div className="space-y-0.5 border-t border-mercury px-2.5 py-2">
+                                {s.items.map((it) => {
+                                  const ih = itemHref(s, it);
+                                  const itDone = itemDone(it, log);
+                                  const isItemStop = stopIt && it.id === stopIt.id;
+                                  return (
+                                    <div key={it.id} className={`group flex items-center gap-2.5 rounded-[9px] px-2 py-2 transition-colors ${isItemStop ? 'bg-azure/[0.09]' : 'hover:bg-porcelain'}`}>
+                                      <a href={ih || '#'} data-demo={ih ? undefined : NOT_BUILT}
+                                         className="flex min-w-0 flex-1 items-center gap-2.5">
+                                        <span className={`shrink-0 ${itDone ? 'text-appledark' : 'text-azure'}`}>
+                                          {ITEM_ICON[it.type](' h-4 w-4')}
+                                        </span>
+                                        <span className="min-w-0 flex-1">
+                                          {isItemStop && <span className="block text-[10px] font-extrabold uppercase tracking-wide text-azure">Start here</span>}
+                                          <span className={`block text-[13px] leading-tight ${isItemStop ? 'font-extrabold text-azure' : itDone ? 'font-normal text-boulder' : 'font-extrabold text-mineshaft'}`}>{it.title}</span>
+                                          <span className="mt-0.5 block text-[11px] font-normal text-dusty">
+                                            {ITEM_LABEL[it.type]}
+                                          </span>
+                                        </span>
+                                      </a>
+                                      {ih && <CopyLink href={ih} label={it.title} />}
+                                      {itDone
+                                        ? <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full text-appledark ring-1 ring-appledark/50">{Icon.check('h-3 w-3')}</span>
+                                        : isItemStop
+                                          ? <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-azure px-3 py-1 text-[11px] font-extrabold text-white">Resume {Icon.arrow('h-3 w-3')}</span>
+                                          : Icon.arrow('h-4 w-4 shrink-0 text-silver group-hover:text-azure')}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <a key={s.id} href={href || '#'} data-demo={href ? undefined : NOT_BUILT}
+                           className={`group flex items-center gap-3 rounded-[9px] px-2.5 py-2.5 transition-colors ${isStop ? 'bg-azure/[0.08]' : 'hover:bg-white'}`}>
+                          <span className="w-4 shrink-0 text-[12px] font-normal text-dusty">{i + 1}</span>
+                          <span className="min-w-0 flex-1">
+                            <span className={`block text-[13.5px] leading-tight ${isStop ? 'font-extrabold text-azure' : watched ? 'font-normal text-boulder' : 'font-normal text-mineshaft'}`}>{s.title}</span>
+                            {isStop && <span className="mt-0.5 block text-[11.5px] font-normal text-azure/80">You stopped here</span>}
+                          </span>
+                          {watched
+                            ? <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full text-appledark ring-1 ring-appledark/50">{Icon.check('h-3 w-3')}</span>
+                            : isStop
+                              ? <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-azure px-3.5 py-1.5 text-[12px] font-extrabold text-white">Resume {Icon.arrow('h-3.5 w-3.5')}</span>
+                              : Icon.arrow('h-4 w-4 shrink-0 text-silver group-hover:text-azure')}
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+/* ======================= Next actions (right rail) =======================
+   Every action you have reached but not finished, across the whole pathway.
+   Sits beside the lessons on wide screens so it never pushes them down. */
+function NextActions({ todo }) {
+  if (!todo.length) return null;
+  return (
+    <section className="rounded-[9px] bg-white p-4 shadow-[0_0_6px_0_rgba(0,0,0,0.08)] sm:p-5">
+      <div className="flex items-baseline gap-2.5 border-b border-mercury pb-3">
+        <h2 className="text-[16px] font-extrabold text-mineshaft">Next actions</h2>
+        <span className="text-[13px] font-normal text-dusty">{todo.length} open</span>
+      </div>
+      <div className="divide-y divide-mercury">
+        {todo.map((t, i) => {
+          // deep-link straight to the specific action, not the section start
+          const href = itemHref(t.sub, t.action) || flowHref(t.sub);
+          return (
+            <a key={i} href={href || '#'} data-demo={href ? undefined : NOT_BUILT}
+               className="group flex items-center gap-3 py-3.5 transition-colors hover:bg-porcelain">
+              <span className="min-w-0 flex-1">
+                <span className="block text-[15px] font-extrabold leading-tight text-mineshaft">{t.action.title}</span>
+                {/* where this action actually lives, so the jump is never a surprise */}
+                <span className="mt-1 block text-[12px] font-normal leading-tight text-dusty">
+                  {t.mod.num}. {t.mod.label} <span className="text-silver">&rsaquo;</span> {t.sub.title}
+                </span>
+              </span>
+              {Icon.arrow('h-4 w-4 shrink-0 text-silver group-hover:text-azure')}
+            </a>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+/* ================================= App =================================== */
+function App() {
+  // whatever the Values Flow has recorded so far; re-read on every visit
+  const log = React.useMemo(loadLog, []);
+  const current = React.useMemo(() => currentModule(log), [log]);
+  const todo = React.useMemo(() => buildTodo(log), [log]);
+
+  const stopSub = React.useMemo(() => stoppedAt(current, log), [current, log]);
+  const [openId, setOpenId] = React.useState(current.id);  // the expanded section
+  const [openSubId, setOpenSubId] = React.useState(stopSub ? stopSub.id : null);  // opens on where you left off
+  const toggleModule = (id) => setOpenId((cur) => (cur === id ? null : id));
+  const toggleSub = (id) => setOpenSubId((cur) => (cur === id ? null : id));
+
+  return (
+    <div className="mx-auto max-w-[1120px] px-4 py-8 sm:px-6 sm:py-10">
+      {/* header */}
+      <header className="mb-6">
+        <div className="text-[13px] font-normal text-boulder">Training</div>
+        <h1 className="mt-0.5 text-[26px] font-black leading-none text-mineshaft sm:text-[35px] sm:leading-[40px]">Your Campaign Pathways</h1>
+      </header>
+
+      {/* lessons carry the page; next actions ride shotgun on the right */}
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
+        <div className="min-w-0 flex-1">
+          <ModulesList openId={openId} onToggle={toggleModule} openSubId={openSubId} onToggleSub={toggleSub}
+                       log={log} current={current} />
+        </div>
+        {todo.length > 0 && (
+          <aside className="w-full shrink-0 lg:sticky lg:top-6 lg:w-[320px]">
+            <NextActions todo={todo} />
+          </aside>
+        )}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+<!-- CP-DEMO-NOTICE:start (shared: any dead link says "just a demo") -->
+<style>
+  #cp-demo{position:fixed;inset:0;z-index:2147483000;display:none;place-items:center;padding:16px;
+    background:rgba(21,20,26,.42);font-family:Avenir,Arial,Arimo,Helvetica,sans-serif}
+  #cp-demo.is-on{display:grid}
+  #cp-demo .cpd-card{width:100%;max-width:360px;background:#fff;border-radius:9px;padding:24px;
+    text-align:center;box-shadow:0 0 6px 0 rgba(0,0,0,.08)}
+  #cp-demo .cpd-t{font-size:18px;font-weight:900;color:#2B2B2B;letter-spacing:.005em}
+  #cp-demo .cpd-b{margin:8px 0 0;font-size:14px;line-height:1.5;color:#797979;font-weight:400}
+  #cp-demo .cpd-x{margin-top:20px;border:0;cursor:pointer;border-radius:999px;background:#3A5FAD;
+    color:#fff;padding:10px 20px;font-size:13px;font-weight:800;font-family:inherit}
+  #cp-demo .cpd-x:hover{filter:brightness(.95)}
+</style>
+<div id="cp-demo" role="dialog" aria-modal="true" aria-labelledby="cp-demo-title">
+  <div class="cpd-card">
+    <div class="cpd-t" id="cp-demo-title">Just a demo</div>
+    <p class="cpd-b"></p>
+    <button class="cpd-x" type="button">Got it</button>
+  </div>
+</div>
+<script>(function(){
+  var DEFAULT = 'This part of the prototype is not built yet.';
+  var el = document.getElementById('cp-demo');
+  var body = el.querySelector('.cpd-b');
+  function show(msg){ body.textContent = msg || DEFAULT; el.classList.add('is-on'); }
+  function hide(){ el.classList.remove('is-on'); }
+  el.addEventListener('click', function(e){ if (e.target === el) hide(); });
+  el.querySelector('.cpd-x').addEventListener('click', hide);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') hide(); });
+
+  // Any anchor that goes nowhere (href="#", empty, or opted in with data-demo)
+  // is a dead end in the prototype: say so instead of doing nothing.
+  document.addEventListener('click', function(e){
+    if (e.defaultPrevented) return;
+    var a = e.target.closest && e.target.closest('a,[data-demo]');
+    if (!a) return;
+    if (a.closest('#cp-proto-nav') || a.closest('#cp-demo')) return;  // internal nav + this dialog
+    var href = a.getAttribute('href');
+    var dead = a.hasAttribute('data-demo') || !href || href === '' || href.charAt(0) === '#'
+               || href.indexOf('javascript:') === 0;
+    if (!dead) return;
+    e.preventDefault();
+    show(a.getAttribute('data-demo'));
+  });
+})();</script>
+<!-- CP-DEMO-NOTICE:end -->
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blue Stream Fiber - showcase</title>
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;height:100%;}
+body{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:#c6cfd8 url('satin-bg-blue.png') center center / cover no-repeat fixed;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+.scene{position:relative;display:flex;align-items:center;justify-content:center;padding:48px 24px;}
+.phone{
+  position:relative;width:330px;height:684px;border-radius:58px;padding:13px;
+  background:linear-gradient(140deg,rgba(255,255,255,.62),rgba(220,226,236,.22) 42%,rgba(255,255,255,.46) 72%,rgba(206,213,226,.32));
+  box-shadow:
+    0 54px 95px -26px rgba(48,58,78,.52),
+    0 14px 34px rgba(40,50,70,.18),
+    inset 0 1px 2px rgba(255,255,255,.95),
+    inset 0 -2px 3px rgba(255,255,255,.55),
+    inset 0 0 0 1px rgba(255,255,255,.4);
+  backdrop-filter:blur(3px) saturate(118%);
+  -webkit-backdrop-filter:blur(3px) saturate(118%);
+}
+.glow{position:absolute;inset:0;border-radius:58px;pointer-events:none;
+  background:linear-gradient(160deg,rgba(255,255,255,.55),transparent 28%,transparent 72%,rgba(255,255,255,.4));
+  mix-blend-mode:screen;}
+.screen{position:relative;width:304px;height:658px;border-radius:46px;overflow:hidden;background:#fff;
+  box-shadow:inset 0 0 0 2px rgba(0,0,0,.05);}
+.screen iframe{width:390px;height:844px;border:0;display:block;transform:scale(.7795);transform-origin:top left;}
+.notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:102px;height:26px;border-radius:16px;background:#0b0f14;z-index:5;}
+</style>
+</head>
+<body>
+<div class="scene">
+  <div class="phone">
+    <div class="glow"></div>
+    <div class="screen">
+      <iframe src="app.html?v=2" title="Blue Stream Fiber prototype" scrolling="no"></iframe>
+      <div class="notch"></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

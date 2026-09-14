@@ -1,0 +1,979 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Candidate Onboarding</title>
+
+<!-- React + Babel so this stays a real React component you can lift into Next.js -->
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script>
+  Babel.registerPreset('react-classic', {
+    presets: [[Babel.availablePresets['react'], { runtime: 'classic' }]],
+  });
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+  // Candidate Pathway style tokens (matches the CP coach dashboard)
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Avenir', 'Avenir Next', 'Arimo', 'Arial', 'Helvetica', 'sans-serif'] },
+        colors: {
+          azure:'#3A5FAD', orient:'#00567E', cornflower:'#5873FA', periwinkle:'#CDD7EA',
+          pigeon:'#B4C2DF', apple:'#30BC36', bpurple:'#7F56D9', warning:'#DC6803', error:'#D92D20',
+          accentred:'#C4161C', woodsmoke:'#15141A', mineshaft:'#2B2B2B', boulder:'#797979',
+          dusty:'#9B9B9B', silver:'#BDBDBD', alto:'#D5D5D5', mercury:'#E5E5E5',
+          concrete:'#F2F2F2', porcelain:'#F8FAFA',
+        },
+      },
+    },
+  };
+</script>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Arimo:wght@400;500;600;700&display=swap');
+
+  /* ============================ TOKENS =================================
+     One source of truth for every finish knob. A later video/Remotion
+     version can read these same numbers so the motion never drifts. */
+  :root{
+    /* surface + ink */
+    --porc:#F8FAFA; --paper:#FDFEFE; --ink:#1F2430; --ink-soft:#6B7280; --ink-faint:#9B9B9B;
+    --line:#E7EBF1; --line-soft:#EEF1F6;
+    /* brand accent ramp */
+    --azure:#3A5FAD; --orient:#00567E; --corn:#5873FA; --peri:#CDD7EA; --bpurple:#7F56D9;
+    --apple:#30BC36; --accentred:#C4161C;
+    /* radii */
+    --r-sm:10px; --r-md:16px; --r-lg:22px; --r-xl:30px;
+    /* elevation: soft, layered, low-opacity */
+    --e-1:0 1px 2px rgba(24,39,75,.05), 0 4px 12px rgba(24,39,75,.05);
+    --e-2:0 1px 2px rgba(24,39,75,.05), 0 10px 30px rgba(24,39,75,.08);
+    --e-3:0 2px 6px rgba(24,39,75,.06), 0 24px 60px rgba(24,39,75,.13);
+    /* durations */
+    --t-fast:150ms; --t-mid:280ms; --t-slow:420ms; --t-scene:640ms;
+    /* easings */
+    --ease:cubic-bezier(.4,0,.2,1); --ease-out:cubic-bezier(.16,.84,.44,1);
+    --ease-in:cubic-bezier(.5,0,.75,0); --pop:cubic-bezier(.34,1.56,.64,1);
+  }
+
+  html,body{background:var(--porc);margin:0;}
+  *{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+  ::selection{background:rgba(88,115,250,.24);}
+  ::-webkit-scrollbar{width:9px;height:9px;}
+  ::-webkit-scrollbar-thumb{background:#DDE3EC;border-radius:6px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+
+  /* ---------------------- ambient aurora + grid --------------------- */
+  #stage{position:fixed;inset:0;overflow:hidden;}
+  .aurora{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5;
+    will-change:transform;pointer-events:none;}
+  .aurora.a1{width:46vw;height:46vw;left:-10vw;top:-12vw;
+    background:radial-gradient(circle at 30% 30%, rgba(88,115,250,.55), rgba(88,115,250,0) 70%);
+    animation:drift1 26s var(--ease) infinite;}
+  .aurora.a2{width:40vw;height:40vw;right:-8vw;top:-6vw;
+    background:radial-gradient(circle at 60% 40%, rgba(58,95,173,.45), rgba(58,95,173,0) 70%);
+    animation:drift2 32s var(--ease) infinite;}
+  .aurora.a3{width:50vw;height:50vw;left:20vw;bottom:-24vw;
+    background:radial-gradient(circle at 50% 50%, rgba(127,86,217,.30), rgba(127,86,217,0) 70%);
+    animation:drift3 38s var(--ease) infinite;}
+  @keyframes drift1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(6vw,4vw) scale(1.12)}}
+  @keyframes drift2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-5vw,5vw) scale(1.08)}}
+  @keyframes drift3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-4vw,-5vw) scale(1.15)}}
+  .grid-veil{position:absolute;inset:0;pointer-events:none;
+    background-image:radial-gradient(circle at 1px 1px, rgba(58,95,173,.05) 1px, transparent 0);
+    background-size:26px 26px;
+    -webkit-mask-image:radial-gradient(circle at 50% 42%, #000 30%, transparent 78%);
+            mask-image:radial-gradient(circle at 50% 42%, #000 30%, transparent 78%);}
+  /* faint grain kills gradient banding, adds richness */
+  .grain{position:absolute;inset:0;pointer-events:none;opacity:.028;mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+  #root{position:relative;z-index:1;min-height:100vh;}
+
+  /* ---------------------- reveal / stagger utility ------------------ */
+  .reveal{opacity:0;transform:translateY(16px);
+    animation:reveal .62s var(--ease-out) forwards;animation-delay:var(--d,0ms);}
+  @keyframes reveal{to{opacity:1;transform:none}}
+  .reveal-soft{opacity:0;transform:translateY(9px);
+    animation:reveal .5s var(--ease-out) forwards;animation-delay:var(--d,0ms);}
+
+  /* ---------------------- scene veil transition --------------------- */
+  /* A soft porcelain veil breathes in over the old scene, then dissolves
+     off the new one. Gentle by design: opacity only, no travel. */
+  #wipe{position:fixed;inset:0;z-index:80;pointer-events:none;opacity:0;
+    background:radial-gradient(120% 90% at 50% 42%, rgba(248,250,250,.96), rgba(237,241,248,.99));
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
+  #wipe.cover{animation:veilCover .38s var(--ease) forwards;}
+  #wipe.reveal{animation:veilReveal .60s var(--ease) forwards;}
+  @keyframes veilCover{from{opacity:0}to{opacity:1}}
+  @keyframes veilReveal{from{opacity:1}to{opacity:0}}
+
+  /* ---------------------- step directional transition -------------- */
+  .anim-in-fwd{animation:inFwd .46s var(--ease-out) both;}
+  .anim-out-fwd{animation:outFwd .30s var(--ease-in) both;}
+  .anim-in-back{animation:inBack .46s var(--ease-out) both;}
+  .anim-out-back{animation:outBack .30s var(--ease-in) both;}
+  @keyframes inFwd{from{opacity:0;transform:translateX(44px)}to{opacity:1;transform:none}}
+  @keyframes outFwd{from{opacity:1;transform:none}to{opacity:0;transform:translateX(-40px)}}
+  @keyframes inBack{from{opacity:0;transform:translateX(-44px)}to{opacity:1;transform:none}}
+  @keyframes outBack{from{opacity:1;transform:none}to{opacity:0;transform:translateX(40px)}}
+
+  /* ---------------------- misc motion atoms ------------------------- */
+  .pop{animation:pop .5s var(--pop) both;}
+  @keyframes pop{0%{transform:scale(.86);opacity:0}100%{transform:scale(1);opacity:1}}
+  .check-draw{stroke-dasharray:26;stroke-dashoffset:26;animation:draw .42s var(--ease-out) .06s forwards;}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  .ring-draw{stroke-dasharray:150;stroke-dashoffset:150;animation:draw2 .6s var(--ease-out) forwards;}
+  @keyframes draw2{to{stroke-dashoffset:0}}
+
+  /* sheen sweep on the primary button */
+  .sheen{position:relative;overflow:hidden;}
+  .sheen::after{content:"";position:absolute;top:0;left:-140%;width:60%;height:100%;
+    transform:skewX(-20deg);
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.38),transparent);
+    transition:none;}
+  .sheen:hover::after{animation:sweep .8s var(--ease) forwards;}
+  @keyframes sweep{to{left:140%}}
+
+  .lift{transition:transform var(--t-fast) var(--ease), box-shadow var(--t-mid) var(--ease), border-color var(--t-fast) var(--ease);}
+  .press:active{transform:scale(.975);}
+
+  /* glass card */
+  .glass{background:linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,.82));
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,.75);box-shadow:var(--e-3);}
+
+  /* animated progress fill with a moving shimmer */
+  .prog-fill{background:linear-gradient(90deg,var(--azure),var(--corn));position:relative;overflow:hidden;
+    transition:width .55s var(--ease-out);}
+  .prog-fill::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);
+    transform:translateX(-100%);animation:shimmer 2.1s var(--ease) infinite;}
+  @keyframes shimmer{to{transform:translateX(100%)}}
+
+  /* loading orbit */
+  .orbit{animation:spin 1.15s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .breathe{animation:breathe 2.4s var(--ease) infinite;}
+  @keyframes breathe{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.05);opacity:1}}
+
+  /* done burst */
+  .burst span{position:absolute;left:50%;top:50%;width:7px;height:7px;border-radius:2px;
+    opacity:0;animation:burst .9s var(--ease-out) forwards;}
+  @keyframes burst{0%{opacity:1;transform:translate(-50%,-50%) scale(.3)}
+    100%{opacity:0;transform:translate(calc(-50% + var(--bx)),calc(-50% + var(--by))) scale(1)}}
+
+  /* simulated demo cursor */
+  #democursor{position:fixed;z-index:90;left:0;top:0;width:26px;height:26px;pointer-events:none;
+    opacity:0;transform:translate(-50%,-50%);transition:opacity .3s var(--ease);}
+  #democursor.on{opacity:1;}
+  #democursor .cur{filter:drop-shadow(0 3px 6px rgba(24,39,75,.35));}
+  #democursor .ripple{position:absolute;left:50%;top:50%;width:12px;height:12px;border-radius:50%;
+    border:2px solid var(--corn);transform:translate(-50%,-50%) scale(1);opacity:0;}
+  #democursor.click .ripple{animation:ripple .5s var(--ease-out);}
+  @keyframes ripple{0%{opacity:.7;transform:translate(-50%,-50%) scale(.4)}100%{opacity:0;transform:translate(-50%,-50%) scale(3.4)}}
+
+  @media (prefers-reduced-motion: reduce){
+    .aurora,.prog-fill::after,.orbit,.breathe,.sheen:hover::after{animation:none !important;}
+    .reveal,.reveal-soft,.pop,.check-draw,.ring-draw,.burst span,
+    .anim-in-fwd,.anim-out-fwd,.anim-in-back,.anim-out-back{
+      animation-duration:.001ms !important;animation-delay:0ms !important;opacity:1 !important;transform:none !important;}
+    #wipe.cover,#wipe.reveal{animation-duration:.12s !important;}
+  }
+</style>
+</head>
+
+<body class="font-sans" style="color:var(--ink)">
+<div id="stage" aria-hidden="true">
+  <div class="aurora a1"></div>
+  <div class="aurora a2"></div>
+  <div class="aurora a3"></div>
+  <div class="grid-veil"></div>
+  <div class="grain"></div>
+</div>
+
+<div id="root"></div>
+
+<div id="wipe"></div>
+
+<div id="democursor" aria-hidden="true">
+  <svg class="cur" width="26" height="26" viewBox="0 0 24 24" fill="none">
+    <path d="M5 3l14 8.5-6.2 1.2L16 20l-2.6 1.1-3.2-7.4L5 18V3z" fill="#fff" stroke="#1F2430" stroke-width="1.3" stroke-linejoin="round"/>
+  </svg>
+  <span class="ripple"></span>
+</div>
+
+<script type="text/babel" data-presets="react-classic">
+const { useState, useEffect, useRef, useMemo, useCallback } = React;
+
+/* ------------------------------- icons ---------------------------------- */
+const Icon = ({ d, size = 20, stroke = 1.75, fill = 'none', cls = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="currentColor"
+       strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" className={cls}>{d}</svg>
+);
+const I = {
+  arrowRight:<Icon d={<><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></>} />,
+  arrowLeft: <Icon d={<><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></>} />,
+  check:     <Icon d={<path d="M20 6 9 17l-5-5"/>} />,
+  x:         <Icon d={<path d="M18 6 6 18M6 6l12 12"/>} />,
+  search:    <Icon d={<><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></>} />,
+  mapPin:    <Icon d={<><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></>} />,
+  calendar:  <Icon d={<><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></>} />,
+  landmark:  <Icon d={<><path d="M3 22h18M6 18V11M10 18V11M14 18V11M18 18V11M12 2 21 8H3z"/></>} />,
+  building:  <Icon d={<><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01"/></>} />,
+  gavel:     <Icon d={<><path d="m14.5 12.5-8 8a2.12 2.12 0 1 1-3-3l8-8"/><path d="m16 16 6-6M8 8l6-6M9 7l8 8M21 11l-8-8"/></>} />,
+  flag:      <Icon d={<><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></>} />,
+  target:    <Icon d={<><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></>} />,
+  sparkles:  <Icon d={<path d="M9.94 14.34 12 21l2.06-6.66L21 12l-6.94-2.34L12 3 9.94 9.66 3 12z"/>} />,
+  rocket:    <Icon d={<><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></>} />,
+  clock:     <Icon d={<><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></>} />,
+  save:      <Icon d={<><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7H7v7M7 3v4h8"/></>} />,
+  dollar:    <Icon d={<><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></>} />,
+  fileCheck: <Icon d={<><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h5M9 15l2 2 4-4"/></>} />,
+  users:     <Icon d={<><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></>} />,
+  book:      <Icon d={<><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></>} />,
+  compass:   <Icon d={<><circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36z"/></>} />,
+  penTool:   <Icon d={<><path d="m12 19 7-7 3 3-7 7-3-3z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="m2 2 7.586 7.586"/><circle cx="11" cy="11" r="2"/></>} />,
+  heart:     <Icon d={<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7z"/>} />,
+  play:      <Icon d={<path d="M6 4l14 8-14 8z" fill="currentColor" stroke="none"/>} />,
+};
+
+/* --------------------------- mock data layer ---------------------------- */
+const CITIES = [
+  { city:'Las Vegas', county:'Clark County', state:'NV' },
+  { city:'Henderson', county:'Clark County', state:'NV' },
+  { city:'Reno', county:'Washoe County', state:'NV' },
+  { city:'Los Angeles', county:'Los Angeles County', state:'CA' },
+  { city:'Long Beach', county:'Los Angeles County', state:'CA' },
+  { city:'Sacramento', county:'Sacramento County', state:'CA' },
+  { city:'San Francisco', county:'San Francisco County', state:'CA' },
+  { city:'San Diego', county:'San Diego County', state:'CA' },
+  { city:'Miami', county:'Miami-Dade County', state:'FL' },
+  { city:'Orlando', county:'Orange County', state:'FL' },
+  { city:'Austin', county:'Travis County', state:'TX' },
+  { city:'Houston', county:'Harris County', state:'TX' },
+  { city:'Phoenix', county:'Maricopa County', state:'AZ' },
+  { city:'Tucson', county:'Pima County', state:'AZ' },
+  { city:'Portland', county:'Multnomah County', state:'OR' },
+  { city:'Salem', county:'Marion County', state:'OR' },
+  { city:'Denver', county:'Denver County', state:'CO' },
+  { city:'Boulder', county:'Boulder County', state:'CO' },
+  { city:'Atlanta', county:'Fulton County', state:'GA' },
+];
+
+const OFFICE_TAXONOMY = {
+  'Federal':['U.S. Senate','U.S. House of Representatives'],
+  'Statewide':['Governor','Lieutenant Governor','Secretary of State','Attorney General','Treasurer'],
+  'State Legislature':['State Senate','State Assembly'],
+  'County':['County Commissioner','County Clerk','Sheriff','District Attorney','County Treasurer'],
+  'Municipal':['Mayor','City Council','City Attorney'],
+  'School / Special District':['School Board','Water District Board'],
+  'Judicial':['District Court Judge','Supreme Court Justice'],
+};
+const OFFICE_LEVEL_ICON = {
+  'Federal':I.flag, 'Statewide':I.landmark, 'State Legislature':I.landmark,
+  'County':I.building, 'Municipal':I.building, 'School / Special District':I.book, 'Judicial':I.gavel,
+};
+
+const STATUS_OPTIONS = [
+  { id:'exploring', label:'Just exploring the idea', sub:'Kicking the tires, no commitment yet', icon:I.compass },
+  { id:'preparing', label:'Seriously considering, preparing to file', sub:'Getting your ducks in a row', icon:I.clock },
+  { id:'running', label:'Currently running', sub:'Filed, or about to file', icon:I.rocket },
+  { id:'veteran', label:"I've run before, considering another run", sub:'You know the drill', icon:I.flag },
+];
+
+const WORRIES = [
+  { id:'fundraising', label:'Fundraising', icon:I.dollar },
+  { id:'compliance', label:'Compliance and filings', icon:I.fileCheck },
+  { id:'signatures', label:'Gathering signatures', icon:I.penTool },
+  { id:'name-id', label:'Name recognition', icon:I.users },
+  { id:'message', label:'Message and platform', icon:I.sparkles },
+  { id:'field', label:'Field and GOTV', icon:I.target },
+  { id:'time', label:'Finding the time', icon:I.clock },
+];
+
+/* ------------------------ neutral mark (no brand) ------------------------ */
+/* Deliberately generic: a gradient coin with a compass spark. No org name,
+   no wordmark, so the recording stays private. */
+function Seal({ size = 96 }) {
+  return (
+    <svg viewBox="0 0 100 100" width={size} height={size} aria-label="Pathway mark">
+      <defs>
+        <linearGradient id="mkg" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#3A5FAD"/><stop offset=".55" stopColor="#5873FA"/><stop offset="1" stopColor="#7F56D9"/>
+        </linearGradient>
+      </defs>
+      <circle cx="50" cy="50" r="46" fill="url(#mkg)"/>
+      <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(255,255,255,.35)" strokeWidth="1.5"/>
+      <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,.22)" strokeWidth="1"/>
+      <path d="M50 26 L57 43 L74 50 L57 57 L50 74 L43 57 L26 50 L43 43 Z" fill="#fff" opacity=".95"/>
+      <circle cx="50" cy="50" r="4.5" fill="url(#mkg)"/>
+    </svg>
+  );
+}
+function Lockup() {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="grid place-items-center rounded-full bg-white shadow-[var(--e-1)]" style={{width:40,height:40}}>
+        <Seal size={26} />
+      </span>
+    </div>
+  );
+}
+
+/* ------------------------------ UI atoms -------------------------------- */
+const PrimaryBtn = React.forwardRef(({ children, onClick, disabled, big }, ref) => (
+  <button ref={ref} onClick={onClick} disabled={disabled}
+    className={`sheen press inline-flex items-center gap-2 rounded-full font-bold text-white transition
+      ${big ? 'px-7 py-3.5 text-[15px]' : 'px-5 py-2.5 text-sm'}
+      ${disabled ? 'cursor-not-allowed' : ''}`}
+    style={{
+      background: disabled ? 'var(--peri)' : 'linear-gradient(135deg,#3A5FAD,#5873FA)',
+      boxShadow: disabled ? 'none' : '0 6px 18px rgba(58,95,173,.35), inset 0 1px 0 rgba(255,255,255,.25)',
+      transition:'transform var(--t-fast) var(--ease), box-shadow var(--t-mid) var(--ease), filter var(--t-fast) var(--ease)',
+    }}
+    onMouseDown={(e)=>e.currentTarget.style.filter='brightness(.97)'}
+    onMouseUp={(e)=>e.currentTarget.style.filter=''}
+    onMouseLeave={(e)=>e.currentTarget.style.filter=''}>
+    {children}
+  </button>
+));
+
+/* --------------------------- step: Q1 status ---------------------------- */
+function StatusStep({ value, onPick, cardRefs }) {
+  return (
+    <div className="space-y-3">
+      {STATUS_OPTIONS.map((o, i) => {
+        const on = value === o.id;
+        return (
+          <button key={o.id} ref={(el)=>{ if(cardRefs) cardRefs.current[i]=el; }} onClick={() => onPick(o.id)}
+            style={{ '--d': (i*70)+'ms',
+              boxShadow: on ? '0 10px 30px rgba(58,95,173,.16)' : 'var(--e-1)',
+              transition:'transform var(--t-fast) var(--ease), box-shadow var(--t-mid) var(--ease), border-color var(--t-fast) var(--ease)' }}
+            className={`reveal-soft press group flex w-full items-center gap-4 rounded-[var(--r-md)] border p-4 text-left bg-white
+              ${on ? 'border-azure' : 'border-[var(--line)] hover:border-pigeon'}`}
+            onMouseEnter={(e)=>{ if(!on) e.currentTarget.style.transform='translateY(-2px)'; }}
+            onMouseLeave={(e)=>{ e.currentTarget.style.transform=''; }}>
+            <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-[12px] transition`}
+              style={{ background: on ? 'linear-gradient(135deg,#3A5FAD,#5873FA)' : '#F1F4F9',
+                       color: on ? '#fff' : '#6B7280' }}>{o.icon}</span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-[15px] font-bold" style={{color:'var(--ink)'}}>{o.label}</span>
+              <span className="block text-[13px]" style={{color:'var(--ink-soft)'}}>{o.sub}</span>
+            </span>
+            <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-md border text-[11px] font-bold transition`}
+              style={{ borderColor: on ? 'var(--azure)' : 'var(--line)',
+                       background: on ? 'var(--azure)' : '#fff', color: on ? '#fff' : 'var(--silver)' }}>
+              {on ? <span className="pop scale-75">{I.check}</span> : String.fromCharCode(65 + i)}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/* --------------------------- step: Q2 location -------------------------- */
+const LocationStep = React.forwardRef(function LocationStep({ value, onSelect, query, setQuery, resultRef }, ref) {
+  const [open, setOpen] = useState(false);
+  const [hi, setHi] = useState(0);
+  const inputRef = useRef(null);
+  useEffect(()=>{ if(ref) ref.current = inputRef.current; }, [ref]);
+
+  const results = useMemo(() => {
+    const s = (query||'').trim().toLowerCase();
+    if (!s) return [];
+    return CITIES.filter((c) => c.city.toLowerCase().startsWith(s)).slice(0, 6);
+  }, [query]);
+
+  useEffect(() => { inputRef.current && inputRef.current.focus(); }, []);
+  useEffect(() => { if ((query||'').trim()) setOpen(true); }, [query]);
+
+  const choose = (c) => { onSelect(c); setQuery(c.city); setOpen(false); };
+  const onKey = (e) => {
+    if (!open || !results.length) return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); setHi((h) => (h + 1) % results.length); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setHi((h) => (h - 1 + results.length) % results.length); }
+    else if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); choose(results[hi]); }
+    else if (e.key === 'Escape') { setOpen(false); }
+  };
+
+  return (
+    <div className="relative">
+      <div className="flex items-center gap-2.5 rounded-[var(--r-md)] border bg-white px-3.5 py-3.5 transition"
+        style={{ borderColor: open ? 'var(--azure)' : 'var(--line)',
+                 boxShadow: open ? '0 0 0 4px rgba(58,95,173,.10)' : 'var(--e-1)' }}>
+        <span style={{color:'var(--silver)'}}>{I.search}</span>
+        <input ref={inputRef} value={query}
+          onChange={(e) => { setQuery(e.target.value); setOpen(true); setHi(0); if (value) onSelect(null); }}
+          onFocus={() => setOpen(true)} onKeyDown={onKey}
+          placeholder="Start typing your city, e.g. Aus..."
+          className="w-full bg-transparent text-[15px] outline-none" style={{color:'var(--ink)'}} />
+        {value && <span style={{color:'var(--apple)'}}>{I.check}</span>}
+      </div>
+
+      {open && results.length > 0 && (
+        <div className="reveal-soft absolute z-20 mt-2 w-full overflow-hidden rounded-[var(--r-md)] border bg-white"
+          style={{borderColor:'var(--line)', boxShadow:'var(--e-3)'}}>
+          {results.map((c, i) => (
+            <button key={c.city + c.state} ref={(el)=>{ if(resultRef && i===0) resultRef.current = el; }}
+              onMouseDown={(e) => e.preventDefault()} onClick={() => choose(c)} onMouseEnter={() => setHi(i)}
+              className="flex w-full items-center gap-3 px-3.5 py-3 text-left transition"
+              style={{ background: i === hi ? 'rgba(88,115,250,.09)' : '#fff' }}>
+              <span style={{color:'var(--azure)'}}>{I.mapPin}</span>
+              <span className="text-[14px]">
+                <span className="font-bold" style={{color:'var(--ink)'}}>{c.city}</span>
+                <span style={{color:'var(--ink-soft)'}}>, {c.county}, {c.state}</span>
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {value && (
+        <div className="pop mt-4 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[13px] font-semibold"
+          style={{borderColor:'var(--peri)', background:'rgba(205,215,234,.4)', color:'var(--orient)'}}>
+          {I.mapPin}{value.city}, {value.county}, {value.state}
+        </div>
+      )}
+      <p className="mt-3 text-[12px]" style={{color:'var(--ink-faint)'}}>We store city, county, and state so we can pull your local rules and races.</p>
+    </div>
+  );
+});
+
+/* --------------------------- step: Q3 office ---------------------------- */
+function OfficeStep({ level, office, onLevel, onOffice }) {
+  return (
+    <div className="space-y-5">
+      <div>
+        <div className="mb-2 text-[12px] font-bold uppercase tracking-[0.12em]" style={{color:'var(--ink-faint)'}}>Office level</div>
+        <div className="flex flex-wrap gap-2">
+          {Object.keys(OFFICE_TAXONOMY).map((lv, i) => {
+            const on = level === lv;
+            return (
+              <button key={lv} onClick={() => onLevel(lv)}
+                className="reveal-soft press inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-[13px] font-bold transition"
+                style={{ '--d':(i*40)+'ms',
+                  borderColor: on ? 'var(--azure)' : 'var(--line)',
+                  background: on ? 'rgba(58,95,173,.06)' : '#fff',
+                  color: on ? 'var(--azure)' : 'var(--ink-soft)' }}>
+                <span style={{color: on ? 'var(--azure)' : 'var(--silver)'}}>{OFFICE_LEVEL_ICON[lv]}</span>{lv}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      {level && (
+        <div className="reveal-soft">
+          <div className="mb-2 text-[12px] font-bold uppercase tracking-[0.12em]" style={{color:'var(--ink-faint)'}}>Seat</div>
+          <div className="flex flex-wrap gap-2">
+            {OFFICE_TAXONOMY[level].map((seat, i) => {
+              const on = office === seat;
+              return (
+                <button key={seat} onClick={() => onOffice(seat)}
+                  className="reveal-soft press rounded-full border px-3.5 py-2 text-[13px] font-bold transition"
+                  style={{ '--d':(i*40)+'ms',
+                    borderColor: on ? 'var(--azure)' : 'var(--line)',
+                    background: on ? 'var(--azure)' : '#fff',
+                    color: on ? '#fff' : 'var(--ink)' }}>{seat}</button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* --------------------------- step: Q4 worry ----------------------------- */
+function WorryStep({ selected, note, onToggle, onNote }) {
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-2">
+        {WORRIES.map((w, i) => {
+          const on = selected.includes(w.id);
+          return (
+            <button key={w.id} onClick={() => onToggle(w.id)} style={{'--d':(i*40)+'ms'}}
+              className="reveal-soft press inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-[13px] font-bold transition"
+              style={{ '--d':(i*40)+'ms',
+                borderColor: on ? 'var(--bpurple)' : 'var(--line)',
+                background: on ? 'rgba(127,86,217,.10)' : '#fff',
+                color: on ? 'var(--bpurple)' : 'var(--ink-soft)' }}>
+              <span style={{color: on ? 'var(--bpurple)' : 'var(--silver)'}}>{w.icon}</span>{w.label}
+              {on && <span className="pop scale-75" style={{color:'var(--bpurple)'}}>{I.check}</span>}
+            </button>
+          );
+        })}
+      </div>
+      <textarea value={note} onChange={(e) => onNote(e.target.value)} rows={3}
+        placeholder="Anything else on your mind? Optional."
+        className="w-full resize-none rounded-[var(--r-md)] border bg-white px-3.5 py-3 text-[14px] outline-none transition"
+        style={{borderColor:'var(--line)', color:'var(--ink)', boxShadow:'var(--e-1)'}} />
+    </div>
+  );
+}
+
+/* ================================ SCENES ================================ */
+
+/* --- Splash: brand seal reveal, auto-advances to home --- */
+function Splash() {
+  return (
+    <div className="grid min-h-screen place-items-center px-6">
+      <div className="flex flex-col items-center text-center">
+        <div className="pop relative grid place-items-center">
+          <svg className="absolute" width="150" height="150" viewBox="0 0 150 150" fill="none">
+            <circle cx="75" cy="75" r="70" stroke="rgba(58,95,173,.35)" strokeWidth="1.5" className="ring-draw"/>
+          </svg>
+          <span className="breathe grid place-items-center rounded-full bg-white" style={{width:118,height:118,boxShadow:'var(--e-3)'}}>
+            <Seal size={90} />
+          </span>
+        </div>
+        <div className="reveal mt-8 text-[13px] font-bold uppercase tracking-[0.32em]" style={{ '--d':'380ms', color:'var(--azure)' }}>
+          Candidate Onboarding
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* --- Home: the onboarding landing you click into --- */
+function Home({ onBegin, beginRef }) {
+  const chips = [
+    { icon:I.landmark, label:'Your race' },
+    { icon:I.calendar, label:'Your timeline' },
+    { icon:I.heart,    label:'What matters to you' },
+  ];
+  return (
+    <div className="relative min-h-screen">
+      <header className="reveal flex items-center justify-between px-6 py-6 sm:px-12" style={{'--d':'40ms'}}>
+        <Lockup />
+        <span className="hidden text-[12px] font-semibold sm:inline" style={{color:'var(--ink-faint)'}}>Sarah Mitchell</span>
+      </header>
+
+      <div className="mx-auto flex max-w-2xl flex-col items-center px-6 pb-24 pt-[7vh] text-center sm:pt-[10vh]">
+        <div className="reveal inline-flex items-center gap-2 rounded-full border bg-white/70 px-3.5 py-1.5 text-[11.5px] font-bold uppercase tracking-[0.14em]"
+          style={{'--d':'120ms', borderColor:'var(--line)', color:'var(--azure)'}}>
+          <span className="h-1.5 w-1.5 rounded-full" style={{background:'var(--corn)'}}></span>
+          Personalize your pathway
+        </div>
+
+        <h1 className="reveal mt-6 text-[42px] font-extrabold leading-[1.05] tracking-[-0.02em] sm:text-[58px]"
+          style={{'--d':'200ms'}}>
+          <span style={{color:'var(--ink)'}}>Welcome, </span>
+          <span style={{background:'linear-gradient(120deg,#3A5FAD,#5873FA 55%,#7F56D9)',WebkitBackgroundClip:'text',backgroundClip:'text',color:'transparent'}}>Sarah</span>
+          <span style={{color:'var(--ink)'}}>.</span>
+        </h1>
+
+        <p className="reveal mt-5 max-w-lg text-[17px] leading-relaxed sm:text-[18.5px]" style={{'--d':'300ms', color:'var(--ink-soft)'}}>
+          A few quick questions, and we shape a plan around your race, your timeline, and what matters to you. No deadlines here, just the groundwork.
+        </p>
+
+        <div className="reveal mt-8 flex flex-wrap items-center justify-center gap-2.5" style={{'--d':'400ms'}}>
+          {chips.map((c) => (
+            <span key={c.label} className="inline-flex items-center gap-2 rounded-full border bg-white px-3.5 py-2 text-[13px] font-semibold"
+              style={{borderColor:'var(--line)', color:'var(--ink-soft)', boxShadow:'var(--e-1)'}}>
+              <span style={{color:'var(--azure)'}}>{c.icon}</span>{c.label}
+            </span>
+          ))}
+        </div>
+
+        <div className="reveal mt-10 flex flex-col items-center gap-3" style={{'--d':'520ms'}}>
+          <PrimaryBtn ref={beginRef} big onClick={onBegin}>
+            Begin {I.arrowRight}
+          </PrimaryBtn>
+          <span className="text-[12.5px]" style={{color:'var(--ink-faint)'}}>Takes about two minutes</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* --- Loading: brief branded interlude between home and the wizard --- */
+function Loading() {
+  const steps = ['Reading your answers', 'Pulling your local rules', 'Shaping your plan'];
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    const t1 = setTimeout(()=>setN(1), 480);
+    const t2 = setTimeout(()=>setN(2), 940);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, []);
+  return (
+    <div className="grid min-h-screen place-items-center px-6">
+      <div className="flex flex-col items-center text-center">
+        <div className="relative grid place-items-center" style={{width:92,height:92}}>
+          <svg className="orbit absolute" width="92" height="92" viewBox="0 0 92 92" fill="none">
+            <circle cx="46" cy="46" r="42" stroke="rgba(58,95,173,.12)" strokeWidth="4"/>
+            <path d="M46 4a42 42 0 0 1 42 42" stroke="url(#lg)" strokeWidth="4" strokeLinecap="round"/>
+            <defs><linearGradient id="lg" x1="46" y1="4" x2="88" y2="46"><stop stopColor="#3A5FAD"/><stop offset="1" stopColor="#5873FA"/></linearGradient></defs>
+          </svg>
+          <span className="breathe grid place-items-center rounded-full bg-white" style={{width:60,height:60,boxShadow:'var(--e-2)'}}>
+            <Seal size={44} />
+          </span>
+        </div>
+        <div className="mt-8 text-[19px] font-extrabold tracking-tight" style={{color:'var(--ink)'}}>Personalizing your pathway</div>
+        <div className="mt-4 flex flex-col items-center gap-2">
+          {steps.map((s, i) => (
+            <div key={s} className="flex items-center gap-2 text-[13.5px] transition"
+              style={{ opacity: i <= n ? 1 : .35, color: i < n ? 'var(--ink-soft)' : 'var(--ink)' }}>
+              <span className="grid h-4 w-4 place-items-center rounded-full"
+                style={{ background: i < n ? 'var(--apple)' : (i===n ? 'var(--azure)' : 'var(--mercury)'), color:'#fff' }}>
+                {i < n ? <span className="scale-[0.5]">{I.check}</span> : null}
+              </span>
+              {s}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* --- Wizard: the questions, with directional step transitions --- */
+const STEP_META = {
+  status:   { n:1, kicker:'About you', q:'Where are you in the process?', help:'This shapes what you see first. Nothing here is locked in.' },
+  location: { n:2, kicker:'Your race', q:'Where are you running?', help:'We use this to pull your local rules, races, and deadlines.' },
+  office:   { n:3, kicker:'Your race', q:'What office are you aiming for?', help:'Pick the level, then the seat.' },
+  worry:    { n:4, kicker:'Focus', q:'What is weighing on you most?', help:'Pick any that apply. This one is optional.' },
+};
+
+const Wizard = React.forwardRef(function Wizard({ answers, setAnswers, onClose, onComplete, refs }, ref) {
+  const a = answers;
+  const patch = (p) => setAnswers((prev) => ({ ...prev, ...p }));
+  const [locQuery, setLocQuery] = useState(a.location ? a.location.city : '');
+
+  const steps = useMemo(() => {
+    const s = ['status', 'location'];
+    if (a.status !== 'exploring') s.push('office');
+    s.push('worry');
+    return s;
+  }, [a.status]);
+
+  const [idx, setIdx] = useState(0);       // logical step
+  const [render, setRender] = useState(0); // which step is on screen
+  const [anim, setAnim] = useState('anim-in-fwd');
+  const busy = useRef(false);
+  const key = steps[Math.min(render, steps.length - 1)];
+  const meta = STEP_META[key];
+
+  const canAdvance = useMemo(() => {
+    if (key === 'status') return !!a.status;
+    if (key === 'location') return !!a.location;
+    if (key === 'office') return !!a.office;
+    return true;
+  }, [key, a]);
+  const optional = key === 'worry' || (key === 'office' && a.status === 'exploring');
+
+  const transition = (nextIdx, dir) => {
+    if (busy.current) return;
+    busy.current = true;
+    setAnim(dir > 0 ? 'anim-out-fwd' : 'anim-out-back');
+    setTimeout(() => {
+      setRender(nextIdx); setIdx(nextIdx);
+      setAnim(dir > 0 ? 'anim-in-fwd' : 'anim-in-back');
+      setTimeout(() => { busy.current = false; }, 300);
+    }, 300);
+  };
+  const advance = () => {
+    if (idx >= steps.length - 1) { onComplete(); return; }
+    transition(idx + 1, 1);
+  };
+  const back = () => { if (idx > 0) transition(idx - 1, -1); };
+
+  // expose imperative hooks for auto-play
+  useEffect(() => { if (ref) ref.current = { advance, back, pickStatus, chooseCity, setLocQuery, get idx(){return idx;}, get key(){return key;} }; });
+
+  const pickStatus = (id) => { patch({ status: id }); setTimeout(advance, 300); };
+  const chooseCity = (c) => { patch({ location: c }); setLocQuery(c.city); };
+
+  useEffect(() => {
+    const onKey = (e) => {
+      const tag = (e.target.tagName || '').toUpperCase();
+      const typing = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+      if (e.key === 'Escape') { onClose(); return; }
+      if (key === 'status' && !typing) {
+        const map = { a:0,b:1,c:2,d:3,'1':0,'2':1,'3':2,'4':3 };
+        const hit = map[e.key.toLowerCase()];
+        if (hit != null && STATUS_OPTIONS[hit]) { pickStatus(STATUS_OPTIONS[hit].id); return; }
+      }
+      if (e.key === 'Enter') {
+        if (tag === 'TEXTAREA' && !(e.metaKey || e.ctrlKey)) return;
+        if (canAdvance) { e.preventDefault(); advance(); }
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [key, canAdvance, idx, a.status]);
+
+  const progress = steps.length > 1 ? idx / (steps.length - 1) : 0;
+
+  return (
+    <div className="min-h-screen">
+      <header className="reveal flex items-center justify-between gap-4 px-6 py-6 sm:px-12" style={{'--d':'60ms'}}>
+        <Lockup />
+        <button onClick={onClose}
+          className="press inline-flex items-center gap-2 rounded-full border bg-white px-3.5 py-2 text-[13px] font-bold transition"
+          style={{borderColor:'var(--line)', color:'var(--ink-soft)', boxShadow:'var(--e-1)'}}>
+          {I.save} Save and close
+        </button>
+      </header>
+
+      {/* progress bar + step dots */}
+      <div className="reveal mx-auto max-w-xl px-6" style={{'--d':'140ms'}}>
+        <div className="flex items-center justify-between pb-2 text-[12px] font-bold" style={{color:'var(--ink-faint)'}}>
+          <span className="uppercase tracking-[0.14em]" style={{color:'var(--azure)'}}>{meta.kicker}</span>
+          <span>Step {meta.n} of {steps.length}</span>
+        </div>
+        <div className="h-1.5 w-full overflow-hidden rounded-full" style={{background:'var(--line-soft)'}}>
+          <div className="prog-fill h-full rounded-full" style={{ width: `${Math.max(progress*100, 6)}%` }} />
+        </div>
+      </div>
+
+      {/* step stage */}
+      <div className="mx-auto max-w-xl px-6 pb-24 pt-8">
+        <div className={anim} key={render}>
+          <h1 className="text-[30px] font-extrabold leading-tight tracking-[-0.01em] sm:text-[36px]" style={{color:'var(--ink)'}}>{meta.q}</h1>
+          <p className="mb-8 mt-2.5 text-[15px] leading-relaxed" style={{color:'var(--ink-soft)'}}>{meta.help}</p>
+
+          <div className="mb-9">
+            {key === 'status'   && <StatusStep value={a.status} onPick={pickStatus} cardRefs={refs.statusCards} />}
+            {key === 'location' && <LocationStep ref={refs.locInput} resultRef={refs.locResult}
+                                      value={a.location} query={locQuery} setQuery={setLocQuery}
+                                      onSelect={(loc) => patch({ location: loc })} />}
+            {key === 'office'   && <OfficeStep level={a.level} office={a.office}
+                                      onLevel={(lv) => patch({ level: lv, office: null })} onOffice={(o) => patch({ office: o })} />}
+            {key === 'worry'    && <WorryStep selected={a.worries} note={a.worryNote}
+                                      onToggle={(id) => patch({ worries: a.worries.includes(id) ? a.worries.filter((x) => x !== id) : [...a.worries, id] })}
+                                      onNote={(v) => patch({ worryNote: v })} />}
+          </div>
+
+          <div className="flex items-center justify-between">
+            <button onClick={back} disabled={idx === 0}
+              className={`inline-flex items-center gap-1.5 text-[13px] font-bold transition ${idx === 0 ? 'invisible' : ''}`}
+              style={{color:'var(--ink-soft)'}}>{I.arrowLeft} Back</button>
+            <div className="flex items-center gap-4">
+              {optional && <button onClick={advance} className="text-[13px] font-bold transition" style={{color:'var(--ink-faint)'}}>Skip</button>}
+              <PrimaryBtn ref={refs.continueBtn} onClick={advance} disabled={!canAdvance}>
+                {idx === steps.length - 1 ? 'Enter your learning hub' : 'Continue'} {I.arrowRight}
+              </PrimaryBtn>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+/* --- Done: celebratory close --- */
+function Done({ answers, onRestart }) {
+  const burst = useMemo(() => Array.from({length:14}, (_,i) => {
+    const ang = (i/14)*Math.PI*2, r = 60 + (i%3)*18;
+    const colors = ['#3A5FAD','#5873FA','#7F56D9','#30BC36'];
+    return { bx:Math.cos(ang)*r+'px', by:Math.sin(ang)*r+'px', c:colors[i%4], d:(i*18)+'ms' };
+  }), []);
+  return (
+    <div className="grid min-h-screen place-items-center px-6">
+      <div className="flex flex-col items-center text-center">
+        <div className="relative grid place-items-center" style={{width:110,height:110}}>
+          <div className="burst absolute inset-0">
+            {burst.map((b,i)=>(<span key={i} style={{'--bx':b.bx,'--by':b.by,background:b.c,animationDelay:b.d}} />))}
+          </div>
+          <span className="pop grid place-items-center rounded-full" style={{width:88,height:88,background:'linear-gradient(135deg,#30BC36,#1E7B22)',boxShadow:'0 12px 30px rgba(48,188,54,.35)'}}>
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path className="check-draw" d="M20 6 9 17l-5-5"/></svg>
+          </span>
+        </div>
+        <h1 className="reveal mt-8 text-[34px] font-extrabold tracking-[-0.01em] sm:text-[40px]" style={{'--d':'160ms', color:'var(--ink)'}}>You are all set, Sarah.</h1>
+        <p className="reveal mt-3 max-w-md text-[16px] leading-relaxed" style={{'--d':'260ms', color:'var(--ink-soft)'}}>
+          Your pathway is built around your race and your timeline. Phase one, Know your values, is ready when you are.
+        </p>
+        <div className="reveal mt-9" style={{'--d':'380ms'}}>
+          <PrimaryBtn big onClick={onRestart}>Enter your learning hub {I.arrowRight}</PrimaryBtn>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================== APP SHELL =============================== */
+const BLANK = { status:null, location:null, level:null, office:null, timeline:null, worries:[], worryNote:'' };
+
+function App() {
+  const params = new URLSearchParams(location.search);
+  const [scene, setScene] = useState('splash');   // splash | home | loading | wizard | done
+  const [answers, setAnswers] = useState(BLANK);
+  // Self-driving by default so the page plays like a film; ?manual=1 opts out,
+  // and the "Take control" button hands the wheel to a real visitor.
+  const [auto, setAuto] = useState(params.get('manual') !== '1');
+  const [take, setTake] = useState(0);            // bumps each loop of the walkthrough
+
+  const beginRef = useRef(null);
+  const wizardApi = useRef(null);
+  const refs = {
+    statusCards: useRef([]),
+    locInput: useRef(null),
+    locResult: useRef(null),
+    continueBtn: useRef(null),
+  };
+
+  /* ---- scene veil controller: soft cross-dissolve between scenes ---- */
+  const wipeEl = () => document.getElementById('wipe');
+  const changeScene = useCallback((next) => {
+    const w = wipeEl();
+    w.classList.remove('reveal'); w.classList.add('cover');
+    setTimeout(() => {
+      setScene(next);
+      w.classList.remove('cover'); w.classList.add('reveal');
+      setTimeout(() => { w.classList.remove('reveal'); }, 620);
+    }, 400);
+  }, []);
+
+  /* ---- splash auto-advances into home ---- */
+  useEffect(() => {
+    if (scene !== 'splash') return;
+    const t = setTimeout(() => changeScene('home'), 1650);
+    return () => clearTimeout(t);
+  }, [scene, changeScene]);
+
+  const beginFlow = () => {
+    changeScene('loading');
+    setTimeout(() => changeScene('wizard'), 400 + 1650); // hold on loading, then reveal wizard
+  };
+  const finish = () => changeScene('done');
+  const restart = () => { setAnswers(BLANK); changeScene('home'); };
+
+  /* ---- simulated cursor demo (optional, for a hands-free recording take) ---- */
+  const cursor = {
+    el: () => document.getElementById('democursor'),
+    show(){ this.el().classList.add('on'); },
+    hide(){ this.el().classList.remove('on'); },
+    async move(x, y, ms=650){
+      const el = this.el();
+      el.style.transition = `left ${ms}ms var(--ease), top ${ms}ms var(--ease)`;
+      el.style.left = x+'px'; el.style.top = y+'px';
+      await sleep(ms);
+    },
+    async click(){
+      const el = this.el(); el.classList.remove('click'); void el.offsetWidth; el.classList.add('click');
+      await sleep(260);
+    },
+    async toEl(node, ms=650){
+      if (!node) { await sleep(ms); return; }
+      const r = node.getBoundingClientRect();
+      await this.move(r.left + r.width/2, r.top + r.height/2, ms);
+    },
+  };
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  /* The full scripted take: Begin, all four questions, celebration. Real DOM
+     clicks throughout so the film shows exactly what a user would trigger. */
+  const findBtn = (txt) => [...document.querySelectorAll('button')]
+    .find((b) => b.textContent.trim().toLowerCase().includes(txt.toLowerCase()));
+  const glideClick = async (node, ms=700, settle=250) => {
+    await cursor.toEl(node, ms);
+    await cursor.click();
+    if (node) node.click();
+    await sleep(settle);
+  };
+
+  useEffect(() => {
+    if (!auto) return;
+    let alive = true;
+    (async () => {
+      // wait out splash, the veil, and the home entrance
+      await sleep(1650 + 1000 + 900);
+      if (!alive) return;
+      cursor.show();
+      await cursor.move(innerWidth/2, innerHeight*0.66, 500);
+      await sleep(350);
+      // click Begin, then sit through loading + wizard reveal
+      await glideClick(beginRef.current, 750, 0);
+      await sleep(400 + 1650 + 1050);
+      if (!alive) return;
+      // Q1: pick "Seriously considering" (auto-advances)
+      await glideClick(refs.statusCards.current[1], 850, 0);
+      await sleep(300 + 900);
+      // Q2: type the city letter by letter, then choose Austin
+      await cursor.toEl(refs.locInput.current, 700);
+      await cursor.click();
+      for (const q of ['A', 'Au', 'Aus']) {
+        wizardApi.current && wizardApi.current.setLocQuery(q);
+        await sleep(160);
+      }
+      await sleep(520);
+      await cursor.toEl(refs.locResult.current, 600);
+      await cursor.click();
+      const austin = CITIES.find((c) => c.city === 'Austin');
+      wizardApi.current && wizardApi.current.chooseCity(austin);
+      await sleep(850);
+      await glideClick(refs.continueBtn.current, 700, 0);
+      await sleep(1050);
+      // Q3: level, then seat
+      await glideClick(findBtn('Municipal'), 800, 650);
+      await glideClick(findBtn('Mayor'), 700, 550);
+      await glideClick(refs.continueBtn.current, 650, 0);
+      await sleep(1050);
+      // Q4: what's weighing on you
+      await glideClick(findBtn('Fundraising'), 800, 420);
+      await glideClick(findBtn('Message and platform'), 620, 700);
+      // finish: into the celebration
+      await glideClick(refs.continueBtn.current, 750, 0);
+      await sleep(1000 + 2400);
+      cursor.hide();
+      await sleep(600);
+      window.__cpDemoDone = true;   // recorder watches for this
+      // hold the celebration, then loop the take from the top
+      await sleep(3000);
+      if (!alive) return;
+      setAnswers(BLANK);
+      changeScene('splash');
+      setTake((t) => t + 1);
+    })();
+    return () => { alive = false; };
+  }, [auto, take]);
+
+  return (
+    <div className="min-h-screen">
+      {scene === 'splash'  && <Splash />}
+      {scene === 'home'    && <Home onBegin={beginFlow} beginRef={beginRef} />}
+      {scene === 'loading' && <Loading />}
+      {scene === 'wizard'  && <Wizard ref={wizardApi} answers={answers} setAnswers={setAnswers}
+                                refs={refs} onClose={finish} onComplete={finish} />}
+      {scene === 'done'    && <Done answers={answers} onRestart={restart} />}
+
+      {/* unobtrusive controls; hidden in a clean capture with ?clean=1 */}
+      {params.get('clean') !== '1' && (
+        <div className="fixed bottom-5 right-5 z-[70] flex items-center gap-2">
+          {!auto && scene !== 'splash' && (
+            <button onClick={() => { setAnswers(BLANK); setAuto(true); changeScene('home'); }}
+              className="press inline-flex items-center gap-2 rounded-full border bg-white/90 px-4 py-2.5 text-[12px] font-bold backdrop-blur transition"
+              style={{borderColor:'var(--line)', color:'var(--ink-soft)', boxShadow:'var(--e-2)'}}>
+              <span style={{color:'var(--azure)'}}>{I.play}</span> Play walkthrough
+            </button>
+          )}
+          {auto ? (
+            <button onClick={() => { document.getElementById('democursor').classList.remove('on'); setAnswers(BLANK); setAuto(false); changeScene('home'); }}
+              className="press inline-flex items-center gap-2 rounded-full border bg-white/90 px-4 py-2.5 text-[12px] font-bold backdrop-blur transition"
+              style={{borderColor:'var(--line)', color:'var(--ink-soft)', boxShadow:'var(--e-2)'}}>
+              {I.arrowLeft} Take control
+            </button>
+          ) : (
+            <button onClick={() => { setAnswers(BLANK); setAuto(false); changeScene('splash'); }}
+              className="press inline-flex items-center gap-2 rounded-full border bg-white/90 px-4 py-2.5 text-[12px] font-bold backdrop-blur transition"
+              style={{borderColor:'var(--line)', color:'var(--ink-soft)', boxShadow:'var(--e-2)'}}>
+              {I.arrowLeft} Restart
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
