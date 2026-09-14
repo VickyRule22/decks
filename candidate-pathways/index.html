@@ -94,6 +94,24 @@
   .facts .v{font-family:'Archivo','Arial Narrow',sans-serif;font-stretch:72%;font-variation-settings:"wdth" 72;font-weight:850;font-size:9cqh;line-height:.9;color:var(--azure);}
   .facts .l{font-size:2cqh;line-height:1.45;color:var(--muted);}
 
+  /* research tables */
+  .tbl{border-top:.35cqh solid var(--ink);margin-top:2.4cqh;}
+  .tbl .tr{display:grid;grid-template-columns:var(--cols);gap:2.2cqw;padding:1.3cqh 0;border-bottom:1px solid var(--line);align-items:start;}
+  .tbl .th{font-size:1.5cqh;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--azure);padding:.9cqh 0;}
+  .tbl .k{font-family:'Archivo','Arial Narrow',sans-serif;font-stretch:72%;font-variation-settings:"wdth" 72;font-weight:850;font-size:2.7cqh;line-height:1.02;color:var(--ink);}
+  .tbl .c{font-size:1.8cqh;line-height:1.42;color:var(--muted);}
+  .tbl .c b{color:var(--ink);}
+  .tag{justify-self:start;font-size:1.5cqh;font-weight:700;padding:.5cqh 1cqw;border-radius:99px;white-space:nowrap;}
+  .tag.now{background:var(--azure);color:#fff;}
+  .tag.next{background:var(--wash);color:var(--azure);}
+  .tag.later{background:transparent;color:var(--muted);border:1px dashed var(--pigeon);}
+  .who{display:grid;grid-template-columns:repeat(4,1fr);gap:2.2cqw;margin-top:4cqh;}
+  .who div{border-top:.35cqh solid var(--ink);padding-top:2cqh;display:flex;flex-direction:column;gap:1.2cqh;}
+  .who .sign{font-size:3.6cqh;color:var(--ink);line-height:.98;}
+  .who .vp{font-size:1.6cqh;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--azure);}
+  .who .c{font-size:1.95cqh;line-height:1.45;color:var(--muted);}
+  .foot{margin-top:auto;font-size:1.85cqh;line-height:1.5;color:var(--muted);max-width:100ch;}
+
   /* the question */
   .q{font-family:'Archivo','Arial Narrow',sans-serif;font-stretch:72%;font-variation-settings:"wdth" 72;font-weight:850;font-size:11cqh;line-height:.92;
     color:var(--azure);max-width:16ch;text-wrap:balance;}
@@ -226,6 +244,22 @@
             <p class="body rise3">Organizing content only matters if it gets people from watching to doing. So before we touched a screen, we interviewed the people who live in the app: coaches, champions, and candidates.</p>
           </div>
           <p class="q rise2">What gets a candidate to finish an Action?</p>
+        </div>
+      </section>
+
+      <!-- 2b · WHO WE TALKED TO -->
+      <section class="slide" aria-label="Who we talked to">
+        <div class="pad" style="padding-top:8cqh;padding-bottom:7cqh;">
+          <p class="by rise" style="color:var(--azure);margin-bottom:1.6cqh;">Research</p>
+          <h2 class="h1 rise" style="max-width:24ch;">Four interviews with the people who live in the app.</h2>
+          <p class="body rise2" style="max-width:80ch;margin-top:2cqh;">Semi-structured, about 45 minutes each, recorded, in June 2026. Each role got its own script: why people do and don't use the app, then a deeper dive on Actions.</p>
+          <div class="who rise2">
+            <div><span class="vp">The end user</span><span class="sign">A first-time candidate</span><span class="c">Ran a statewide race and lost the primary. Living the campaign in real time.</span></div>
+            <div><span class="vp">The owner</span><span class="sign">The founder</span><span class="c">Champion, platform owner, and informal coach. Doing much of the setup by hand.</span></div>
+            <div><span class="vp">The program that scaled</span><span class="sign">A director and a mentor coach</span><span class="c">Interviewed together. The largest program: paid full-time staff and hundreds of prospects.</span></div>
+            <div><span class="vp">The program that stalled</span><span class="sign">A champion and former candidate</span><span class="c">Ran for office three times. Now building a smaller program, mostly alone.</span></div>
+          </div>
+          <p class="foot rise3" style="margin-top:4cqh;">Then we lined up what they told us against how the app is built, sorted it into six clusters, and mapped all 164 pieces of content into 8 plain-language phases before cutting it down to a first slice.</p>
         </div>
       </section>
 
@@ -387,6 +421,24 @@
           <div class="frame wipe">
             <div class="bar"><div class="dots"><i></i><i></i><i></i></div><span class="where">Prospect profile</span></div>
             <div class="view"><img src="img/prospect-profile.png" alt="A prospect profile for a coach: stalled status, messages waiting, coach notes, next actions"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 9b · WHAT WE HEARD, WHAT WE DID -->
+      <section class="slide" aria-label="What we heard, what we did">
+        <div class="pad" style="padding-top:6cqh;padding-bottom:5cqh;">
+          <p class="by rise" style="color:var(--azure);margin-bottom:1.2cqh;">Research to design</p>
+          <h2 class="h2 rise" style="max-width:34ch;">Every finding, and where it landed.</h2>
+          <div class="tbl rise2" style="--cols:.8fr 1.6fr 1.35fr .5fr;">
+            <div class="tr"><span class="th">Cluster</span><span class="th">What we heard</span><span class="th">What we did</span><span class="th">When</span></div>
+            <div class="tr"><span class="k">Actions kill momentum</span><span class="c"><b>Every participant raised it unprompted.</b> 50+ one-size-fits-all Actions. Optional, and people binged videos; required, and they "hit a wall." One team jumped candidates to level 9.</span><span class="c">Content grouped by topic, every Action unlocked, and save-for-later with a gentle nudge back.</span><span class="tag now">First slice</span></div>
+            <div class="tr"><span class="k">Coaches fly blind</span><span class="c">The founder <b>prints progress on paper</b> and called it "the failure of our system." Coaches judge who's serious by activity: "hasn't been on in 10 days."</span><span class="c">One signal: the list sorts by who's been gone longest, with a reach-out flag at about two weeks. New sign-ups get a week first.</span><span class="tag now">First slice</span></div>
+            <div class="tr"><span class="k">The work leaks off the app</span><span class="c"><b>Texting wins,</b> because phones are always on. The app is "out of sight, out of mind," a library people have to be reminded exists.</span><span class="c">A "Send to prospect" button that writes the message and opens the coach's own email or texts.</span><span class="tag next">Proposed</span></div>
+            <div class="tr"><span class="k">Nothing can be found</span><span class="c">Candidates "constantly" ask coaches for things already in the app. Links sit "on the side, lower, small font." Small save bugs broke trust.</span><span class="c">One Training hub instead of four format menus, sorted by goal. Heavy content, like the 12-hour course, becomes optional.</span><span class="tag next">Proposed</span></div>
+            <div class="tr"><span class="k">Same step, different person</span><span class="c">"Speak at a city council meeting" is a great next step for someone running next year, and "too daunting" for someone who isn't.</span><span class="c">Actions tailored by office, region, season, and stage.</span><span class="tag later">Second</span></div>
+            <div class="tr"><span class="k">Coaches need coaching</span><span class="c">"Everybody thinks they're a great mentor." A roadmap of Actions used to double as a coach's script.</span><span class="c">Coaching guidance inside each Action.</span><span class="tag later">Later</span></div>
+            <div class="tr"><span class="k">It doesn't scale past the champion</span><span class="c">The champion's playbook lives in offline decks and a separate project tool, so the founder does it by hand.</span><span class="c">Bring that playbook into the app, and connect programs across states.</span><span class="tag later">Later</span></div>
           </div>
         </div>
       </section>

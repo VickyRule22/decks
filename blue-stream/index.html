@@ -109,6 +109,21 @@
   .cost{display:grid;grid-template-columns:auto 1fr;gap:5cqw;align-items:end;}
   .cost .num{font-family:'Figtree',system-ui,sans-serif;font-weight:900;font-size:30cqh;line-height:.8;letter-spacing:-.05em;color:var(--blue);
     font-variant-numeric:tabular-nums;}
+  /* research + testing tables */
+  .tbl{border-top:.3cqh solid var(--ink);margin-top:2.6cqh;}
+  .tbl .tr{display:grid;grid-template-columns:var(--cols);gap:2.6cqw;padding:1.45cqh 0;border-bottom:1px solid var(--line);align-items:start;}
+  .tbl .th{font-size:1.5cqh;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--blue);padding:1.1cqh 0;}
+  .tbl .k{font-size:1.95cqh;font-weight:700;line-height:1.35;color:var(--ink);}
+  .tbl .c{font-size:1.95cqh;line-height:1.42;color:var(--muted);}
+  .tbl .c b{color:var(--ink);}
+  .tbl .num{display:flex;align-items:baseline;gap:.8cqw;flex-wrap:wrap;}
+  .tbl .num strong{font-family:'Figtree',system-ui,sans-serif;font-weight:900;font-size:4.2cqh;line-height:1;letter-spacing:-.03em;color:var(--ink);}
+  .tbl .num span{font-size:1.8cqh;color:var(--muted);}
+  .testing .tbl .tr{padding:1.3cqh 0;}
+  .testing .tbl .c,.testing .tbl .k{font-size:1.9cqh;line-height:1.4;}
+  .testing .tbl .num strong{font-size:3.3cqh;}
+  .testing .foot{margin-top:1.6cqh;font-size:1.6cqh;}
+  .foot{margin-top:2.6cqh;font-size:1.75cqh;line-height:1.45;color:var(--muted);max-width:110ch;}
   .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:3cqw;margin-top:auto;}
   .facts div{border-top:.3cqh solid var(--ink);padding-top:2cqh;display:flex;flex-direction:column;gap:.8cqh;}
   .facts .v{font-family:'Figtree',system-ui,sans-serif;font-weight:800;font-size:3.2cqh;line-height:1.1;color:var(--ink);}
@@ -244,7 +259,7 @@
           <div class="rail">
             <h2 class="h1 rise" style="max-width:14ch;">We designed for the user we actually had.</h2>
             <p class="body rise2">The brief said "reduce call volume." The people on the other end of those calls said something more useful: they trusted the phone, and they trusted a person.</p>
-            <p class="body rise3">So we tested with them. Five users between sixty and a hundred years old in round one. Six HOA residents, fifty-five and up, in round two. We tested with bifocals on, and with a finger that wasn't sure where to start.</p>
+            <p class="body rise3">So we tested with that same group: older adults who live with these struggles every day. Five users between sixty and a hundred years old in round one. Six people on community-wide plans, ages 55 to 73, in round two.</p>
           </div>
           <div class="sheet lift" role="list">
             <div class="row" role="listitem"><span class="k">Median age</span><span class="val">68</span></div>
@@ -252,6 +267,25 @@
             <div class="row" role="listitem"><span class="k">Asks for</span><span class="val">The phone<small>A strong, stated preference for calling support</small></span></div>
             <div class="row" role="listitem"><span class="k">Snowbirds</span><span class="val">Half the year away<small>They downgrade for the summer and rarely upgrade again</small></span></div>
             <div class="row" role="listitem"><span class="k">Also using the app</span><span class="val">The Helper<small>The daughter, the neighbor, the front-desk attendant</small></span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3b · RESEARCH -->
+      <section class="slide" aria-label="Research">
+        <div class="pad" style="padding-top:7cqh;padding-bottom:6cqh;">
+          <p class="by rise" style="color:var(--blue);font-weight:700;">Research</p>
+          <h2 class="h2 rise" style="max-width:30ch;">What we learned before we drew a screen.</h2>
+          <p class="body rise2" style="max-width:96ch;margin-top:1.4cqh;font-size:1.95cqh;">We compared 15 providers and best-in-class apps (AT&amp;T, Xfinity, Spectrum, Verizon, T-Mobile, Cox, Frontier, Hotwire, Virgin Media, Dominion, Google Home, Chase, Mint, Uber, and Lyft) using Gemini plus a manual review, then lined that up with what Blue Stream's own team hears on the phones.</p>
+          <div class="tbl rise3" style="--cols:1fr 1.15fr;">
+            <div class="tr"><span class="th">What we found</span><span class="th">What we did about it</span></div>
+            <div class="tr"><span class="c"><b>Login errors</b> are the industry's number one complaint.</span><span class="c">Passwordless sign-in with a one-time code, so there's no password to forget.</span></div>
+            <div class="tr"><span class="c"><b>Support chat</b> is slow and generic at the competition.</span><span class="c">Fin, an AI agent that answers right away and links straight to the matching help article.</span></div>
+            <div class="tr"><span class="c"><b>The bill</b> is the number one reason people call: "Where is the $180 coming from?" HOA residents often think they don't have a bill at all.</span><span class="c">Included vs. add-on on every charge, a "lowering your bill" answer from Fin, and one tap into the full itemized bill in the portal.</span></div>
+            <div class="tr"><span class="c"><b>Outages</b> turn into calls, because people don't check a website.</span><span class="c">Alerts for their own community, with an opt-in during sign-in.</span></div>
+            <div class="tr"><span class="c"><b>Snowbirds</b> in Florida and Texas downgrade when they leave, and rarely upgrade again.</span><span class="c">Pause Service, one tap from the app straight into the portal.</span></div>
+            <div class="tr"><span class="c"><b>Spanish speakers</b> get stuck at the front door.</span><span class="c">A language switch on every sign-in screen, and Spanish guides and videos that show up on their own.</span></div>
+            <div class="tr"><span class="c"><b>The Helper</b>: family and neighbors often tap on someone else's behalf.</span><span class="c">Every flow is simple enough for a helper to finish.</span></div>
           </div>
         </div>
       </section>
@@ -413,6 +447,25 @@
         </div>
       </section>
 
+      <!-- 12b · HOW WE TESTED -->
+      <section class="slide" aria-label="Usability testing">
+        <div class="pad testing" style="padding-top:5.5cqh;padding-bottom:4cqh;">
+          <p class="by rise" style="color:var(--blue);font-weight:700;">Usability testing</p>
+          <h2 class="h2 rise" style="max-width:40ch;font-size:4.4cqh;">Two rounds, with the people we were designing for.</h2>
+          <div class="tbl rise2" style="--cols:.5fr 1fr 1.1fr;margin-top:2cqh;">
+            <div class="tr"><span></span><span class="th">Round one · the concept</span><span class="th">Round two · a clickable prototype</span></div>
+            <div class="tr"><span class="k">Who</span><span class="c"><b>5 people, ages 60 to 100.</b> Most called themselves tech beginners.</span><span class="c"><b>6 people, ages 55 to 73,</b> whose internet comes through a community-wide plan.</span></div>
+            <div class="tr"><span class="k">What we tested</span><span class="c">The home screen's order, the jobs people need the app for, and whether they'd use an AI chatbot at all.</span><span class="c">A remote Lyssna test on December 10, 2025, on phones and desktops.</span></div>
+            <div class="tr"><span class="k">Jobs and tasks</span><span class="c">Their top three jobs: <b>pay or check the bill, check internet speed, hear about outages.</b></span><span class="c"><b>Two tasks on the prototype,</b> a 1-to-5 ease rating, and one open question: "If you had a magic wand, what would you change?"</span></div>
+            <div class="tr"><span class="k">Score</span><span class="c num"><strong>7.6 / 10</strong><span>likely to use, rated on the round-one concept</span></span><span class="c num"><strong>4.67 / 5</strong><span>ease of use</span></span></div>
+            <div class="tr"><span class="k">Task results</span><span class="c">Not measured in this round.</span><span class="c"><b>All 6 gave up on the first task. 4 of 6 finished the second.</b> Lyssna doesn't log why, so we used their own words, below.</span></div>
+            <div class="tr"><span class="k">What we heard</span><span class="c">Even self-described tech beginners weren't against a chatbot.</span><span class="c"><b>Billing was hard to find.</b> One person knew to look under Account, but said people "not as experienced may be at a loss." <b>It felt thin:</b> "sparse in terms of functionality," and a wish for more "color and pics."</span></div>
+            <div class="tr"><span class="k">What we changed</span><span class="c">Designed the chatbot around two hard rules: <b>it never pretends to be a person, and it never tries to sell.</b></span><span class="c"><b>Moved Billing out of Account and up the menu,</b> right next to Home, so paying never depends on knowing where to dig. Added more icons and pictures, within the 2026 brand.</span></div>
+          </div>
+          <p class="foot rise3">Small groups, so read the scores as signals, not statistics. 7.6 and 4.67 answer different questions, so they aren't a before-and-after.</p>
+        </div>
+      </section>
+
       <!-- 13 · WHAT TESTING SAID -->
       <section class="slide" aria-label="What testing said">
         <div class="pad" style="justify-content:center;">
@@ -424,7 +477,7 @@
               <div class="meter" style="grid-template-columns:repeat(5,1fr);" aria-hidden="true">
                 <i><b style="width:100%"></b></i><i><b style="width:100%"></b></i><i><b style="width:100%"></b></i><i><b style="width:100%"></b></i><i><b style="width:67%"></b></i>
               </div>
-              <p class="l"><strong>Ease of use</strong>, from a panel of HOA residents fifty-five and up. One of them looked for Billing under Account, so we moved Billing up the menu.</p>
+              <p class="l"><strong>Ease of use</strong>, from six people ages 55 to 73 on community-wide internet plans. One worried others would miss Billing under Account, so we moved Billing up the menu.</p>
             </div>
             <div class="score rise3">
               <div class="big">7.6<span>/ 10</span></div>
