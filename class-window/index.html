@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Who Gets In, and What Gets Out</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&display=swap" rel="stylesheet">
+<style>
+  /* Class Window pitch deck. Palette is the app's own 17 tokens: terracotta on cream,
+     with coralBright saved for fills that never carry text. Type is the product's:
+     Nunito 800 for headings, Nunito Sans for body. Rounded and warm on purpose, because
+     the subject is a school app that families are asked to trust. */
+  :root{
+    --coral:#A83D1C;
+    --coral-dark:#8A3115;
+    --coral-mid:#BC5025;
+    --bright:#F4845F;
+    --light:#F9B49A;
+    --tint:#FDE0D3;
+    --pale:#FCEEE8;
+    --cream:#FFF8F0;
+    --surface:#FFFFFF;
+    --divider:#F2E4D0;
+    --ink:#2C1A0E;
+    --muted:#8A5A3A;
+    --stage:#1E120A;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;}
+  body{background:var(--stage);color:var(--ink);font-family:'Nunito Sans','Avenir Next',Avenir,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;overflow:hidden;}
+  img,video{display:block;}
+
+  .stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--stage);}
+  .deck{position:relative;width:min(100vw,177.78vh);height:min(100vh,56.25vw);background:var(--cream);overflow:hidden;}
+  .track{display:flex;height:100%;width:100%;transition:transform .9s cubic-bezier(.22,1,.36,1);will-change:transform;}
+  .slide{position:relative;min-width:100%;height:100%;container-type:size;overflow:hidden;background:var(--cream);}
+
+  .slide.active .rise{animation:rise .8s .05s cubic-bezier(.22,1,.36,1) both;}
+  .slide.active .rise2{animation:rise .8s .16s cubic-bezier(.22,1,.36,1) both;}
+  .slide.active .rise3{animation:rise .8s .27s cubic-bezier(.22,1,.36,1) both;}
+  .slide.active .lift{animation:lift 1s .1s cubic-bezier(.22,1,.36,1) both;}
+  .slide.active .lift2{animation:lift 1s .22s cubic-bezier(.22,1,.36,1) both;}
+  .slide.active .lift3{animation:lift 1s .34s cubic-bezier(.22,1,.36,1) both;}
+  .slide.active .lift4{animation:lift 1s .46s cubic-bezier(.22,1,.36,1) both;}
+  @keyframes rise{from{opacity:.001;transform:translateY(2.2cqh);}to{opacity:1;transform:none;}}
+  @keyframes lift{from{opacity:.001;transform:translateY(4cqh);}to{opacity:1;transform:none;}}
+
+  /* type: the product's own rounded headings, humanist body */
+  h1,h2,h3,.sign{font-family:'Nunito','Avenir Next',Arial,sans-serif;font-weight:800;letter-spacing:-.018em;line-height:1.02;text-wrap:balance;}
+  .display{font-size:8.6cqh;line-height:.98;}
+  .h1{font-size:6.8cqh;}
+  .h2{font-size:5.2cqh;}
+  .lede{font-size:2.7cqh;line-height:1.45;max-width:44ch;}
+  .body{font-size:2.25cqh;line-height:1.52;max-width:46ch;color:var(--muted);}
+  .small{font-size:1.8cqh;line-height:1.45;color:var(--muted);}
+  .by{font-size:1.95cqh;line-height:1.4;font-weight:700;}
+  b,strong{font-weight:700;color:var(--ink);}
+  .eyebrow{font-size:1.55cqh;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--coral);}
+
+  .pad{padding:8.5cqh 7.5cqw;height:100cqh;display:flex;flex-direction:column;}
+  .split{display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:5cqw;height:100cqh;padding:0 7cqw;}
+  .split.rev{grid-template-columns:.95fr 1.05fr;}
+  .rail{display:flex;flex-direction:column;gap:2.4cqh;}
+
+  ul.marks{list-style:none;display:flex;flex-direction:column;gap:1.4cqh;max-width:44ch;}
+  ul.marks li{position:relative;padding-left:3.2cqh;font-size:2.15cqh;line-height:1.45;color:var(--muted);}
+  ul.marks li::before{content:"";position:absolute;left:0;top:.85cqh;width:1.4cqh;height:1.4cqh;border-radius:.45cqh;background:var(--bright);}
+
+  /* grounds */
+  .g-peach{background:var(--bright);color:var(--ink);}
+  .g-peach h1,.g-peach h2,.g-peach h3,.g-peach b{color:var(--ink);}
+  .g-peach .lede{color:rgba(44,26,14,.88);}
+  .g-peach .by,.g-peach .small,.g-peach .body{color:rgba(44,26,14,.8);}
+  .g-peach .eyebrow{color:var(--coral-dark);}
+  .g-peach ul.marks li{color:rgba(44,26,14,.82);}
+  .g-peach ul.marks li::before{background:var(--coral);}
+  .g-ink{background:var(--stage);color:#fff;}
+  .g-ink h2,.g-ink h3,.g-ink b{color:#fff;}
+  .g-ink .body,.g-ink .small,.g-ink .by{color:rgba(255,255,255,.76);}
+  .g-ink .lede{color:rgba(255,255,255,.9);}
+  .g-ink h1{color:#fff;}
+  .g-ink .eyebrow{color:var(--bright);}
+  .g-pale{background:var(--pale);}
+
+  /* phone */
+  .phone{position:relative;height:84cqh;aspect-ratio:402/880;flex-shrink:0;}
+  /* The stills are transparent PNGs of the prototype's own device shell, so the shadow
+     is a drop-shadow on the alpha rather than a box behind a rectangle. */
+  .phone img,.phone video{width:100%;height:100%;object-fit:contain;
+    filter:drop-shadow(0 3.4cqh 7cqh rgba(20,12,6,.34)) drop-shadow(0 .8cqh 1.8cqh rgba(20,12,6,.18));}
+  .phone.mov{height:84cqh;}
+  .phone.mov video{border-radius:4.39cqh;
+    filter:none;box-shadow:0 3.4cqh 7cqh rgba(20,12,6,.34),0 .8cqh 1.8cqh rgba(20,12,6,.18);}
+  .phone.md{height:74cqh;}
+  .phone.sm{height:58cqh;}
+  .duo{display:flex;gap:2.4cqw;justify-content:center;align-items:flex-start;}
+  .duo .phone:nth-child(2){margin-top:5cqh;}
+  .trio{display:flex;gap:1.8cqw;justify-content:center;align-items:flex-start;margin-top:3cqh;}
+  .cap{font-size:1.65cqh;line-height:1.4;color:var(--muted);text-align:center;margin-top:1.4cqh;max-width:26ch;}
+  .shot{width:100%;border-radius:1.2cqh;overflow:hidden;background:#fff;border:1px solid var(--divider);
+    box-shadow:0 3cqh 7cqh rgba(44,26,14,.2),0 .6cqh 1.4cqh rgba(44,26,14,.1);}
+  .shot img{width:100%;height:auto;display:block;}
+  img.pp{display:none;}
+
+  /* facts */
+  .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:3.5cqw;margin-top:auto;}
+  .facts div{border-top:.35cqh solid var(--ink);padding-top:2.2cqh;display:flex;flex-direction:column;gap:1cqh;}
+  .facts .v{font-family:'Nunito',sans-serif;font-weight:900;font-size:8cqh;line-height:.9;color:var(--coral);letter-spacing:-.03em;}
+  .facts .l{font-size:1.95cqh;line-height:1.45;color:var(--muted);}
+
+  /* the question */
+  .q{font-family:'Nunito',sans-serif;font-weight:800;font-size:8.4cqh;line-height:1.02;letter-spacing:-.022em;
+    color:var(--coral);max-width:15ch;text-wrap:balance;}
+
+  /* research roster */
+  .who{display:grid;grid-template-columns:repeat(3,1fr);gap:2.6cqw;margin-top:4cqh;}
+  .who div{border-top:.35cqh solid var(--ink);padding-top:2cqh;display:flex;flex-direction:column;gap:1.1cqh;}
+  .who .sign{font-size:3.3cqh;color:var(--ink);line-height:1.05;}
+  .who .vp{font-size:1.5cqh;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--coral);}
+  .who .c{font-size:1.9cqh;line-height:1.45;color:var(--muted);}
+  .foot{margin-top:auto;font-size:1.85cqh;line-height:1.5;color:var(--muted);max-width:100ch;}
+
+  /* fork: two mechanisms weighed */
+  .fork{display:grid;grid-template-columns:1fr 1fr;gap:2.6cqw;margin-top:3.4cqh;}
+  .card{background:var(--surface);border:1px solid var(--divider);border-radius:1.4cqh;padding:3cqh 2.4cqw;
+    display:flex;flex-direction:column;gap:1.6cqh;box-shadow:0 2cqh 5cqh rgba(44,26,14,.09);}
+  .card h3{font-size:3.4cqh;}
+  .card .fl{font-size:1.5cqh;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--coral);}
+  .card p{font-size:1.95cqh;line-height:1.48;color:var(--muted);}
+  .card.win{border-color:var(--bright);border-width:.35cqh;}
+  .verdict{margin-top:3cqh;display:flex;align-items:center;gap:1.6cqw;}
+  .verdict .pill{background:var(--coral);color:#fff;font-size:1.9cqh;font-weight:700;padding:1cqh 1.8cqw;border-radius:99px;white-space:nowrap;}
+  .verdict p{font-size:2.15cqh;line-height:1.45;color:var(--ink);max-width:62ch;}
+
+  /* rule table */
+  .tbl{border-top:.35cqh solid var(--ink);margin-top:2.4cqh;}
+  .tbl .tr{display:grid;grid-template-columns:var(--cols);gap:2.2cqw;padding:1.35cqh 0;border-bottom:1px solid var(--divider);align-items:start;}
+  .tbl .th{font-size:1.45cqh;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--coral);padding:.8cqh 0;}
+  .tbl .k{font-family:'Nunito',sans-serif;font-weight:800;font-size:2.5cqh;line-height:1.1;color:var(--ink);}
+  .tbl .c{font-size:1.78cqh;line-height:1.44;color:var(--muted);}
+  .tbl .c b{color:var(--ink);}
+  .tag{justify-self:start;font-size:1.45cqh;font-weight:700;padding:.5cqh 1cqw;border-radius:99px;white-space:nowrap;}
+  .tag.built{background:var(--coral);color:#fff;}
+  .tag.next{background:var(--tint);color:var(--coral-dark);}
+  .tag.later{background:transparent;color:var(--muted);border:1px dashed var(--light);}
+
+  /* the loud one */
+  .huge-mark{position:absolute;right:-3cqw;top:50%;transform:translateY(-50%);font-size:64cqh;line-height:.78;font-weight:900;
+    font-family:'Nunito',sans-serif;color:rgba(44,26,14,.11);letter-spacing:-.05em;pointer-events:none;}
+  .loud{position:relative;z-index:1;height:100cqh;display:flex;flex-direction:column;justify-content:center;gap:3.4cqh;padding:0 8cqw;max-width:80cqw;}
+  .loud .story{font-size:2.7cqh;line-height:1.48;color:rgba(44,26,14,.86);max-width:44ch;}
+  .loud .rule{height:.4cqh;width:11cqw;background:var(--coral);}
+
+  /* quote */
+  .pull{font-size:2.9cqh;line-height:1.38;font-weight:700;color:var(--ink);max-width:30ch;border-left:.5cqh solid var(--bright);padding-left:1.6cqw;}
+  .quote{font-family:'Nunito',sans-serif;font-weight:800;font-size:6.6cqh;line-height:1.08;letter-spacing:-.02em;
+    color:#fff;max-width:24ch;text-wrap:balance;}
+  .quote::before{content:"\201C";color:var(--light);margin-left:-.42em;}
+  .quote::after{content:"\201D";color:var(--light);}
+
+  /* phases */
+  .phases{display:grid;grid-template-columns:1.25fr 1fr;gap:3cqw;margin-top:3.6cqh;}
+  .phase{border-top:.35cqh solid var(--ink);padding-top:2.2cqh;display:flex;flex-direction:column;gap:1.6cqh;}
+  .phase.later{border-top-style:dashed;border-top-color:var(--light);}
+  .phase h3{font-size:4cqh;}
+  .phase.later h3{color:var(--muted);}
+
+  .steps{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:1.6cqh 2cqw;max-width:54ch;counter-reset:st;}
+  .steps li{counter-increment:st;display:flex;flex-direction:column;gap:.4cqh;border-top:.3cqh solid var(--ink);padding-top:1.3cqh;}
+  .steps li::before{content:"0" counter(st);font-family:'Nunito',sans-serif;font-weight:900;font-size:2.3cqh;color:var(--coral);}
+  .steps b{font-size:2.1cqh;}
+  .steps span{font-size:1.85cqh;line-height:1.42;color:var(--muted);}
+
+  /* outcomes */
+  .outs{display:grid;grid-template-columns:repeat(3,1fr);gap:3cqw;margin-top:4.4cqh;}
+  .out{border-top:.35cqh solid var(--ink);padding-top:2.2cqh;display:flex;flex-direction:column;gap:1.4cqh;}
+  .out .sign{font-size:4.6cqh;color:var(--coral);}
+
+  .proto{display:inline-flex;align-items:center;gap:1.4cqh;align-self:flex-start;padding:1.9cqh 2.8cqh 1.9cqh 3.4cqh;border-radius:99px;
+    background:var(--coral);color:#fff;font-size:2.4cqh;font-weight:700;line-height:1;text-decoration:none;position:relative;z-index:35;
+    box-shadow:0 1.4cqh 3.6cqh rgba(30,18,10,.32);transition:transform .3s cubic-bezier(.22,1,.36,1),box-shadow .3s cubic-bezier(.22,1,.36,1);}
+  .proto:hover{transform:translateY(-.45cqh);box-shadow:0 2cqh 4.8cqh rgba(30,18,10,.32);}
+  .proto svg{width:2.6cqh;height:2.6cqh;transition:transform .3s cubic-bezier(.22,1,.36,1);}
+  .proto:hover svg{transform:translateX(.6cqh);}
+  .proto:focus-visible{outline:2px solid #fff;outline-offset:4px;}
+  .links{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:1.2cqh 3.4cqw;margin-top:.8cqh;}
+  .links a{display:flex;flex-direction:column;gap:.5cqh;color:#fff;text-decoration:none;position:relative;z-index:35;}
+  .links a span:first-child{font-size:1.55cqh;color:rgba(255,255,255,.72);}
+  .links a span:last-child{font-size:2cqh;font-weight:700;border-bottom:.2cqh solid rgba(255,255,255,.5);padding-bottom:.3cqh;}
+  .links a:hover span:last-child{border-bottom-color:#fff;}
+  .links a:focus-visible{outline:2px solid #fff;outline-offset:4px;}
+  .close-mark{display:flex;align-items:center;gap:1.4cqw;font-size:2.15cqh;font-weight:700;color:#fff;}
+  .close-mark .dot{width:1cqh;height:1cqh;border-radius:50%;background:var(--light);}
+
+  /* chrome */
+  .progress{position:fixed;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.1);z-index:40;}
+  .progress .bar{height:100%;background:var(--bright);width:0;transition:width .55s cubic-bezier(.76,0,.16,1);}
+  .counter{position:fixed;right:2.4vw;bottom:2.6vh;z-index:41;font:700 11px/1 'Nunito Sans',Arial,sans-serif;letter-spacing:.14em;color:#fff;
+    mix-blend-mode:difference;opacity:.6;font-variant-numeric:tabular-nums;pointer-events:none;}
+  .nav-zone{position:fixed;top:0;bottom:0;width:12vw;z-index:30;cursor:pointer;background:none;border:0;}
+  .nav-zone.prev{left:0;}.nav-zone.next{right:0;}
+  .nav-zone:focus-visible{outline:2px solid var(--bright);outline-offset:-6px;}
+
+  @media (prefers-reduced-motion:reduce){
+    .track{transition:none;}
+    .slide *{animation:none!important;}
+  }
+  @media print{
+    @page{size:1280px 720px;margin:0;}
+    html,body{overflow:visible!important;height:auto!important;background:#fff!important;}
+    .stage{position:static!important;display:block!important;}
+    .deck{width:1280px!important;height:auto!important;overflow:visible!important;}
+    .track{display:block!important;transform:none!important;}
+    .slide{width:1280px!important;height:720px!important;min-width:0!important;break-after:page;}
+    .slide *{animation:none!important;}
+    video{display:none!important;} img.pp{display:block!important;}
+    .progress,.counter,.nav-zone{display:none!important;}
+  }
+</style>
+</head>
+<body>
+
+
+<div class="stage">
+  <div class="deck">
+    <div class="track" id="track">
+
+      <!-- 1 · COVER -->
+      <section class="slide g-ink" aria-label="Cover">
+        <div class="split" style="grid-template-columns:1.1fr .9fr;">
+          <div class="rail" style="gap:3cqh;">
+            <p class="by rise">Class Window · classroom photo app for schools</p>
+            <h1 class="display rise2" style="max-width:13ch;">Who gets in, and what gets out.</h1>
+            <p class="lede rise3">Redesigning a school app whose real job is moving photographs of identifiable children out of a classroom, and only to the right people.</p>
+            <p class="by rise3" style="margin-top:1.2cqh;">Victoria Reed · Product &amp; UX Design Lead · 2026</p>
+          </div>
+          <div class="phone lift" style="height:88cqh;">
+            <img src="img/g-feed.png" alt="A guardian's feed: the morning's moments from their classrooms.">
+          </div>
+        </div>
+      </section>
+
+      <!-- 2 · THE BRIEF -->
+      <section class="slide" aria-label="The brief">
+        <div class="split" style="grid-template-columns:1fr 1fr;gap:7cqw;padding:0 8cqw;">
+          <div class="rail">
+            <p class="eyebrow rise">The brief</p>
+            <h2 class="h2 rise" style="max-width:16ch;">The brief was a redesign. The product is a pipe.</h2>
+            <p class="body rise2">Class Window is a private window into one classroom: a teacher photographs the room, families see it, nothing leaves. The ask was to rebuild the phone app on a real design system and close the gap with the brand.</p>
+            <p class="body rise3">One fact reorders everything. What moves through this app is photographs of identifiable children, held in a small private group. That single fact changes what "good enough" means, so I reframed the work around one question before touching a screen.</p>
+          </div>
+          <p class="q rise2">Who is allowed in, and what is allowed out?</p>
+        </div>
+      </section>
+
+      <!-- 3 · RESEARCH -->
+      <section class="slide" aria-label="Research">
+        <div class="pad" style="justify-content:center;">
+          <p class="eyebrow rise" style="margin-bottom:1.6cqh;">Research</p>
+          <h2 class="h1 rise" style="max-width:26ch;">Ask a working teacher. Then read the code.</h2>
+          <p class="body rise2" style="max-width:86ch;margin-top:2cqh;">Primary research, not inference from a codebase: a practising elementary teacher answering directly about how schools really work. Where her account contradicted an assumption in the app, the assumption was what changed.</p>
+          <div class="who rise2">
+            <div><span class="vp">Who holds the data</span><span class="sign">Admins hold the roster</span><span class="c">Every student, every approved guardian, their emails and phone numbers. Admins hand that list to teachers, so teachers already have verified guardian addresses.</span></div>
+            <div><span class="vp">What schools say</span><span class="sign">"Guardian," not "parent"</span><span class="c">Sometimes caregiver, sometimes family. "Parent" is the word the institution we sell to uses least, and it was the word the app used everywhere.</span></div>
+            <div><span class="vp">What nobody had drawn</span><span class="sign">Photo consent</span><span class="c">Guardians sign a "no photo" waiver. The school keeps a paper record. Teachers hunt down who is on it. Roughly one child per class.</span></div>
+          </div>
+          <p class="small rise3" style="margin-top:3.6cqh;max-width:100ch;">Alongside that, a flow map derived from the two shipping codebases, so every claim about the current app pointed at a file or a commit instead of a memory.</p>
+        </div>
+      </section>
+
+      <!-- 4 · THE PAPER LIST -->
+      <section class="slide g-peach" aria-label="The paper list">
+        <div class="huge-mark" aria-hidden="true">1</div>
+        <div class="loud">
+          <p class="story rise">Roughly one child per class is on the no-photo list. It lives on paper, in the office. Teachers consult it from memory, holding a phone, in a room full of children. When a child ends up in a shot anyway, they blur the face by hand.</p>
+          <div class="rule rise2" aria-hidden="true"></div>
+          <h2 class="display rise2" style="max-width:19ch;font-size:7.4cqh;">The one input that decides whether a photo may travel was the one input the app did not have.</h2>
+        </div>
+      </section>
+
+      <!-- 5 · WHERE THE APP WAS -->
+      <section class="slide" aria-label="Where the app was">
+        <div class="pad">
+          <p class="eyebrow rise" style="margin-bottom:1.4cqh;">Where the app was</p>
+          <h2 class="h1 rise" style="max-width:20ch;">Every screen assumed a teacher could photograph the room and post it.</h2>
+          <div class="facts rise2">
+            <div><span class="v">6&ndash;8</span><span class="l">Required screens before a new guardian saw anything, ending on a join code with no way back</span></div>
+            <div><span class="v">0</span><span class="l">Places in the app where a teacher could see who joined their classroom, or remove anyone</span></div>
+            <div><span class="v">2.53:1</span><span class="l">Contrast of the brand orange against white, in both directions, on chrome repeated across every screen</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6 · FORK ONE -->
+      <section class="slide" aria-label="Fork one: codes or email">
+        <div class="pad" style="padding-top:7cqh;padding-bottom:6cqh;">
+          <p class="eyebrow rise" style="margin-bottom:1.2cqh;">Fork in the road · one</p>
+          <h2 class="h2 rise" style="max-width:24ch;">A code, or an email? I wrote the decision record before the screens.</h2>
+          <p class="body rise2" style="max-width:88ch;margin-top:1.2cqh;">The realistic failures here are not attackers. They are mundane and social: a code gets forwarded into a group chat, access outlives the relationship, a typo lets in a stranger, and a family asks who saw the photo and nobody can answer.</p>
+          <div class="fork rise2">
+            <div class="card">
+              <span class="fl">Mechanism A</span>
+              <h3>A code is a bearer token</h3>
+              <p>Whoever holds it is authorised. That is its whole nature, and no amount of design changes it. Good at working with no prior data, and at handing access to someone standing in front of you. Bad at binding access to a person, and it leaves no record of who redeemed it.</p>
+            </div>
+            <div class="card win">
+              <span class="fl">Mechanism B</span>
+              <h3>Email binds to an identity someone already checked</h3>
+              <p>The address arrived through the school's own administrative process, not self-service. Forwarding the mail grants nothing. Removal is one person at a time instead of rotating a code on everybody. Bad at anyone not on the list, and a typo fails silently.</p>
+            </div>
+          </div>
+          <div class="verdict rise3">
+            <span class="pill">The asymmetry</span>
+            <p>A code fails by <b>over-sharing</b>, which is invisible and compounds over time. Email fails by <b>bad data</b>, which is visible and correctable, against a list the school says is already clean. Given photographs of children, prefer the failure you can see.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7 · OVERRULED -->
+      <section class="slide g-ink" aria-label="Overruled, and what I did about it">
+        <div class="split" style="grid-template-columns:1fr 1fr;gap:6cqw;padding:0 8cqw;">
+          <div class="rail">
+            <p class="eyebrow rise">What actually happened</p>
+            <h2 class="h2 rise" style="max-width:15ch;">The owner reversed it. So I wrote the rule that saved it.</h2>
+            <p class="body rise2">My verdict was teachers by email only, no code ever, because teacher access is the most powerful in the product. The owner's call came back the other way: teachers email codes to families. Built and shipped to the prototype as asked.</p>
+            <p class="body rise3">Arguing it twice would have cost the week and changed nothing. Instead I wrote down exactly what the decision costs, then found the single change that keeps the owner's flow and closes most of the gap.</p>
+          </div>
+          <div class="rail">
+            <div class="card" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.18);box-shadow:none;">
+              <span class="fl" style="color:var(--bright);">The rule, one page, handed to a developer</span>
+              <h3 style="color:#fff;">Each emailed code is single-use and bound to the address it was sent to.</h3>
+              <p style="color:rgba(255,255,255,.78);">The teacher still hits "Email to families." Each family still gets a code. It just stops working for anyone else, stops working twice, and expires after 30 days. A backend rule, not a redesign, and the record of who was let in comes back with it.</p>
+            </div>
+            <p class="small rise3" style="color:rgba(255,255,255,.7);">Written up as REQ&#8209;1 and annotated onto the designs, with the argument for removing codes entirely kept underneath, for whoever revisits it.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8 · REQ-1 BUILT -->
+      <section class="slide g-pale" aria-label="The rule, built">
+        <div class="pad" style="justify-content:center;gap:2.6cqh;padding-top:7cqh;padding-bottom:7cqh;">
+          <div class="rail" style="gap:1.4cqh;">
+            <p class="eyebrow rise">The rule, built</p>
+            <h2 class="h2 rise" style="max-width:30ch;">One screen answers "who was let in, and by whom."</h2>
+          </div>
+          <div class="shot lift" style="max-height:58cqh;">
+            <img src="img/a-classrooms.png" alt="The admin's classroom page: a photo consent card, and family access showing 8 codes sent, 3 joined, with expired, revoked and joined states per address.">
+          </div>
+          <p class="small rise3" style="max-width:92ch;">Per-family codes with a state each: sent, joined, expired, revoked. The office owns the list, because the office already owns the list. And the room's no-photo names are sent from here, with the honest empty state: <b>"Nothing sent for this room yet, so its teachers are still working from paper."</b></p>
+        </div>
+      </section>
+
+      <!-- 9 · FORK TWO -->
+      <section class="slide" aria-label="Fork two: the child's name">
+        <div class="split rev">
+          <div class="rail">
+            <p class="eyebrow rise">Fork in the road · two</p>
+            <h2 class="h2 rise" style="max-width:14ch;">A parent thinks "how was Nora's day." The app stores no Nora.</h2>
+            <p class="body rise2">The feed was going to lead with a row of children, because that is how a family with two kids actually sorts their day. The reasoning was right. The key was wrong: there is no student record anywhere in the schema, and adding one means holding a database of minors.</p>
+            <p class="body rise3">So the feed sorts by <b>grade</b>, which is already a property of the classroom. Siblings are almost never in the same grade, so "2nd Grade" and "5th Grade" separate two children as reliably as their names would. Twins fall back to teacher names, which is how families talk anyway.</p>
+          </div>
+          <div class="phone lift"><img src="img/g-classes.png" alt="A guardian's classes, grouped by school and teacher, with no child named anywhere."></div>
+        </div>
+      </section>
+
+      <!-- 10 · WHAT I KILLED -->
+      <section class="slide" aria-label="What I killed">
+        <div class="pad" style="justify-content:center;">
+          <p class="eyebrow rise" style="margin-bottom:1.4cqh;">Rejected on purpose</p>
+          <h2 class="h1 rise" style="max-width:22ch;">Two ideas that solved it, and cost more than they solved.</h2>
+          <div class="fork rise2" style="margin-top:4cqh;">
+            <div class="card">
+              <span class="fl">Killed</span>
+              <h3>Let a guardian nickname a classroom</h3>
+              <p>It solves recognition, not organisation. It asks a parent to do configuration work before any payoff. And stored on our servers it is a child's name in an unstructured free-text field, which is harder to govern than a proper record would have been. If it ever ships it stays on the device, and never appears in a push notification.</p>
+            </div>
+            <div class="card">
+              <span class="fl">Killed</span>
+              <h3>Detect the exempt children automatically</h3>
+              <p>Face detection would automate the no-photo list perfectly, and it is the wrong answer. Running it across children whose families specifically asked that their child not be photographed inverts the entire point of the waiver. No guardian who signed one would want their child's face enrolled to enforce it.</p>
+            </div>
+          </div>
+          <p class="foot rise3" style="margin-top:3.4cqh;">The second one is the reason the feature is a teacher marking it by hand. The cheapest correct answer was not the cleverest one.</p>
+        </div>
+      </section>
+
+      <!-- 11 · A NOTE, NOT A ROSTER -->
+      <section class="slide" aria-label="A note, not a roster">
+        <div class="split">
+          <div class="rail">
+            <p class="eyebrow rise">The fix</p>
+            <h2 class="h2 rise" style="max-width:13ch;">A note, not a roster.</h2>
+            <p class="body rise2">A roster of children is a database of minors, with everything that carries. What a teacher needs is smaller: the sticky note she would have written anyway, kept where she will actually see it.</p>
+            <ul class="marks rise3">
+              <li>The office sends the room's list; the teacher adds <b>her own words</b> on top</li>
+              <li>It surfaces in the composer, at the <b>moment of posting</b>, not in a settings screen</li>
+              <li>It reminds; it never blocks. She is standing in front of the class</li>
+              <li><b>Families never see it</b></li>
+            </ul>
+          </div>
+          <div class="phone mov lift"><video class="clip" src="clip/consent.mp4" poster="img/consent-poster.png" aria-label="Picking a photo, choosing the class, and the no-photo names appearing above the composer" muted loop playsinline preload="auto"></video></div>
+        </div>
+      </section>
+
+      <!-- 12 · GET IN FIRST -->
+      <section class="slide" aria-label="Get in first, join second">
+        <div class="pad" style="justify-content:center;gap:2.4cqh;">
+          <div class="rail" style="gap:1.2cqh;">
+            <p class="eyebrow rise">The way in</p>
+            <h2 class="h2 rise" style="max-width:26ch;">Get in first. Join second.</h2>
+            <p class="body rise2" style="max-width:74ch;">A locked code screen with no back button was the first thing a new family saw. Now the code is a step you take <b>inside</b> the app, from your profile, whenever your teacher's email arrives. And the first screen is not a form: it is the app saying, in four lines, what it does with your child's photo.</p>
+          </div>
+          <div class="trio lift">
+            <div><div class="phone sm"><img src="img/g-terms.png" alt="Before you join: nothing here is public, anything can be reported, no tolerance for abuse."></div><p class="cap">Say the deal before the sign-up form</p></div>
+            <div><div class="phone sm"><img src="img/g-join.png" alt="Join a classroom: enter the code your school emailed, with a way out if it never arrived."></div><p class="cap">Join from inside, with a real way out</p></div>
+            <div><div class="phone sm"><img src="img/g-profile.png" alt="A guardian profile with classrooms joined, join a classroom, and an I'm also a teacher row."></div><p class="cap">One person, both roles, one account</p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 13 · THE HANDOVER -->
+      <section class="slide" aria-label="Handing the code over">
+        <div class="split rev">
+          <div class="phone mov lift"><video class="clip" src="clip/qr.mp4" poster="img/qr-poster.png" aria-label="A teacher's classroom card, then the QR code a parent scans at pickup" muted loop playsinline preload="auto"></video></div>
+          <div class="rail">
+            <p class="eyebrow rise">The thing teachers actually do</p>
+            <h2 class="h2 rise" style="max-width:15ch;">Hand the code over the way it really gets handed over.</h2>
+            <p class="body rise2">Two ways, because those are the two that happen: copy it into the message you are already writing, or hold up a QR code for a parent at pickup.</p>
+            <p class="body rise3">And rotating a code now asks first. One tap next to Copy used to kill every code already handed out, with no warning and no undo.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 14 · THE WORD -->
+      <section class="slide g-ink" aria-label="The word">
+        <div class="pad" style="justify-content:center;padding-left:9cqw;">
+          <p class="eyebrow rise" style="margin-bottom:2.6cqh;">One word, every screen</p>
+          <h2 class="display rise2" style="max-width:17ch;">Schools say guardian. We were saying parent.</h2>
+          <p class="body rise3" style="margin-top:3.4cqh;max-width:60ch;">It is what the school's own records say, and "parent" is the term the institution we sell to uses least. Changed across the role switcher, the profile, the verified screen, the help copy and the classroom notes. The internal identifier stays <b>role: 'parent'</b> in code, because renaming the type touches every screen for no user-visible gain. The string a person reads is the part that matters.</p>
+        </div>
+      </section>
+
+      <!-- 15 · COLOR -->
+      <section class="slide" aria-label="Color">
+        <div class="split" style="grid-template-columns:1fr 1fr;gap:6cqw;padding:0 8cqw;">
+          <div class="rail">
+            <p class="eyebrow rise">Accessibility</p>
+            <h2 class="h2 rise" style="max-width:16ch;">Every failing pair was the brand orange.</h2>
+            <p class="body rise2">The audit came back with the same colour in every row: white on orange at <b>2.53:1</b>, orange on white at 2.53:1, on chrome that repeats across every screen in the app.</p>
+            <p class="body rise3">Darkening the orange until white passes lands on a terracotta that stops looking like the marketing site. So the fill kept the brand and the ink flipped instead: the same gradient with dark type on it measures <b>6.59:1</b>. One primary button, one sanctioned exception, seventeen tokens, no dark mode.</p>
+          </div>
+          <div class="rail">
+            <div class="tbl rise2" style="--cols:1.4fr .8fr .8fr;">
+              <div class="tr"><span class="th">Token</span><span class="th">Published</span><span class="th">Shipped</span></div>
+              <div class="tr"><span class="k">Text and icons</span><span class="c">#F4845F<br><b>2.53:1</b></span><span class="c">#A83D1C<br><b>5.95:1</b></span></div>
+              <div class="tr"><span class="k">Secondary body</span><span class="c">#8C6E5D<br><b>4.43:1</b></span><span class="c">#8A5A3A<br><b>5.53:1</b></span></div>
+              <div class="tr"><span class="k">Placeholders</span><span class="c">#A2887C<br><b>3.14:1</b></span><span class="c">#856759<br><b>4.88:1</b></span></div>
+              <div class="tr"><span class="k">Primary button</span><span class="c">White label<br><b>2.53:1</b></span><span class="c">Dark label<br><b>6.59:1</b></span></div>
+            </div>
+            <p class="small rise3">Two of those are darker than the published style guide, because as published they do not clear the 4.5:1 floor for body text. Recorded in the theme file with the measured ratio on every token, so nobody quietly copies a failing hex back off the guide.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 16 · WHAT WE HEARD, WHAT WE DID -->
+      <section class="slide" aria-label="What we heard, what we did">
+        <div class="pad" style="padding-top:6cqh;padding-bottom:5cqh;">
+          <p class="eyebrow rise" style="margin-bottom:1.2cqh;">Research to design</p>
+          <h2 class="h2 rise" style="max-width:34ch;">Every finding, and where it landed.</h2>
+          <div class="tbl rise2" style="--cols:.85fr 1.55fr 1.4fr .5fr;">
+            <div class="tr"><span class="th">What we heard</span><span class="th">In her words</span><span class="th">What we did</span><span class="th">When</span></div>
+            <div class="tr"><span class="k">The waiver is paper</span><span class="c">Guardians sign a no-photo waiver, the school keeps a <b>paper</b> record, and teachers have to hunt down who is on it. About one child per class. Exempt children are asked to stand aside for group photos.</span><span class="c">The office sends the room's names; the teacher keeps her own note on top; both surface in the composer before she posts.</span><span class="tag built">Built</span></div>
+            <div class="tr"><span class="k">Admins hold the roster</span><span class="c">Every approved guardian's email, already clean and digital, handed to teachers by the office rather than collected by them.</span><span class="c">Access built on the addresses the school already holds. Codes are per family, single-use, address-bound, 30 days.</span><span class="tag built">Built</span></div>
+            <div class="tr"><span class="k">Schools say guardian</span><span class="c">Sometimes caregiver, sometimes family. Not "parent," as the default.</span><span class="c">"Guardian" everywhere a person reads it. The extra family-member role dropped: one relationship per classroom.</span><span class="tag built">Built</span></div>
+            <div class="tr"><span class="k">Teachers blur faces by hand</span><span class="c">Rarely, when a child ends up in a photo anyway.</span><span class="c">Manual blur before posting, teacher-driven only. Settle the storage question first: keeping the original quietly builds the archive the waiver exists to prevent.</span><span class="tag next">Next</span></div>
+            <div class="tr"><span class="k">A family can't see what they signed</span><span class="c">The record is in a filing cabinet, so the family is trusting a cabinet.</span><span class="c">Guardian-visible consent status, once the note exists to show.</span><span class="tag next">Next</span></div>
+            <div class="tr"><span class="k">The year ends</span><span class="c">Competitors give teachers read-only history and offer families a download of their own child's photos before the new year starts.</span><span class="c">Read-only states, a year-end download, and deletion on a clock. The last one is a district contract question, not a design one.</span><span class="tag later">Later</span></div>
+            <div class="tr"><span class="k">English only</span><span class="c">No i18n in either codebase; every word hardcoded where it is shown.</span><span class="c">Spanish first. A school app that only speaks English does not reach the families most likely to feel shut out of school.</span><span class="tag later">Later</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 17 · WHAT SHIPPED -->
+      <section class="slide" aria-label="What shipped">
+        <div class="pad" style="justify-content:center;">
+          <p class="eyebrow rise" style="margin-bottom:1.4cqh;">What shipped</p>
+          <h2 class="h1 rise" style="max-width:22ch;">The visual system is in production. The structural work is specced.</h2>
+          <div class="phases rise2">
+            <div class="phase">
+              <h3>Landed</h3>
+              <ul class="marks">
+                <li>A <b>16-ticket rebuild</b> merged into the native app: the palette, a shared component layer that did not exist before, the tab bar, the feed card, the composer, sign-in and six account screens</li>
+                <li>An accessibility pass re-run against the new palette</li>
+                <li>Invitation emails with a join code, pending until redeemed</li>
+              </ul>
+            </div>
+            <div class="phase later">
+              <h3>Handed over, in order</h3>
+              <p class="body">Fifteen changes, smallest first, each written as what it does now, what it would do instead, and why it is worth doing. Plus a clickable 29-screen prototype with zero network calls, published so anyone can open it on a phone and argue with it.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 18 · HANDOFF -->
+      <section class="slide g-pale" aria-label="Handoff">
+        <div class="split">
+          <div class="rail">
+            <p class="eyebrow rise">Handoff</p>
+            <h2 class="h2 rise" style="max-width:15ch;">The admin prototype has no copy of the admin.</h2>
+            <p class="body rise2">It path-aliases straight into the production components, with the auth and the database shimmed and fixtures in front. Editing the real files updates the prototype live, and the handoff to the developer is a git diff instead of a spec someone has to re-type.</p>
+            <ul class="marks rise3">
+              <li>Published alongside the phone prototype, the brand guide and the roadmap</li>
+              <li>Every design decision written as a dated record, with the losing argument kept underneath it</li>
+              <li>Design lives in its own repo, seeded from the dev team's main and pushed to freely, so nothing of mine lands in their branch by accident</li>
+            </ul>
+          </div>
+          <div class="shot lift"><img src="img/a-users.png" alt="The admin prototype running the real production components against fixtures."></div>
+        </div>
+      </section>
+
+      <!-- 19 · OUTCOMES -->
+      <section class="slide" aria-label="Outcomes">
+        <div class="pad" style="justify-content:center;">
+          <p class="eyebrow rise" style="margin-bottom:1.6cqh;">Outcomes</p>
+          <h2 class="h1 rise" style="max-width:26ch;">Designed so a school can answer the question a family will ask.</h2>
+          <div class="outs">
+            <div class="out rise2">
+              <span class="sign">Answerable</span>
+              <p class="body">A breach is survivable if you can account for it. Per-family, single-use, address-bound codes turn "someone redeemed it" into "here is who was let in, and by whom."</p>
+            </div>
+            <div class="out rise2">
+              <span class="sign">In the moment</span>
+              <p class="body">The no-photo list moved from a filing cabinet to the screen a teacher is looking at while she posts, without the app ever holding a record of a child.</p>
+            </div>
+            <div class="out rise3">
+              <span class="sign">Already in hands</span>
+              <p class="body">The visual system shipped to the native app as a 16-ticket rebuild. The rest is a 29-screen prototype and a ranked list, not a pitch.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 20 · CLOSE -->
+      <section class="slide g-ink" aria-label="Close">
+        <div class="pad" style="justify-content:center;gap:3.4cqh;">
+          <h2 class="display rise" style="max-width:17ch;">Trust isn't a screen. It's the rule underneath the screen.</h2>
+          <p class="lede rise2" style="max-width:50ch;">Building something people hand their private life to? Let's talk.</p>
+          <a class="proto rise3" href="https://codeandtrust.github.io/classwindow-design/" target="_blank" rel="noopener">Try the clickable prototype<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <div class="close-mark rise3"><span>Victoria Reed</span><span class="dot" aria-hidden="true"></span><span>victoriareed.ai</span></div>
+          <div class="links rise3">
+            <a href="https://vickyrule22.github.io/decks/class-window/" target="_blank" rel="noopener"><span>This deck</span><span>vickyrule22.github.io/decks/class-window</span></a>
+            <a href="https://victoriareed.ai/work/classroom-photo-app" target="_blank" rel="noopener"><span>Full case study</span><span>victoriareed.ai/work/classroom-photo-app</span></a>
+            <a href="https://vickyrule22.github.io/decks/" target="_blank" rel="noopener"><span>All decks</span><span>vickyrule22.github.io/decks</span></a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<button class="nav-zone prev" id="prev" aria-label="Previous slide"></button>
+<button class="nav-zone next" id="next" aria-label="Next slide"></button>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<div class="counter" id="counter">01 / 20</div>
+
+<script>
+(function(){
+  var track=document.getElementById('track'), slides=[].slice.call(document.querySelectorAll('.slide'));
+  var bar=document.getElementById('bar'), counter=document.getElementById('counter'), i=0;
+  function pad(n){return String(n).padStart(2,'0');}
+  function show(n){
+    i=Math.max(0,Math.min(slides.length-1,n));
+    track.style.transform='translateX('+(-i*100)+'%)';
+    slides.forEach(function(s,x){s.classList.toggle('active',x===i);});
+    bar.style.width=(i/(slides.length-1)*100)+'%';
+    counter.textContent=pad(i+1)+' / '+pad(slides.length);
+    document.querySelectorAll('.clip').forEach(function(v){
+      if(slides[i].contains(v)){try{v.currentTime=0;}catch(e){} var p=v.play(); if(p&&p.catch)p.catch(function(){});}
+      else v.pause();
+    });
+    try{history.replaceState(null,'','#'+(i+1));}catch(e){}
+  }
+  document.getElementById('next').addEventListener('click',function(){show(i+1);});
+  document.getElementById('prev').addEventListener('click',function(){show(i-1);});
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();show(i+1);}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();show(i-1);}
+    else if(e.key==='Home')show(0); else if(e.key==='End')show(slides.length-1);
+  });
+  var tx=null;
+  addEventListener('touchstart',function(e){tx=e.touches[0].clientX;},{passive:true});
+  addEventListener('touchend',function(e){ if(tx===null)return; var d=e.changedTouches[0].clientX-tx; if(Math.abs(d)>40)show(i+(d<0?1:-1)); tx=null; });
+  document.querySelectorAll('.clip').forEach(function(v){
+    var p=v.getAttribute('poster'); if(!p)return;
+    var img=document.createElement('img'); img.className='pp'; img.src=p; img.alt='';
+    img.style.cssText='width:100%;height:100%;object-fit:contain;border-radius:4.39cqh;';
+    v.parentNode.appendChild(img);
+  });
+  var start=parseInt((location.hash||'').slice(1),10);
+  show(isNaN(start)?0:start-1);
+})();
+</script>
+
+</body>
+</html>

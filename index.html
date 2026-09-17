@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=Atkinson+Hyperlegible:wght@400;700&family=Figtree:wght@800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=Atkinson+Hyperlegible:wght@400;700&family=Figtree:wght@800;900&family=Nunito:wght@800&display=swap" rel="stylesheet">
 <style>
   :root{--ink:#161B26;--muted:#5A6275;--paper:#F5F6F8;--line:#DADDE4;}
   *{margin:0;padding:0;box-sizing:border-box;}
@@ -24,9 +24,12 @@
   a.deck:focus-visible{outline:3px solid var(--ink);outline-offset:4px;}
   .bs{background:linear-gradient(118deg,#027BB4 0%,#0E8FB0 48%,#20B38B 100%);}
   .cp{background:#3A5FAD;}
+  .cw{background:#A83D1C;}
   .client{font-size:15px;opacity:.85;}
   .bs h2{font-family:'Figtree',system-ui,sans-serif;font-weight:900;font-size:clamp(30px,3.2vw,42px);line-height:1;letter-spacing:-.02em;max-width:12ch;}
   .cp h2{font-family:'Archivo','Arial Narrow',sans-serif;font-variation-settings:"wdth" 72;font-stretch:72%;font-weight:850;font-size:clamp(36px,3.9vw,52px);line-height:.95;max-width:11ch;}
+  .cw h2{font-family:'Nunito',system-ui,sans-serif;font-weight:800;font-size:clamp(32px,3.5vw,46px);line-height:1;letter-spacing:-.02em;max-width:11ch;}
+  .cw .pane{position:absolute;right:-34px;bottom:-46px;width:220px;height:220px;border:22px solid rgba(255,255,255,.09);border-radius:26px;pointer-events:none;}
   .go{display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:700;}
   .go span:last-child{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);display:grid;place-items:center;font-size:18px;}
   .cp .nine{position:absolute;right:-10px;bottom:-60px;font-family:'Archivo',sans-serif;font-variation-settings:"wdth" 62;font-weight:900;font-size:300px;line-height:1;color:rgba(255,255,255,.08);pointer-events:none;}
@@ -37,7 +40,7 @@
 <body>
   <header>
     <h1>Victoria Reed</h1>
-    <p>Two design stories · <a href="https://victoriareed.ai">victoriareed.ai</a></p>
+    <p>Three design stories · <a href="https://victoriareed.ai">victoriareed.ai</a></p>
   </header>
   <main>
     <a class="deck bs" href="blue-stream/">
@@ -49,6 +52,12 @@
       <span class="nine" aria-hidden="true">9</span>
       <div><p class="client">Candidate Pathways · training app</p></div>
       <h2>Training that moves people from watching to doing.</h2>
+      <div class="go"><span>Open the deck</span><span aria-hidden="true">→</span></div>
+    </a>
+    <a class="deck cw" href="class-window/">
+      <span class="pane" aria-hidden="true"></span>
+      <div><p class="client">Class Window · classroom photo app</p></div>
+      <h2>Who gets in, and what gets out.</h2>
       <div class="go"><span>Open the deck</span><span aria-hidden="true">→</span></div>
     </a>
   </main>
