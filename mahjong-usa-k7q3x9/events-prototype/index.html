@@ -156,6 +156,7 @@ details p{margin-top:6px;color:var(--mute);font-size:14px}
 .calmenu a,.calmenu button{display:block;width:100%;padding:10px 12px;text-align:left;border:0;background:none;border-radius:8px;font-weight:600;font-size:15px;text-decoration:none}
 .calmenu a:hover,.calmenu button:hover{background:var(--gray)}
 .hostlist{border-top:1px solid var(--line)}.hrow{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.hl{flex:1;min-width:0;text-decoration:none;display:flex;flex-direction:column}.hl b{font-size:15px}
+.day{cursor:default}.day.has{cursor:pointer}.day:not(.has):hover{background:#fff}
 .foot{border-top:1px solid var(--line);padding:28px 0 60px;color:var(--mute);font-size:14px}
 
 /* cards (inside overlay lists) */
@@ -442,7 +443,9 @@ function calHTML(nx,cur){
     let cls='day';if(d.getMonth()!==m)cls+=' out';if(ds<TISO)cls+=' past';if(ds===TISO)cls+=' today';if(S.day===ds)cls+=' sel';
     const pips=evs.slice(0,6).map(e=>`<a class="pip${nx&&nx.uid===e.uid?' nx':''}${cur&&cur.uid===e.uid?' cu':''}${S.added[e.uid]?' ad':''}" href="#event-${e.uid}" title="${esc(e.title)}" aria-label="${esc(e.title)}">${S.added[e.uid]?'✓':''}</a>`).join('');
     const cnt=evs.length?`<span class="cnt">${evs.length} ${evs.length===1?'game':'games'}</span>`:'';
-    cells+=`<div class="${cls}" data-a="day" data-v="${ds}"><span class="dn">${d.getDate()}</span><div class="pips">${pips}</div>${cnt}</div>`;
+    const act=!evs.length?'':evs.length===1?` data-a="goev" data-v="${evs[0].uid}"`:` data-a="day" data-v="${ds}"`;
+    if(evs.length)cls+=' has';
+    cells+=`<div class="${cls}"${act}><span class="dn">${d.getDate()}</span><div class="pips">${pips}</div>${cnt}</div>`;
   }
   return `<div class="calwrap"><div class="calhead"><h3>${MON[m]} ${y}</h3><button data-a="month" data-v="-1" aria-label="Previous month">‹</button><button data-a="month" data-v="1" aria-label="Next month">›</button></div><div class="grid" style="grid-template-rows:auto repeat(${rows},minmax(76px,1fr))">${cells}</div></div>`;
 }
@@ -656,6 +659,7 @@ document.addEventListener('click',ev=>{
   if(a==='style'){S.style=v;S.pop=null;render();return}
   if(a==='cost'){S.cost=v;S.pop=null;render();return}
   if(a==='view'){S.view=v;render();return}
+  if(a==='goev'){go('#event-'+v);return}
   if(a==='day'){S.day=S.day===v?null:v;S.more=false;if(eventFromHash())go('#home');else render();return}
   if(a==='more'){S.more=true;render();return}
   if(a==='month'){let {y,m}=S.month;m+=Number(v);if(m<0){m=11;y--}if(m>11){m=0;y++}S.month={y,m};render();return}
