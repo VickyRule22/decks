@@ -155,6 +155,7 @@ details p{margin-top:6px;color:var(--mute);font-size:14px}
 .calmenu{position:absolute;bottom:calc(100% + 8px);right:0;min-width:230px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:8px;box-shadow:0 10px 30px rgba(0,0,0,.18)}
 .calmenu a,.calmenu button{display:block;width:100%;padding:10px 12px;text-align:left;border:0;background:none;border-radius:8px;font-weight:600;font-size:15px;text-decoration:none}
 .calmenu a:hover,.calmenu button:hover{background:var(--gray)}
+.hostlist{border-top:1px solid var(--line)}.hrow{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.hl{flex:1;min-width:0;text-decoration:none;display:flex;flex-direction:column}.hl b{font-size:15px}
 .foot{border-top:1px solid var(--line);padding:28px 0 60px;color:var(--mute);font-size:14px}
 
 /* cards (inside overlay lists) */
@@ -522,6 +523,10 @@ function homeHTML(){
 }
 
 /* ---------- event details (one component: desktop column and phone overlay) ---------- */
+function hostRow(x){
+  const added=!!S.added[x.uid];
+  return `<div class="hrow"><a href="#event-${x.uid}" class="hl"><b class="${S.seen[x.uid]?'seen':''}">${esc(x.title)}</b><span class="meta">${fmtDay(x.date)}${x.allDay?'':' \u00B7 '+t12(x.time)} \u00B7 ${esc(x.city)} \u00B7 ${money(x.price)}</span></a><a class="btn sm" data-a="gcal" data-v="${x.uid}" href="${googleUrl(x)}" target="_blank" rel="noopener">${added?'\u2713 Added':'Add'}</a></div>`;
+}
 function detailHTML(e){
   const o=ORGS[e.org];const rc=reportCount(e);const mine=!!reportsMine()[e.id];
   const t=TYPES[e.type];
@@ -531,7 +536,6 @@ function detailHTML(e){
   else if(rc===2)banner=`<div class="banner" role="status"><div><b>2 people reported a problem with this event.</b>Check the details with the organizer before you go.</div>${mine?'<button data-a="unreport">Undo my report</button>':''}</div>`;
   const uniq=(x,i,a)=>a.findIndex(y=>y.id===x.id)===i;
   const hostEvents=ALL.filter(x=>x.org===e.org&&x.id!==e.id&&x.date>=TISO).filter(uniq).slice(0,3);
-  const stateEvents=ALL.filter(x=>x.st===e.st&&x.id!==e.id&&x.org!==e.org&&x.date>=TISO).filter(uniq).slice(0,3);
   const faq=[
     ['Do I need to bring my own set?',e.type==='cruise'?'Sets are provided in the card room. Check with the organizer for details.':'Most hosts provide sets. Check with the organizer if you want to be sure.'],
     ['Is this beginner friendly?',e.beginner?'Yes. Beginners are welcome.':'This one is better if you already know the rules. Check lessons near you if you are new.'],
@@ -543,7 +547,7 @@ function detailHTML(e){
   <div class="dhead"><button class="dback" data-a="closedetail">‹ All events</button><span class="sp"></span><button class="btn sm" data-a="copy">Copy link</button></div>
   <div class="dbody">
     ${banner}
-    <div class="tags" style="margin:0"><span class="tag solid">${t.g} ${tagLabel(e)}</span><span class="tag">${e.style}</span>${e.beginner?'<span class="tag">Beginner friendly</span>':''}${e.rec?`<span class="tag soft">Every ${DOW[parse(e.date).getDay()]}</span>`:''}</div>
+    <div class="tags" style="margin:0"><span class="tag">${t.g} ${tagLabel(e)}</span><span class="tag">${e.style}</span>${e.beginner?'<span class="tag">Beginner friendly</span>':''}${e.rec?`<span class="tag soft">Every ${DOW[parse(e.date).getDay()]}</span>`:''}</div>
     <h1 class="dtitle">${esc(e.title)}</h1>
     <div class="sec"><dl class="kv"><dt>When</dt><dd>${timeText(e)}</dd><dt>Where</dt><dd>${where}</dd><dt>Cost</dt><dd>${money(e.price)}${e.spots?' · '+e.spots+' spots left':''}</dd></dl>
       <div id="emap" role="img" aria-label="Map of the event location"></div>
@@ -554,8 +558,7 @@ function detailHTML(e){
     <div class="sec"><h2>Good to know</h2>${faq.map(([q,a])=>`<details><summary>${q}</summary><p>${a}</p></details>`).join('')}</div>
     <div class="sec"><h2>Organizer</h2><div class="org"><div class="avatar">${o.n[0]}</div><div><b>${o.n}</b><div class="meta">${o.y} years on Mahjong USA · ${o.c} events listed</div></div></div></div>
     <div class="sec"><p class="meta">Last checked Nov 16, 2026 · <button class="linkbtn" data-a="report">${mine?'You reported this':'Report a problem'}</button> · <button class="linkbtn" data-a="soon" data-v="Demo: this would email the Mahjong USA team">Is this your event? Fix or remove it</button></p></div>
-    ${hostEvents.length?`<div class="sec"><h2>More from ${o.n}</h2><div class="mini">${hostEvents.map(cardHTML).join('')}</div></div>`:''}
-    ${stateEvents.length?`<div class="sec"><h2>More in ${STATES[e.st].n}</h2><div class="mini">${stateEvents.map(cardHTML).join('')}</div></div>`:''}
+    ${hostEvents.length?`<div class="sec"><h2>More from ${o.n}</h2><div class="hostlist">${hostEvents.map(hostRow).join('')}</div></div>`:''}
   </div>
   <div class="dbar">
     <div class="popwrap"><button class="btn ${S.calOpen?'':'pri'}" data-a="calmenu">${added?'✓ Added · ':''}Add to calendar ▾</button>
