@@ -157,6 +157,7 @@ details p{margin-top:6px;color:var(--mute);font-size:14px}
 .calmenu a:hover,.calmenu button:hover{background:var(--gray)}
 .hostlist{border-top:1px solid var(--line)}.hrow{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.hl{flex:1;min-width:0;text-decoration:none;display:flex;flex-direction:column}.hl b{font-size:15px}
 .day{cursor:default}.day.has{cursor:pointer}.day:not(.has):hover{background:#fff}
+.mapnote{font-size:14px;color:var(--mute);margin:0 0 8px}
 .foot{border-top:1px solid var(--line);padding:28px 0 60px;color:var(--mute);font-size:14px}
 
 /* cards (inside overlay lists) */
@@ -314,7 +315,7 @@ RAW.forEach(e=>{
 const byUid=uid=>ALL.find(e=>e.uid===uid);
 
 /* ---------- state ---------- */
-const DEFAULT_PLACE={kind:'state',label:'South Carolina',st:'SC',lat:33.9,lng:-80.9};
+const DEFAULT_PLACE={kind:'city',label:'Charleston, SC',city:'Charleston',st:'SC',lat:32.7876,lng:-79.9403};
 const PLACES=[];
 (function(){
   Object.keys(STATES).forEach(k=>PLACES.push({kind:'state',label:STATES[k].n,st:k,lat:STATES[k].lat,lng:STATES[k].lng}));
@@ -507,7 +508,8 @@ function homeHTML(){
   const cur=eventFromHash();
   const nx=nextUp();
   const nf=(S.style!=='any'?1:0)+(S.cost!=='any'?1:0);
-  const pane=S.view==='map'?'<div id="map" role="img" aria-label="Map of games"></div>':calHTML(nx,cur);
+  const P0=eff().place,near=P0.kind==='city'&&!S.mapWide;
+  const pane=S.view==='map'?(P0.kind==='city'?`<div class="mapnote">${near?'Showing games within about an hour of '+esc(P0.label)+'.':'Showing every game in '+esc(P0.label)+' and beyond.'} <button class="linkbtn" data-a="mapwide">${near?'Show wider area':'Back to 1 hour'}</button></div>`:'')+'<div id="map" role="img" aria-label="Map of games"></div>':calHTML(nx,cur);
   const panel=cur
     ?`<section class="panel detail" aria-label="Event details">${detailHTML(cur)}</section>`
     :`<section class="panel" aria-label="Events list"><div class="plist">${listHTML(nx,cur)}</div></section>`;
@@ -580,8 +582,10 @@ function mountMaps(cur){
     map=L.map(m,{scrollWheelZoom:false}).setView([39,-96],4);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(map);
     const nx=nextUp();const seen={};const pts=[],land=[];
+    const P=eff().place,near=P.kind==='city'&&!S.mapWide;
     filtered(true).forEach(e=>{
       if(seen[e.id])return;seen[e.id]=1;
+      if(near&&(e.type==='cruise'||dist(P,e)>50))return;
       const ll=[e.lat,e.lng];pts.push(ll);if(e.type!=='cruise')land.push(ll);
       const isNext=nx&&nx.id===e.id,isCur=cur&&cur.id===e.id;
       const st=isCur?{radius:13,color:'#6a4fb3',weight:4,fillColor:'#0d0d0d',fillOpacity:1}:isNext?{radius:12,color:'#fff',weight:3,fillColor:'#0d0d0d',fillOpacity:1}:{radius:8,color:'#0d0d0d',weight:2,fillColor:S.seen[e.uid]?'#d9d0ee':'#fff',fillOpacity:1};
@@ -589,6 +593,11 @@ function mountMaps(cur){
       mk.bindTooltip(e.title,{direction:'top'});
       mk.on('click',()=>{location.hash='#event-'+e.uid});
     });
+    if(near){
+      const c=L.circle([P.lat,P.lng],{radius:50*1609,color:'#0d0d0d',weight:1.5,dashArray:'6 6',fillColor:'#0d0d0d',fillOpacity:.04,interactive:false}).addTo(map);
+      L.circleMarker([P.lat,P.lng],{radius:16,color:'#6a4fb3',weight:2,fillColor:'#6a4fb3',fillOpacity:.15,interactive:false}).addTo(map).bringToBack();
+      map.invalidateSize();map.fitBounds(c.getBounds(),{padding:[10,10]});setTimeout(()=>{if(map){map.invalidateSize();map.fitBounds(c.getBounds(),{padding:[10,10]})}},200);return;
+    }
     const fit=land.length?land:pts;
     if(fit.length===1)map.setView(fit[0],9);else if(fit.length)map.fitBounds(fit,{padding:[30,30],maxZoom:9});
   }
@@ -659,6 +668,7 @@ document.addEventListener('click',ev=>{
   if(a==='style'){S.style=v;S.pop=null;render();return}
   if(a==='cost'){S.cost=v;S.pop=null;render();return}
   if(a==='view'){S.view=v;render();return}
+  if(a==='mapwide'){S.mapWide=!S.mapWide;render();return}
   if(a==='goev'){go('#event-'+v);return}
   if(a==='day'){S.day=S.day===v?null:v;S.more=false;if(eventFromHash())go('#home');else render();return}
   if(a==='more'){S.more=true;render();return}
