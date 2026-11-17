@@ -510,7 +510,7 @@ function homeHTML(){
   const pane=S.view==='map'?'<div id="map" role="img" aria-label="Map of games"></div>':calHTML(nx,cur);
   const panel=cur
     ?`<section class="panel detail" aria-label="Event details">${detailHTML(cur)}</section>`
-    :`<section class="panel" aria-label="Events list"><div class="plist">${S.day?'':nextHTML(nx)}${listHTML(nx,cur)}</div></section>`;
+    :`<section class="panel" aria-label="Events list"><div class="plist">${listHTML(nx,cur)}</div></section>`;
   return `
     <div class="tb">
       <div class="popwrap"><button class="tbtn" data-a="pop" data-v="where">${esc(stateName())} ▾</button>${popHTML('where')}</div>
