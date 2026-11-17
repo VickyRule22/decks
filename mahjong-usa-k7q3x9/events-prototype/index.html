@@ -158,6 +158,22 @@ details p{margin-top:6px;color:var(--mute);font-size:14px}
 .hostlist{border-top:1px solid var(--line)}.hrow{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.hl{flex:1;min-width:0;text-decoration:none;display:flex;flex-direction:column}.hl b{font-size:15px}
 .day{cursor:default}.day.has{cursor:pointer}.day:not(.has):hover{background:#fff}
 .mapnote{font-size:14px;color:var(--mute);margin:0 0 8px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 10px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px;font-size:14px;font-weight:600}
+.chip:hover{background:var(--gray)}
+.chip.on{border-color:var(--ink);background:var(--gray);box-shadow:inset 0 0 0 1px var(--ink)}
+.rst{font-size:14px;margin-left:4px}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:#555;margin:0 0 10px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend .pip{position:static;display:inline-grid;pointer-events:none}
+.legend .vis{color:#4b2f99}
+.opt .ot{display:flex;flex-direction:column;align-items:flex-start;margin:0!important;padding:0!important}
+.opt .ot small{font-size:12px;color:#595959;font-weight:400;margin-top:1px}
+.calhead button:disabled{opacity:.35;cursor:default}
+.seen .tt,.card h3.seen{color:#4b2f99}
+.cnt{font-size:13px;color:#555}
+:focus-visible{outline:3px solid #4b2f99;outline-offset:2px}
+.day:focus-visible{outline-offset:-3px}
 .foot{border-top:1px solid var(--line);padding:28px 0 60px;color:var(--mute);font-size:14px}
 
 /* cards (inside overlay lists) */
@@ -328,7 +344,7 @@ const INTL=['canada','toronto','vancouver','montreal','mexico','cancun','london'
 const NOW='2026-11-17T12:00';
 const ALLTYPES=['open','social','lesson','tournament','cruise'];
 const S={
-  place:(function(){const p=lsGet('mj-place',null);return p&&p.kind?p:DEFAULT_PLACE})(),types:new Set(ALLTYPES),style:'any',cost:'any',day:null,
+  place:(function(){const p=lsGet('mj-place',null);return p&&p.kind?p:DEFAULT_PLACE})(),types:new Set(ALLTYPES),style:'any',cost:'any',day:null,when:'any',
   view:'calendar',month:{y:2026,m:10},pop:null,modal:null,calOpen:false,more:false,
   seen:lsGet('mj-seen',{}),added:lsGet('mj-added',{}),listScroll:0,lastUid:null
 };
@@ -340,12 +356,20 @@ const markAdded=uid=>{S.added[uid]=1;lsSet('mj-added',S.added)};
 const nextUp=()=>filtered(true).find(e=>e.type!=='cruise')||null;
 const dist=(a,b)=>{const R=3959,r=x=>x*Math.PI/180;const dl=r(b.lat-a.lat),dg=r(b.lng-a.lng);const h=Math.sin(dl/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dg/2)**2;return 2*R*Math.asin(Math.sqrt(h))};
 const stateName=()=>S.place.label;
-const passBase=e=>(e.date+'T'+(e.time||'00:00'))>=NOW&&S.types.has(e.type)&&(S.style==='any'||e.style===S.style)&&(S.cost==='any'||(S.cost==='free'?e.price===0:e.price>0));
+function whenOk(e){
+  const w=S.when;if(w==='any'||e.type==='cruise'&&w==='any')return true;
+  const d=e.date;
+  if(w==='today')return d===TISO;
+  if(w==='week')return d<=iso(addDays(TODAY,7));
+  if(w==='weekend'){const dw=parse(d).getDay();const lim=iso(addDays(TODAY,((7-TODAY.getDay())%7)+(TODAY.getDay()===0?0:0)));const fri=[5,6,0].includes(dw);return fri&&d<=iso(addDays(TODAY,9))&&d>=TISO}
+  return true;
+}
+const passBase=e=>(e.date+'T'+(e.time||'00:00'))>=NOW&&whenOk(e)&&S.types.has(e.type)&&(S.style==='any'||e.style===S.style)&&(S.cost==='any'||(S.cost==='free'?e.price===0:e.price>0));
 const inPlace=(e,p)=>e.type==='cruise'||p.kind==='all'||(p.kind==='state'?e.st===p.st:dist(p,e)<=75);
 function eff(){
   const p=S.place;
   if(p.kind==='all')return {place:p,fb:null};
-  const pool=ALL.filter(e=>passBase(e)&&e.type!=='cruise');
+  const pool=ALL.filter(e=>(e.date+'T'+(e.time||'00:00'))>=NOW&&e.type!=='cruise');
   if(!pool.length||pool.some(e=>inPlace(e,p)))return {place:p,fb:null};
   const groups={};
   pool.forEach(e=>{const k=e.city+'|'+e.st;const g=groups[k]=groups[k]||{city:e.city,st:e.st,lat:e.lat,lng:e.lng}});
@@ -419,11 +443,20 @@ function nextHTML(nx){
   else label=DOW[parse(nx.date).getDay()];
   return `<div class="nextup"><p class="nl">Next up · ${label}</p><h2>${esc(nx.title)}</h2><p class="nm">${t12(nx.time)} ${nx.tz} · ${esc(nx.venue)}, ${esc(nx.city)} · ${money(nx.price)}</p><div class="na"><a class="nbtn" href="#event-${nx.uid}">See details</a><a class="nlink" data-a="gcal" data-v="${nx.uid}" href="${googleUrl(nx)}" target="_blank" rel="noopener">${S.added[nx.uid]?'✓ Added to calendar':'Add to Google Calendar'}</a></div></div>`;
 }
+const WHENS=[['any','Any time'],['today','Today'],['weekend','This weekend'],['week','Next 7 days']];
+function chipsHTML(){
+  const dirty=S.when!=='any'||S.types.size<ALLTYPES.length||S.style!=='any'||S.cost!=='any'||S.day;
+  return `<div class="chips" role="group" aria-label="When">${WHENS.map(([k,l])=>`<button class="chip${S.when===k?' on':''}" data-a="when" data-v="${k}" aria-pressed="${S.when===k}">${l}</button>`).join('')}${dirty?'<button class="linkbtn rst" data-a="clear">Reset all</button>':''}</div>`;
+}
 function listHTML(nx,cur){
-  if(!filtered(true).length)return `<div class="nearest"><b>No games match these filters.</b><button class="linkbtn" data-a="clear">Clear filters</button></div>`;
+  if(!filtered(true).length){
+    const WL={today:'Today',weekend:'This weekend',week:'Next 7 days'};
+    const act=[S.when!=='any'?WL[S.when]:'',S.types.size<ALLTYPES.length?typeLabel():'',S.style!=='any'?S.style:'',S.cost!=='any'?(S.cost==='free'?'Free':'Paid'):''].filter(Boolean);
+    return chipsHTML()+`<div class="nearest"><b>No games match${act.length?': '+esc(act.join(' \u00B7 ')):' here yet'}.</b><button class="linkbtn" data-a="clear">Reset all filters</button></div>`;
+  }
   const all=filtered(false);
-  const rows=S.day?all:all.filter(e=>!nx||e.uid!==nx.uid);
-  let out=`<div class="lh"><h3>${S.day?fmtDay(S.day,true):'Coming up'}</h3>${S.day?`<button class="linkbtn" data-a="day" data-v="${S.day}">Show all</button>`:''}</div>`;
+  const rows=all;
+  let out=chipsHTML()+`<div class="lh"><h3>${S.day?fmtDay(S.day,true):'Coming up'}</h3>${S.day?`<button class="linkbtn" data-a="day" data-v="${S.day}">Show all</button>`:''}</div>`;
   if(S.day&&!rows.length)return out+`<p class="meta">No games this day.</p>`;
   const limit=S.day||S.more?rows.length:12;
   let last='';
@@ -439,16 +472,20 @@ function calHTML(nx,cur){
   const dim=new Date(y,m+1,0).getDate();const rows=Math.ceil((first.getDay()+dim)/7);
   const byDay={};filtered(true).forEach(e=>{(byDay[e.date]=byDay[e.date]||[]).push(e)});
   let cells=DS.map(d=>`<div class="dow">${d}</div>`).join('');
-  for(let i=0;i<rows*7;i++){
+  const curMonth=(y===TODAY.getFullYear()&&m===TODAY.getMonth());
+  const skip=curMonth?Math.floor((first.getDay()+TODAY.getDate()-1)/7):0;
+  const shown=rows-skip;
+  for(let i=skip*7;i<rows*7;i++){
     const d=addDays(start,i);const ds=iso(d);const evs=byDay[ds]||[];
     let cls='day';if(d.getMonth()!==m)cls+=' out';if(ds<TISO)cls+=' past';if(ds===TISO)cls+=' today';if(S.day===ds)cls+=' sel';
-    const pips=evs.slice(0,6).map(e=>`<a class="pip${nx&&nx.uid===e.uid?' nx':''}${cur&&cur.uid===e.uid?' cu':''}${S.added[e.uid]?' ad':''}" href="#event-${e.uid}" title="${esc(e.title)}" aria-label="${esc(e.title)}">${S.added[e.uid]?'✓':''}</a>`).join('');
+    const pips=evs.slice(0,6).map(e=>`<a class="pip${nx&&nx.uid===e.uid?' nx':''}${cur&&cur.uid===e.uid?' cu':''}${S.added[e.uid]?' ad':''}" href="#event-${e.uid}" title="${esc(e.title)}" tabindex="-1" aria-hidden="true">${S.added[e.uid]?'✓':''}</a>`).join('');
     const cnt=evs.length?`<span class="cnt">${evs.length} ${evs.length===1?'game':'games'}</span>`:'';
-    const act=!evs.length?'':evs.length===1?` data-a="goev" data-v="${evs[0].uid}"`:` data-a="day" data-v="${ds}"`;
+    const lab=fmtDay(ds,true)+(evs.length?', '+evs.length+(evs.length===1?' game':' games'):', no games');
+    const act=!evs.length?'':(evs.length===1?` data-a="goev" data-v="${evs[0].uid}"`:` data-a="day" data-v="${ds}"`)+` role="button" tabindex="0" aria-label="${esc(lab)}"`;
     if(evs.length)cls+=' has';
     cells+=`<div class="${cls}"${act}><span class="dn">${d.getDate()}</span><div class="pips">${pips}</div>${cnt}</div>`;
   }
-  return `<div class="calwrap"><div class="calhead"><h3>${MON[m]} ${y}</h3><button data-a="month" data-v="-1" aria-label="Previous month">‹</button><button data-a="month" data-v="1" aria-label="Next month">›</button></div><div class="grid" style="grid-template-rows:auto repeat(${rows},minmax(76px,1fr))">${cells}</div></div>`;
+  return `<div class="calwrap"><div class="calhead"><h3>${MON[m]} ${y}</h3><button data-a="month" data-v="-1" aria-label="Previous month" ${curMonth?'disabled':''}>‹</button><button data-a="month" data-v="1" aria-label="Next month">›</button></div><div class="legend" aria-label="Key"><span><i class="pip"></i> a game</span><span><i class="pip ad">\u2713</i> on your calendar</span><span><b class="vis">Purple</b> = you\u2019ve opened it</span></div><div class="grid" style="grid-template-rows:auto repeat(${shown},minmax(76px,1fr))">${cells}</div></div>`;
 }
 function placeCount(p){const ids=new Set();ALL.forEach(e=>{if(e.type!=='cruise'&&passBase(e)&&inPlace(e,p))ids.add(e.id)});return ids.size}
 function sug(p,i,pre){const n=placeCount(p);return `<button class="opt" data-a="pick" data-v="${i}">${pre||''}${esc(p.label)}<span>${n?n+' '+(n===1?'game':'games'):'No games yet'}</span></button>`}
@@ -490,17 +527,19 @@ function modalHTML(){
 }
 
 /* ---------- toolbar popovers + home ---------- */
-function typeLabel(){const n=S.types.size;if(n===ALLTYPES.length)return 'All games';if(n===1)return TYPES[[...S.types][0]].label;return n+' types'}
+const TYPE_HELP={open:'Drop in and play, no sign-up',social:'Games with food, drinks and friends',lesson:'Learn how to play',tournament:'Competitive, often with prizes',cruise:'Trips with mahjong built in'};
+const STYLE_HELP={'American (NMJL)':'The card-based game most played in the US','Riichi':'Japanese style, with riichi calls','Chinese official':'Tournament rules used worldwide'};
+function typeLabel(){const n=S.types.size;if(n===ALLTYPES.length)return 'All game types';if(n===1)return TYPES[[...S.types][0]].label;return n+' types'}
 function popHTML(which){
   if(S.pop!==which)return '';
   if(which==='where'){
     return `<div class="pop popw"><input id="placeq" class="placeq" placeholder="City, state or ZIP" autocomplete="off" aria-label="City, state or ZIP"><div id="sugg">${suggestHTML('')}</div></div>`;
   }
   if(which==='type'){
-    return `<div class="pop"><h4>Show</h4>${ALLTYPES.map(k=>`<button class="opt chkopt ${S.types.has(k)?'on':''}" data-a="type" data-v="${k}" role="checkbox" aria-checked="${S.types.has(k)}"><i class="bx"></i>${TYPES[k].label}</button>`).join('')}<hr><button class="opt selall" data-a="typeall">Select all</button></div>`;
+    return `<div class="pop"><h4>Show</h4>${ALLTYPES.map(k=>`<button class="opt chkopt ${S.types.has(k)?'on':''}" data-a="type" data-v="${k}" role="checkbox" aria-checked="${S.types.has(k)}"><i class="bx"></i><span class="ot">${TYPES[k].label}<small>${TYPE_HELP[k]}</small></span></button>`).join('')}<hr><button class="opt selall" data-a="typeall">Select all</button></div>`;
   }
   if(which==='filters'){
-    return `<div class="pop"><h4>Rules</h4><button class="opt ${S.style==='any'?'sel':''}" data-a="style" data-v="any">Any style</button>${STYLES.map(s=>`<button class="opt ${S.style===s?'sel':''}" data-a="style" data-v="${s}">${s}</button>`).join('')}<hr><h4>Cost</h4>${[['any','Any price'],['free','Free'],['paid','Paid']].map(([k,l])=>`<button class="opt ${S.cost===k?'sel':''}" data-a="cost" data-v="${k}">${l}</button>`).join('')}<hr><button class="opt" data-a="clear">Clear filters</button></div>`;
+    return `<div class="pop"><h4>Rules</h4><button class="opt ${S.style==='any'?'sel':''}" data-a="style" data-v="any">Any style</button>${STYLES.map(s=>`<button class="opt ${S.style===s?'sel':''}" data-a="style" data-v="${s}"><span class="ot">${s}<small>${STYLE_HELP[s]}</small></span></button>`).join('')}<hr><h4>Cost</h4>${[['any','Any price'],['free','Free'],['paid','Paid']].map(([k,l])=>`<button class="opt ${S.cost===k?'sel':''}" data-a="cost" data-v="${k}">${l}</button>`).join('')}<hr><button class="opt" data-a="clear">Reset all filters</button></div>`;
   }
   return '';
 }
@@ -509,7 +548,7 @@ function homeHTML(){
   const nx=nextUp();
   const nf=(S.style!=='any'?1:0)+(S.cost!=='any'?1:0);
   const P0=eff().place,near=P0.kind==='city'&&!S.mapWide;
-  const pane=S.view==='map'?(P0.kind==='city'?`<div class="mapnote">${near?'Showing games within about an hour of '+esc(P0.label)+'.':'Showing every game in '+esc(P0.label)+' and beyond.'} <button class="linkbtn" data-a="mapwide">${near?'Show wider area':'Back to 1 hour'}</button></div>`:'')+'<div id="map" role="img" aria-label="Map of games"></div>':calHTML(nx,cur);
+  const pane=S.view==='map'?(P0.kind==='city'?`<div class="mapnote">${near?'Showing games within about an hour of '+esc(P0.label)+'.':'Showing every game in '+esc(P0.label)+' and beyond.'} <button class="linkbtn" data-a="mapwide">${near?'Show wider area':'Back to 1 hour'}</button></div>`:'')+'<div id="map" role="img" aria-label="Map of games. The same games are listed in the panel beside the map."></div>':calHTML(nx,cur);
   const panel=cur
     ?`<section class="panel detail" aria-label="Event details">${detailHTML(cur)}</section>`
     :`<section class="panel" aria-label="Events list"><div class="plist">${listHTML(nx,cur)}</div></section>`;
@@ -640,6 +679,7 @@ function setPlace(p){S.place=p;lsSet('mj-place',p);S.pop=null;S.day=null;render(
 const go=h=>{if(location.hash!==h)location.hash=h;else render()};
 document.addEventListener('input',ev=>{if(ev.target.id==='placeq')document.getElementById('sugg').innerHTML=suggestHTML(ev.target.value)});
 document.addEventListener('keydown',ev=>{
+  if((ev.key==='Enter'||ev.key===' ')&&ev.target.matches&&ev.target.matches('.day[role=button]')){ev.preventDefault();ev.target.click();return}
   if(ev.target.id==='placeq'&&ev.key==='Enter'){ev.preventDefault();const b=document.querySelector('#sugg [data-a=pick]');if(b)b.click()}
   if(ev.key==='Escape'){if(S.pop){S.pop=null;render()}else if(S.modal){S.modal=null;render()}else if(eventFromHash())go('#home')}
 });
@@ -673,7 +713,8 @@ document.addEventListener('click',ev=>{
   if(a==='day'){S.day=S.day===v?null:v;S.more=false;if(eventFromHash())go('#home');else render();return}
   if(a==='more'){S.more=true;render();return}
   if(a==='month'){let {y,m}=S.month;m+=Number(v);if(m<0){m=11;y--}if(m>11){m=0;y++}S.month={y,m};render();return}
-  if(a==='clear'){S.types=new Set(ALLTYPES);S.style='any';S.cost='any';S.day=null;S.pop=null;render();return}
+  if(a==='when'){S.when=v;S.day=null;render();return}
+  if(a==='clear'){S.types=new Set(ALLTYPES);S.style='any';S.cost='any';S.when='any';S.day=null;S.pop=null;render();return}
   if(a==='closedetail'){go('#home');return}
   if(a==='submit'){S.modal='submit';render();return}
   if(a==='report'){S.modal='report';render();return}
