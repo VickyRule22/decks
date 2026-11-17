@@ -1,0 +1,621 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Mahjong USA: events calendar prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--ink:#0d0d0d;--paper:#fff;--gray:#f3f3f1;--line:#d6d6d2;--mute:#666;--warn:#fff4d6}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:var(--ink);background:#fff;-webkit-font-smoothing:antialiased;line-height:1.45}
+a{color:inherit}
+button{font:inherit;color:inherit;cursor:pointer}
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px}
+.sr{position:absolute;left:-9999px}
+
+/* header */
+.top{position:sticky;top:0;z-index:1000;background:#fff;border-bottom:2px solid var(--ink)}
+.top .wrap{display:flex;align-items:center;gap:24px;height:64px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.02em;text-decoration:none}
+.mark{width:26px;height:32px;border:2.5px solid var(--ink);border-radius:6px;box-shadow:0 3px 0 var(--ink);display:grid;place-items:center;font-size:15px;font-weight:800}
+.nav{display:flex;gap:4px;margin-left:auto}
+.nav a,.nav button{padding:8px 12px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px;background:none;border:0}
+.nav a:hover,.nav button:hover{background:var(--gray)}
+.nav .cta{border:2px solid var(--ink)}
+
+/* hero */
+.hero{padding:28px 0 8px}
+.hero h1{margin:0;font-size:44px;line-height:1.05;letter-spacing:-.03em;font-weight:800}
+.hero .lede{margin:8px 0 0;font-size:18px;color:var(--mute)}
+.whereline{margin:12px 0 0;font-size:16px}
+.linkbtn{background:none;border:0;padding:0;text-decoration:underline;font-weight:600}
+
+/* filters */
+.filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:18px}
+.popwrap{position:relative}
+.chip{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 16px;border:2px solid var(--ink);border-radius:999px;background:#fff;font-weight:600;font-size:15px}
+.chip.on{background:var(--ink);color:#fff}
+.chip small{font-weight:500;opacity:.7;font-size:13px}
+.pop{position:absolute;top:calc(100% + 8px);left:0;z-index:60;min-width:280px;background:#fff;border:2px solid var(--ink);border-radius:16px;padding:14px;box-shadow:6px 6px 0 var(--ink)}
+.pop h4{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--mute)}
+.opt{display:flex;justify-content:space-between;align-items:center;width:100%;padding:10px 12px;border:0;background:none;border-radius:10px;text-align:left;font-weight:500;font-size:15px}
+.opt:hover{background:var(--gray)}
+.opt.sel{font-weight:700;background:var(--gray)}
+.opt span{color:var(--mute);font-size:13px}
+.pop form{display:flex;gap:6px;margin:8px 0}
+.pop input{flex:1;height:40px;border:2px solid var(--ink);border-radius:10px;padding:0 10px;font:inherit;min-width:0}
+.pop .go{height:40px;padding:0 14px;border:2px solid var(--ink);background:var(--ink);color:#fff;border-radius:10px;font-weight:600}
+.pop hr{border:0;border-top:1px solid var(--line);margin:8px 0}
+.seg{margin-left:auto;display:flex;border:2px solid var(--ink);border-radius:999px;overflow:hidden}
+.seg button{border:0;background:#fff;height:40px;padding:0 16px;font-weight:600;font-size:15px}
+.seg button.on{background:var(--ink);color:#fff}
+
+.types{display:flex;gap:8px;overflow-x:auto;padding:14px 0 4px;scrollbar-width:none}
+.types::-webkit-scrollbar{display:none}
+.tp{flex:none;display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px;border:1.5px solid var(--line);border-radius:12px;background:#fff;font-weight:600;font-size:15px}
+.tp i{font-style:normal;font-size:14px}
+.tp.on{border-color:var(--ink);background:var(--ink);color:#fff}
+.count{display:flex;gap:12px;align-items:center;margin:14px 0 10px;font-size:15px;color:var(--mute)}
+.count b{color:var(--ink)}
+
+/* layout */
+.layout{display:grid;grid-template-columns:minmax(0,1fr);gap:32px;align-items:start;padding-bottom:80px}
+.layout.has-pane{grid-template-columns:minmax(0,1fr) 440px}
+.listcol{max-width:860px}
+.layout:not(.has-pane) .listcol{margin:0 auto;width:100%}
+.pane{position:sticky;top:84px}
+
+/* list */
+.dayhead{display:flex;align-items:baseline;gap:10px;margin:22px 0 10px;padding-bottom:8px;border-bottom:2px solid var(--ink);font-weight:800;font-size:18px}
+.dayhead small{font-weight:600;font-size:13px;background:var(--ink);color:#fff;border-radius:999px;padding:2px 10px}
+.card{display:flex;gap:16px;align-items:center;padding:14px 8px;border-bottom:1px solid var(--line);text-decoration:none;border-radius:12px}
+.card:hover{background:var(--gray)}
+.tile{flex:none;width:58px;height:70px;border:2.5px solid var(--ink);border-radius:10px;box-shadow:0 4px 0 var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff;line-height:1}
+.tile .m{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.tile .d{font-size:28px;font-weight:800;margin-top:4px}
+.card h3{margin:0;font-size:18px;font-weight:700;line-height:1.25}
+.meta{margin-top:3px;font-size:14px;color:var(--mute)}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.tag{font-size:12px;font-weight:700;border:1.5px solid var(--ink);border-radius:6px;padding:1px 7px;background:#fff}
+.tag.solid{background:var(--ink);color:#fff}
+.tag.soft{border-color:var(--line);color:var(--mute);font-weight:600}
+.tag.warn{background:var(--warn)}
+.card .go{margin-left:auto;font-size:22px;font-weight:700}
+.nearest{background:var(--gray);border-radius:16px;padding:16px 18px;margin:14px 0}
+.nearest b{display:block;font-size:17px;margin-bottom:2px}
+.empty{padding:40px 0;text-align:center;color:var(--mute)}
+
+/* calendar */
+.cal{border:2px solid var(--ink);border-radius:20px;padding:16px;background:#fff;box-shadow:6px 6px 0 var(--ink)}
+.calhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.calhead h3{margin:0;font-size:20px;font-weight:800}
+.calhead button{width:36px;height:36px;border-radius:50%;border:2px solid var(--ink);background:#fff;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+.grid .dow{font-size:12px;font-weight:700;color:var(--mute);padding:4px 0}
+.day{aspect-ratio:1/1.05;border:0;background:none;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:5px 0 0;font-weight:600;font-size:14px;position:relative}
+.day:hover{background:var(--gray)}
+.day.out{color:#bbb}
+.day.past{color:#c4c4c0}
+.day.today{box-shadow:inset 0 0 0 2px var(--ink)}
+.day.in{background:var(--ink);color:#fff}
+.day.rng{background:var(--gray)}
+.dots{display:flex;gap:1px;margin-top:2px;font-size:9px;line-height:1;height:10px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:12px;font-size:13px;color:var(--mute)}
+.legend i{font-style:normal;color:var(--ink)}
+.calnote{margin-top:10px;font-size:13px;color:var(--mute)}
+#map{height:520px;border:2px solid var(--ink);border-radius:20px;box-shadow:6px 6px 0 var(--ink);background:var(--gray)}
+.leaflet-tile{filter:grayscale(1) contrast(1.05)}
+.leaflet-popup-content a{font-weight:700}
+.strip{display:none;gap:6px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none}
+.strip::-webkit-scrollbar{display:none}
+.sd{flex:none;width:52px;border:1.5px solid var(--line);border-radius:12px;background:#fff;padding:6px 0 4px;text-align:center;font-weight:700}
+.sd small{display:block;font-size:11px;color:var(--mute);font-weight:600}
+.sd .dots{justify-content:center}
+.sd.in{background:var(--ink);color:#fff;border-color:var(--ink)}
+.sd.in small{color:#ccc}
+
+/* event page */
+.back{display:inline-block;margin:20px 0 12px;font-weight:600;text-decoration:none}
+.ehead{display:flex;gap:20px;align-items:center;margin-bottom:6px}
+.ehead h1{margin:0;font-size:40px;line-height:1.08;letter-spacing:-.03em;font-weight:800}
+.egrid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:40px;margin-top:20px;padding-bottom:140px}
+.sec{margin:0 0 30px}
+.sec h2{font-size:14px;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;color:var(--mute)}
+.sec p{margin:0;font-size:17px}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:10px 12px;font-size:16px}
+.kv dt{font-weight:700}.kv dd{margin:0}
+.box{border:2px solid var(--ink);border-radius:20px;padding:18px;background:#fff}
+.side .box{box-shadow:6px 6px 0 var(--ink);position:sticky;top:84px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:46px;padding:0 20px;border-radius:999px;border:2px solid var(--ink);background:#fff;font-weight:700;font-size:15px;text-decoration:none}
+.btn{white-space:nowrap}
+.btn.pri{background:var(--ink);color:#fff}
+.btn.full{width:100%}
+.btn[disabled]{border-style:dashed;color:#999;border-color:#bbb;cursor:not-allowed}
+.btn em{font-style:normal;font-size:11px;background:var(--gray);border-radius:6px;padding:1px 6px;color:var(--mute)}
+.row2{display:flex;gap:8px;margin-top:10px}.row2>*{flex:1}
+#emap{height:190px;border-radius:14px;border:2px solid var(--ink);margin:12px 0}
+.banner{border:2px solid var(--ink);background:var(--warn);border-radius:14px;padding:14px 16px;margin:6px 0 18px;font-size:16px;display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.banner b{display:block}
+.banner button{margin-left:auto;background:none;border:0;text-decoration:underline;font-weight:600}
+.org{display:flex;gap:14px;align-items:center;border:2px solid var(--line);border-radius:16px;padding:14px}
+.avatar{width:48px;height:48px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:800;flex:none}
+details{border-bottom:1px solid var(--line);padding:10px 0}
+summary{font-weight:600;cursor:pointer;font-size:16px}
+details p{margin-top:6px;color:var(--mute);font-size:15px}
+.mini{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.mini .card{border:2px solid var(--line);padding:12px}
+.codebox{display:inline-block;border:2px dashed var(--ink);border-radius:8px;padding:4px 10px;font-weight:800;letter-spacing:.06em;margin-right:8px}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:900;background:#fff;border-top:2px solid var(--ink);padding:12px 0}
+.bar .wrap{display:flex;gap:14px;align-items:center}
+.bar .when{font-weight:800;font-size:17px;line-height:1.2}
+.bar .when small{display:block;font-weight:500;font-size:13px;color:var(--mute)}
+.bar .acts{margin-left:auto;display:flex;gap:8px}
+.calmenu{position:absolute;bottom:calc(100% + 8px);right:0;min-width:230px;background:#fff;border:2px solid var(--ink);border-radius:16px;padding:8px;box-shadow:6px 6px 0 var(--ink)}
+.calmenu a,.calmenu button{display:block;width:100%;padding:10px 12px;text-align:left;border:0;background:none;border-radius:10px;font-weight:600;font-size:15px;text-decoration:none}
+.calmenu a:hover,.calmenu button:hover{background:var(--gray)}
+.foot{border-top:1px solid var(--line);padding:28px 0 100px;color:var(--mute);font-size:14px}
+
+/* modal + toast */
+.scrim{position:fixed;inset:0;background:rgba(13,13,13,.5);z-index:2000;display:grid;place-items:center;padding:16px}
+.modal{background:#fff;border:2px solid var(--ink);border-radius:20px;padding:22px;width:100%;max-width:440px;box-shadow:8px 8px 0 var(--ink)}
+.modal h3{margin:0 0 6px;font-size:22px}
+.modal p{margin:0 0 12px;color:var(--mute)}
+.radio{display:flex;gap:10px;align-items:center;padding:10px 4px;font-weight:500;font-size:16px}
+.radio input{width:20px;height:20px;accent-color:#000}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-weight:600;z-index:3000;opacity:0;pointer-events:none;transition:opacity .2s}
+#toast.show{opacity:1}
+
+@media(max-width:900px){
+  .wrap{padding:0 16px}
+  .layout.has-pane{grid-template-columns:minmax(0,1fr)}
+  .pane{position:static;order:-1}
+  .hero h1{font-size:32px}
+  .nav a.hide-m{display:none}
+  .seg{margin-left:0;width:100%}.seg button{flex:1}
+  .strip{display:flex}
+  .egrid{grid-template-columns:minmax(0,1fr);gap:0}
+  .side{order:-1;margin-bottom:24px}
+  .side .box{position:static}
+  .ehead h1{font-size:30px}
+  .ehead{align-items:flex-start}
+  #map{height:300px}
+  .bar .when small{display:none}
+  .bar .when{font-size:14px}
+  .bar .wrap{gap:8px}
+  .bar .btn{padding:0 12px;font-size:14px}
+  .btn{padding:0 14px}
+}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="#home"><span class="mark">M</span>Mahjong USA</a>
+  <nav class="nav">
+    <a href="#home" class="hide-m">Find a game</a>
+    <a href="#lessons" class="hide-m">Lessons</a>
+    <button data-a="submit" class="cta">Submit an event</button>
+  </nav>
+</div></header>
+<main id="app"></main>
+<div id="modalroot"></div>
+<div id="toast"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ---------- helpers ---------- */
+const TODAY=new Date(2026,10,17);
+const MON=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MS=MON.map(m=>m.slice(0,3));
+const DOW=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const DS=DOW.map(d=>d.slice(0,3));
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parse=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const TISO=iso(TODAY);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const t12=t=>{const [h,m]=t.split(':').map(Number);return (h%12||12)+':'+pad(m)+' '+(h<12?'AM':'PM')};
+const money=n=>n===0?'Free':'$'+n.toLocaleString();
+const lsGet=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+
+const TYPES={tournament:{label:'Tournament',g:'◆'},open:{label:'Open play',g:'○'},lesson:{label:'Lesson',g:'▲'},cruise:{label:'Cruise',g:'■'},social:{label:'Social',g:'●'}};
+const STYLES=['American (NMJL)','Riichi','Chinese official'];
+const TZ={ET:['America/New_York',-5],CT:['America/Chicago',-6],MT:['America/Denver',-7],PT:['America/Los_Angeles',-8]};
+const STATES={
+ SC:{n:'South Carolina',lat:33.9,lng:-80.9},FL:{n:'Florida',lat:28.1,lng:-82.4},TX:{n:'Texas',lat:31.2,lng:-98.7},
+ NY:{n:'New York',lat:42.9,lng:-75.5},CA:{n:'California',lat:36.8,lng:-119.7},GA:{n:'Georgia',lat:32.7,lng:-83.4},
+ NC:{n:'North Carolina',lat:35.5,lng:-79.4},WY:{n:'Wyoming',lat:43.0,lng:-107.5},CO:{n:'Colorado',lat:39.0,lng:-105.5},
+ WA:{n:'Washington',lat:47.4,lng:-120.5},OH:{n:'Ohio',lat:40.3,lng:-82.8},IL:{n:'Illinois',lat:40.0,lng:-89.2}
+};
+const ZIPS={'29492':'SC','29401':'SC','29201':'SC','33101':'FL','78701':'TX','10001':'NY','90001':'CA','30301':'GA','28202':'NC','82001':'WY'};
+
+/* ---------- made-up data ---------- */
+const ORGS={
+ o1:{n:'Lowcountry Mahj Club',y:3,c:112},o2:{n:'Carolina Tile Society',y:5,c:48},o3:{n:'Harbor Hotel Events',y:2,c:19},
+ o4:{n:'Sunshine Mahjong Co.',y:4,c:67},o5:{n:'Lone Star Mahj',y:6,c:130},o6:{n:'Five Boroughs Mahj',y:2,c:41},
+ o7:{n:'Pacific Tiles',y:3,c:55},o8:{n:'Peach State Players',y:1,c:14},o9:{n:'Blue Ridge Tiles',y:2,c:22}
+};
+const RAW=[
+ {id:'lowcountry-open-play',title:'Lowcountry Open Play',type:'open',style:'American (NMJL)',date:'2026-11-17',time:'18:30',dur:3,weekly:'Tuesday',org:'o1',venue:'Magnolia Community Center',city:'Charleston',st:'SC',lat:32.7876,lng:-79.9403,price:0,beginner:true,tz:'ET',desc:'Drop in and play. Tables form as people arrive, and there are always a few friendly faces to seat you.'},
+ {id:'columbia-beginner-lesson',title:'Beginner Lesson Night',type:'lesson',style:'American (NMJL)',date:'2026-11-19',time:'18:00',dur:2,org:'o2',venue:'The Tile Room',city:'Columbia',st:'SC',lat:34.0007,lng:-81.0348,price:25,beginner:true,spots:6,tz:'ET',refund:'Full refund up to 48 hours before the lesson.',desc:'Learn the card, the tiles and how a game flows. Sets are provided.'},
+ {id:'brooklyn-mahj-night',title:'Brooklyn Mahj Night',type:'social',style:'American (NMJL)',date:'2026-11-20',time:'19:00',dur:3,org:'o6',venue:'Gowanus Social Hall',city:'Brooklyn',st:'NY',lat:40.6782,lng:-73.9442,price:15,tz:'ET',reports:3,desc:'Cocktails, snacks and a few rounds with new friends.'},
+ {id:'greenville-riichi-social',title:'Riichi Social',type:'social',style:'Riichi',date:'2026-11-21',time:'14:00',dur:4,org:'o9',venue:'Host’s home',city:'Greenville',st:'SC',lat:34.8526,lng:-82.394,price:0,tz:'ET',privateAddr:true,desc:'A relaxed afternoon of riichi for people who know the basics. Tea provided.'},
+ {id:'mimosas-brunch',title:'Mahjong & Mimosas Brunch',type:'social',style:'American (NMJL)',date:'2026-11-22',time:'11:00',dur:3,org:'o1',venue:'Harbor Hotel Ballroom',city:'Charleston',st:'SC',lat:32.7765,lng:-79.9311,price:30,beginner:true,spots:9,tz:'ET',refund:'Refundable until 7 days before. After that, you can give your spot to a friend.',desc:'Brunch, bubbles and a few relaxed games. Beginners welcome.'},
+ {id:'savannah-open-play',title:'Savannah Open Play',type:'open',style:'American (NMJL)',date:'2026-11-23',time:'18:00',dur:3,weekly:'Monday',org:'o8',venue:'Forsyth Cafe Back Room',city:'Savannah',st:'GA',lat:32.0809,lng:-81.0912,price:0,beginner:true,tz:'ET',desc:'A friendly weekly table. Sets provided.'},
+ {id:'atlanta-lesson-series',title:'Atlanta Beginner Lesson Series',type:'lesson',style:'American (NMJL)',date:'2026-11-28',time:'10:00',dur:2,org:'o8',venue:'Peachtree Rec Center',city:'Atlanta',st:'GA',lat:33.749,lng:-84.388,price:40,beginner:true,spots:4,tz:'ET',refund:'Refundable until the first class.',desc:'Four Saturdays, one class each. Learn at your own pace.'},
+ {id:'hill-country-lesson',title:'Chinese Official Rules Intro',type:'lesson',style:'Chinese official',date:'2026-12-02',time:'18:30',dur:2,org:'o5',venue:'Alamo Library Annex',city:'San Antonio',st:'TX',lat:29.4241,lng:-98.4936,price:20,tz:'CT',desc:'A first look at Chinese official rules, scoring and etiquette.'},
+ {id:'asheville-social',title:'Asheville Mahj Social',type:'social',style:'American (NMJL)',date:'2026-12-03',time:'17:30',dur:3,org:'o9',venue:'Blue Ridge Brewing Taproom',city:'Asheville',st:'NC',lat:35.5951,lng:-82.5515,price:0,tz:'ET',desc:'Casual tables at a local taproom. Walk-ins welcome.'},
+ {id:'naples-weekend',title:'Naples Tournament Weekend',type:'tournament',style:'American (NMJL)',date:'2026-12-05',time:'09:00',dur:8,org:'o4',venue:'Gulfshore Convention Center',city:'Naples',st:'FL',lat:26.142,lng:-81.7948,price:120,spots:20,tz:'ET',reports:1,refund:'Full refund up to 14 days before. 50% up to 3 days before.',desc:'Six rounds over one day, with lunch included.'},
+ {id:'charlotte-marathon',title:'Charlotte Mahj Marathon',type:'tournament',style:'American (NMJL)',date:'2026-12-12',time:'09:30',dur:8,org:'o9',venue:'Queen City Event Hall',city:'Charlotte',st:'NC',lat:35.2271,lng:-80.8431,price:60,spots:15,tz:'ET',refund:'Refundable up to 10 days before.',desc:'A one-day tournament for all levels, with prizes for the top tables.'},
+ {id:'austin-riichi',title:'Austin Riichi Meetup',type:'open',style:'Riichi',date:'2026-11-18',time:'19:00',dur:3,weekly:'Wednesday',org:'o5',venue:'Eastside Game Cafe',city:'Austin',st:'TX',lat:30.2672,lng:-97.7431,price:0,tz:'CT',desc:'A weekly riichi table. Newcomers welcome, rules explained as we go.'},
+ {id:'la-riichi',title:'LA Riichi Open Play',type:'open',style:'Riichi',date:'2026-11-19',time:'19:00',dur:3,weekly:'Thursday',org:'o7',venue:'Silver Lake Game Lounge',city:'Los Angeles',st:'CA',lat:34.0522,lng:-118.2437,price:5,tz:'PT',desc:'Weekly riichi at a game lounge. Small cover charge for the table.'},
+ {id:'columbia-sunday',title:'Sunday Open Play',type:'open',style:'American (NMJL)',date:'2026-11-22',time:'14:00',dur:3,weekly:'Sunday',org:'o2',venue:'The Tile Room',city:'Columbia',st:'SC',lat:34.0007,lng:-81.0348,price:0,beginner:true,tz:'ET',desc:'Sunday afternoon games. Bring a friend or come on your own.'},
+ {id:'hh-tournament',title:'Hilton Head Island Tournament',type:'tournament',style:'American (NMJL)',date:'2027-01-16',time:'08:30',dur:9,org:'o3',venue:'Island Resort Ballroom',city:'Hilton Head Island',st:'SC',lat:32.2163,lng:-80.7526,price:75,spots:28,tz:'ET',refund:'Full refund up to 21 days before.',desc:'A scenic one-day tournament with lunch and prizes.'},
+ {id:'texas-open',title:'Texas Open Tournament',type:'tournament',style:'American (NMJL)',date:'2027-01-23',time:'09:00',dur:9,org:'o5',venue:'Trinity Convention Hall',city:'Dallas',st:'TX',lat:32.7767,lng:-96.797,price:95,spots:40,tz:'CT',refund:'Full refund up to 14 days before.',desc:'The big one in Texas: six rounds, a champion’s table and a banquet.'},
+ {id:'nyc-classic',title:'NYC Winter Classic',type:'tournament',style:'American (NMJL)',date:'2027-02-06',time:'09:00',dur:9,org:'o6',venue:'Chelsea Event Space',city:'New York',st:'NY',lat:40.7466,lng:-74.0016,price:150,spots:12,tz:'ET',refund:'Refundable up to 30 days before.',desc:'A two-day tournament in the heart of the city.'},
+ {id:'spring-tournament',title:'Spring Mahjong Tournament',type:'tournament',style:'American (NMJL)',date:'2027-03-14',time:'09:00',dur:8,org:'o3',venue:'Harbor Hotel Ballroom',city:'Charleston',st:'SC',lat:32.7765,lng:-79.9311,price:85,spots:12,tz:'ET',code:'EARLY10',codeNote:'10% off until Jan 31',refund:'Full refund up to 14 days before. 50% up to 3 days before.',desc:'Six rounds, lunch included, and prizes for the top three tables. All levels welcome.'},
+ {id:'cruise-week',title:'Mahjong Cruise Week',type:'cruise',style:'American (NMJL)',date:'2027-04-04',allDay:true,days:7,org:'o4',venue:'Departs from PortMiami',city:'Miami',st:'FL',lat:25.7743,lng:-80.17,price:1299,tz:'ET',refund:'Per the cruise line: refundable until 90 days before sailing.',desc:'Seven nights, daily play and lessons, with a final-day tournament.'},
+ {id:'pacific-cruise',title:'Pacific Coast Mahjong Cruise',type:'cruise',style:'American (NMJL)',date:'2027-05-16',allDay:true,days:5,org:'o7',venue:'Departs from Port of Los Angeles',city:'San Pedro',st:'CA',lat:33.7361,lng:-118.2923,price:1799,tz:'PT',refund:'Per the cruise line: refundable until 75 days before sailing.',desc:'Five nights up the coast with lessons and a tournament at sea.'}
+];
+const ALL=[];
+RAW.forEach(e=>{
+  if(e.weekly){
+    let d=parse(e.date);const end=addDays(parse(e.date),7*8);
+    while(d<=end){const ds=iso(d);ALL.push({...e,date:ds,uid:e.id+'-'+ds,rec:true});d=addDays(d,7)}
+  } else ALL.push({...e,uid:e.id+'-'+e.date,rec:false});
+});
+const byUid=uid=>ALL.find(e=>e.uid===uid);
+
+/* ---------- state ---------- */
+const S={
+  state:lsGet('mj-state','SC'),type:new Set(),style:'any',cost:'any',when:'any',range:null,
+  view:innerWidth>900?'calendar':'list',month:{y:2026,m:10},pop:null,modal:null,calOpen:false,rangeStart:null
+};
+let map=null,emap=null;
+function reportsMine(){return lsGet('mj-reports',{})}
+function reportCount(e){return (e.reports||0)+(reportsMine()[e.id]?1:0)}
+
+function filtered(ignoreRange,ignoreState){
+  return ALL.filter(e=>{
+    if(e.date<TISO)return false;
+    if(!ignoreState&&S.state!=='All'&&e.st!==S.state)return false;
+    if(S.type.size&&!S.type.has(e.type))return false;
+    if(S.style!=='any'&&e.style!==S.style)return false;
+    if(S.cost==='free'&&e.price>0)return false;
+    if(S.cost==='paid'&&e.price===0)return false;
+    if(!ignoreRange&&S.range&&(e.date<S.range[0]||e.date>S.range[1]))return false;
+    return true;
+  }).sort((a,b)=>(a.date+(a.time||'00:00')).localeCompare(b.date+(b.time||'00:00')));
+}
+const dist=(a,b)=>{const R=3959,r=x=>x*Math.PI/180;const dl=r(b.lat-a.lat),dg=r(b.lng-a.lng);const h=Math.sin(dl/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dg/2)**2;return 2*R*Math.asin(Math.sqrt(h))};
+const stateName=()=>S.state==='All'?'all states':STATES[S.state].n;
+function whenLabel(){return {any:'Any time',weekend:'This weekend',week:'Next 7 days',month:'This month',custom:'Picked dates'}[S.when]}
+function fmtDay(s,long){const d=parse(s);return long?DOW[d.getDay()]+', '+MON[d.getMonth()]+' '+d.getDate():DS[d.getDay()]+', '+MS[d.getMonth()]+' '+d.getDate()}
+function timeText(e){
+  if(e.allDay){const end=iso(addDays(parse(e.date),e.days));return fmtDay(e.date)+' to '+fmtDay(end)+' ('+e.days+' nights)'}
+  const [h,m]=e.time.split(':').map(Number);const eh=h+e.dur;
+  return fmtDay(e.date)+' · '+t12(e.time)+'–'+t12(pad(eh%24)+':'+pad(m))+' '+e.tz;
+}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2200)}
+
+/* ---------- calendar files ---------- */
+function utcParts(e){
+  const dst=e.date>='2027-03-14'||e.date<'2026-11-01';
+  const off=TZ[e.tz][1]+(dst?1:0);
+  const d=parse(e.date);const [h,m]=(e.time||'00:00').split(':').map(Number);
+  const start=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate(),h-off,m));
+  const end=new Date(start.getTime()+e.dur*3600000);
+  const f=x=>x.getUTCFullYear()+pad(x.getUTCMonth()+1)+pad(x.getUTCDate())+'T'+pad(x.getUTCHours())+pad(x.getUTCMinutes())+'00Z';
+  return [f(start),f(end)];
+}
+function calDates(e){
+  if(e.allDay){const a=e.date.replace(/-/g,'');const b=iso(addDays(parse(e.date),e.days)).replace(/-/g,'');return [a,b]}
+  return utcParts(e);
+}
+function googleUrl(e){
+  const [a,b]=calDates(e);
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(e.title)+'&dates='+a+'/'+b+'&location='+encodeURIComponent(e.privateAddr?e.city+', '+e.st:e.venue+', '+e.city+', '+e.st)+'&details='+encodeURIComponent(e.desc+'\nMore: '+location.href);
+}
+function downloadIcs(e){
+  const [a,b]=calDates(e);const dt=e.allDay?';VALUE=DATE:':':';
+  const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Mahjong USA//Prototype//EN','BEGIN:VEVENT','UID:'+e.uid+'@mahjong-usa.example','DTSTAMP:20261117T120000Z','DTSTART'+dt+a,'DTEND'+dt+b,'SUMMARY:'+e.title,'LOCATION:'+(e.privateAddr?e.city+', '+e.st:e.venue+', '+e.city+', '+e.st),'DESCRIPTION:'+e.desc,'END:VEVENT','END:VCALENDAR'].join('\r\n');
+  const url=URL.createObjectURL(new Blob([ics],{type:'text/calendar'}));
+  const x=document.createElement('a');x.href=url;x.download=e.id+'.ics';document.body.appendChild(x);x.click();x.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+const dirUrl=e=>'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(e.privateAddr?e.city+', '+e.st:e.venue+', '+e.city+', '+e.st);
+
+/* ---------- home ---------- */
+function tile(e){const d=parse(e.date);return `<div class="tile"><span class="m">${MS[d.getMonth()]}</span><span class="d">${d.getDate()}</span></div>`}
+function cardHTML(e,showDate){
+  const rc=reportCount(e);
+  const meta=[TYPES[e.type].g+' '+TYPES[e.type].label,e.city+', '+e.st,e.allDay?e.days+' nights':t12(e.time)+' '+e.tz];
+  const tags=[`<span class="tag ${e.price===0?'solid':''}">${money(e.price)}</span>`];
+  if(e.beginner)tags.push('<span class="tag soft">Beginner friendly</span>');
+  if(e.rec)tags.push(`<span class="tag soft">Every ${DS[parse(e.date).getDay()]}</span>`);
+  if(e.spots&&e.spots<=12)tags.push(`<span class="tag">${e.spots} spots left</span>`);
+  if(rc>=3)tags.push('<span class="tag warn">Reported</span>');
+  return `<a class="card" href="#event-${e.uid}">${tile(e)}<div><h3>${esc(e.title)}</h3><div class="meta">${meta.join(' · ')}</div><div class="tags">${tags.join('')}</div></div><span class="go" aria-hidden="true">›</span></a>`;
+}
+function listHTML(){
+  let list=filtered(false,false);
+  let out='';
+  if(!list.length){
+    const pool=filtered(false,true);
+    if(S.state!=='All'&&pool.length){
+      const c=STATES[S.state];
+      const near=pool.map(e=>({e,d:dist(c,e)})).sort((a,b)=>a.d-b.d).slice(0,4);
+      out+=`<div class="nearest"><b>Nothing in ${stateName()} for these filters.</b>The closest events are below. <button class="linkbtn" data-a="clear">Clear filters</button> or <button class="linkbtn" data-a="where" data-v="All">see all states</button>.</div>`;
+      near.forEach(n=>{out+=cardHTML(n.e)+`<div class="meta" style="padding:0 8px 6px 82px">About ${Math.round(n.d).toLocaleString()} miles away</div>`});
+      return out;
+    }
+    return `<div class="empty"><b>No events match yet.</b><br>Try clearing a filter.<br><br><button class="btn" data-a="clear">Clear filters</button></div>`;
+  }
+  let last='';
+  list.forEach(e=>{
+    if(e.date!==last){
+      last=e.date;
+      const tag=e.date===TISO?'<small>Today</small>':e.date===iso(addDays(TODAY,1))?'<small>Tomorrow</small>':'';
+      out+=`<div class="dayhead">${fmtDay(e.date,true)} ${tag}</div>`;
+    }
+    out+=cardHTML(e);
+  });
+  return out;
+}
+function dotsFor(list,ds){
+  const types=[...new Set(list.filter(e=>e.date===ds).map(e=>e.type))].slice(0,4);
+  return types.map(t=>TYPES[t].g).join('');
+}
+function calHTML(){
+  const {y,m}=S.month;const first=new Date(y,m,1);const start=addDays(first,-first.getDay());
+  const base=filtered(true,false);
+  let cells='';
+  ['S','M','T','W','T','F','S'].forEach(d=>cells+=`<div class="dow">${d}</div>`);
+  for(let i=0;i<42;i++){
+    const d=addDays(start,i);const ds=iso(d);
+    const out=d.getMonth()!==m;
+    let cls='day';if(out)cls+=' out';if(ds<TISO)cls+=' past';if(ds===TISO)cls+=' today';
+    if(S.range){if(ds===S.range[0]||ds===S.range[1])cls+=' in';else if(ds>S.range[0]&&ds<S.range[1])cls+=' rng'}
+    cells+=`<button class="${cls}" data-a="day" data-v="${ds}" aria-label="${fmtDay(ds,true)}">${d.getDate()}<span class="dots">${dotsFor(base,ds)}</span></button>`;
+  }
+  const leg=Object.values(TYPES).map(t=>`<span><i>${t.g}</i> ${t.label}</span>`).join('');
+  return `<div class="cal"><div class="calhead"><button data-a="month" data-v="-1" aria-label="Previous month">‹</button><h3>${MON[m]} ${y}</h3><button data-a="month" data-v="1" aria-label="Next month">›</button></div><div class="grid">${cells}</div><div class="legend">${leg}</div><div class="calnote">Tap a day to see it, or tap two days to pick a range.${S.range?' <button class="linkbtn" data-a="clearrange">Clear dates</button>':''}</div></div>`;
+}
+function stripHTML(){
+  const base=filtered(true,false);let out='';
+  for(let i=0;i<14;i++){
+    const d=addDays(TODAY,i);const ds=iso(d);
+    const on=S.range&&S.range[0]===ds&&S.range[1]===ds;
+    out+=`<button class="sd ${on?'in':''}" data-a="stripday" data-v="${ds}"><small>${DS[d.getDay()]}</small>${d.getDate()}<span class="dots">${dotsFor(base,ds)||'&nbsp;'}</span></button>`;
+  }
+  return `<div class="strip">${out}</div>`;
+}
+function popHTML(which){
+  if(S.pop!==which)return '';
+  if(which==='where'){
+    const counts={};filtered(false,true).forEach(e=>counts[e.st]=(counts[e.st]||0)+1);
+    const states=Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
+    return `<div class="pop"><h4>Where</h4><button class="opt" data-a="geo">Use my location <span>demo</span></button><form data-a="zip"><input name="q" placeholder="State or ZIP" aria-label="State or ZIP" autocomplete="off"><button class="go">Go</button></form><hr>${states.map(s=>`<button class="opt ${S.state===s?'sel':''}" data-a="where" data-v="${s}">${STATES[s].n}<span>${counts[s]}</span></button>`).join('')}<button class="opt ${S.state==='All'?'sel':''}" data-a="where" data-v="All">All states</button><hr><button class="opt" data-a="clearloc">Clear my saved location</button></div>`;
+  }
+  if(which==='when'){
+    const o=[['any','Any time'],['weekend','This weekend'],['week','Next 7 days'],['month','This month']];
+    return `<div class="pop"><h4>When</h4>${o.map(([k,l])=>`<button class="opt ${S.when===k?'sel':''}" data-a="when" data-v="${k}">${l}</button>`).join('')}<hr><div class="meta" style="padding:0 12px">Or tap days on the calendar to pick your own dates.</div></div>`;
+  }
+  if(which==='style'){
+    return `<div class="pop"><h4>Rules</h4><button class="opt ${S.style==='any'?'sel':''}" data-a="style" data-v="any">Any style</button>${STYLES.map(s=>`<button class="opt ${S.style===s?'sel':''}" data-a="style" data-v="${s}">${s}</button>`).join('')}</div>`;
+  }
+  if(which==='cost'){
+    return `<div class="pop"><h4>Cost</h4>${[['any','Any price'],['free','Free'],['paid','Paid']].map(([k,l])=>`<button class="opt ${S.cost===k?'sel':''}" data-a="cost" data-v="${k}">${l}</button>`).join('')}</div>`;
+  }
+  return '';
+}
+function chip(which,label,val,on){return `<div class="popwrap"><button class="chip ${on?'on':''}" data-a="pop" data-v="${which}">${label} <small>${val}</small> ▾</button>${popHTML(which)}</div>`}
+function homeHTML(){
+  const list=filtered(false,false);
+  const hasFilters=S.type.size||S.style!=='any'||S.cost!=='any'||S.range;
+  const pane=S.view==='calendar'?calHTML():S.view==='map'?'<div id="map" role="img" aria-label="Map of events"></div>':'';
+  const lessons=location.hash==='#lessons';
+  return `
+  <section class="wrap hero">
+    <h1>Mahjong near you</h1>
+    <p class="lede">Tournaments, open play, lessons and cruises. No account needed.</p>
+    <p class="whereline">Showing <b>${stateName()}</b> · <button class="linkbtn" data-a="pop" data-v="where">Change</button></p>
+  </section>
+  <div class="wrap">
+    <div class="filters">
+      ${chip('where','Where',S.state==='All'?'All states':S.state,S.state!=='All')}
+      ${chip('when','When',whenLabel(),S.when!=='any')}
+      ${chip('style','Rules',S.style==='any'?'Any':S.style.split(' ')[0],S.style!=='any')}
+      ${chip('cost','Cost',S.cost==='any'?'Any':S.cost==='free'?'Free':'Paid',S.cost!=='any')}
+      <div class="seg" role="group" aria-label="View">
+        <button class="${S.view==='list'?'on':''}" data-a="view" data-v="list">List</button>
+        <button class="${S.view==='calendar'?'on':''}" data-a="view" data-v="calendar">Calendar</button>
+        <button class="${S.view==='map'?'on':''}" data-a="view" data-v="map">Map</button>
+      </div>
+    </div>
+    <div class="types">${Object.entries(TYPES).map(([k,t])=>`<button class="tp ${S.type.has(k)?'on':''}" data-a="type" data-v="${k}"><i>${t.g}</i>${t.label}</button>`).join('')}</div>
+    <div class="count"><span><b>${list.length}</b> ${list.length===1?'event':'events'}${S.state==='All'?'':' in '+stateName()}</span>${hasFilters?'<button class="linkbtn" data-a="clear">Clear filters</button>':''}</div>
+    <div class="layout ${pane?'has-pane':''}">
+      <div class="listcol">${S.view==='list'?stripHTML():''}${listHTML()}</div>
+      ${pane?`<aside class="pane">${pane}</aside>`:''}
+    </div>
+  </div>
+  <footer class="foot"><div class="wrap">Sample layout with made-up events. Black and white until the logo and brand colors arrive.</div></footer>`;
+}
+
+/* ---------- event page ---------- */
+function eventHTML(e){
+  const o=ORGS[e.org];const rc=reportCount(e);const mine=!!reportsMine()[e.id];
+  const t=TYPES[e.type];
+  let banner='';
+  if(rc===1)banner=`<div class="banner" role="status"><div><b>1 person reported a problem with this event.</b>Check the details with the organizer before you go.</div>${mine?'<button data-a="unreport">Undo my report</button>':''}</div>`;
+  else if(rc>=3)banner=`<div class="banner" role="status"><div><b>Several people reported a problem.</b>This event may be wrong or cancelled. Confirm with the organizer before you go.</div></div>`;
+  else if(rc===2)banner=`<div class="banner" role="status"><div><b>2 people reported a problem with this event.</b>Check the details with the organizer before you go.</div>${mine?'<button data-a="unreport">Undo my report</button>':''}</div>`;
+  const hostEvents=ALL.filter(x=>x.org===e.org&&x.id!==e.id&&x.date>=TISO).filter((x,i,a)=>a.findIndex(y=>y.id===x.id)===i).slice(0,3);
+  const stateEvents=ALL.filter(x=>x.st===e.st&&x.id!==e.id&&x.org!==e.org&&x.date>=TISO).filter((x,i,a)=>a.findIndex(y=>y.id===x.id)===i).slice(0,4);
+  const faq=[
+    ['Do I need to bring my own set?',e.type==='cruise'?'Sets are provided in the card room. Check with the organizer for details.':'Most hosts provide sets. Check with the organizer if you want to be sure.'],
+    ['Is this beginner friendly?',e.beginner?'Yes. Beginners are welcome.':'This one is better if you already know the rules. Check lessons near you if you are new.'],
+    ['Do I need a partner?','No. You will be seated at a table with other players.']
+  ];
+  const where=e.privateAddr?`${esc(e.city)}, ${e.st}<br><span class="meta">The host shares the exact address privately. Message them for it.</span>`:`${esc(e.venue)}<br>${esc(e.city)}, ${e.st}`;
+  return `
+  <div class="wrap">
+    <a class="back" href="#home">← All events</a>
+    ${banner}
+    <div class="ehead">${tile(e)}<div><h1>${esc(e.title)}</h1><div class="tags" style="margin-top:10px"><span class="tag solid">${t.g} ${t.label}</span><span class="tag">${e.style}</span>${e.beginner?'<span class="tag">Beginner friendly</span>':''}${e.rec?`<span class="tag soft">Every ${DOW[parse(e.date).getDay()]}</span>`:''}</div></div></div>
+    <div class="egrid">
+      <div>
+        <div class="sec"><h2>About</h2><p>${esc(e.desc)}</p></div>
+        <div class="sec"><h2>Details</h2><dl class="kv"><dt>When</dt><dd>${timeText(e)}</dd><dt>Where</dt><dd>${where}</dd><dt>Cost</dt><dd>${money(e.price)}${e.spots?' · '+e.spots+' spots left':''}</dd></dl></div>
+        ${e.refund?`<div class="sec"><h2>Refunds</h2><p>${esc(e.refund)}</p><p class="meta" style="margin-top:6px">As stated by the organizer. Mahjong USA does not handle payments.</p></div>`:''}
+        ${e.code?`<div class="sec"><h2>Discount code</h2><p><span class="codebox">${e.code}</span>${esc(e.codeNote||'')}</p><p class="meta" style="margin-top:6px">Enter it at registration on the organizer’s site.</p></div>`:''}
+        <div class="sec"><h2>Good to know</h2>${faq.map(([q,a])=>`<details><summary>${q}</summary><p>${a}</p></details>`).join('')}</div>
+        <div class="sec"><h2>Organizer</h2><div class="org"><div class="avatar">${o.n[0]}</div><div><b>${o.n}</b><div class="meta">${o.y} years on Mahjong USA · ${o.c} events listed</div></div><a class="btn" style="margin-left:auto" href="javascript:void 0" data-a="soon" data-v="Opens the organizer’s own page">Their page ↗</a></div></div>
+        <div class="sec"><p class="meta">Last checked Nov 16, 2026 · <button class="linkbtn" data-a="report">${mine?'You reported this':'Report a problem'}</button> · <button class="linkbtn" data-a="soon" data-v="Demo: this would email the Mahjong USA team">Is this your event? Fix or remove it</button></p></div>
+        ${hostEvents.length?`<div class="sec"><h2>More from ${o.n}</h2><div class="mini">${hostEvents.map(x=>cardHTML(x)).join('')}</div></div>`:''}
+        ${stateEvents.length?`<div class="sec"><h2>More in ${STATES[e.st].n}</h2><div class="mini">${stateEvents.map(x=>cardHTML(x)).join('')}</div></div>`:''}
+      </div>
+      <aside class="side"><div class="box">
+        <b style="font-size:18px">${timeText(e)}</b>
+        <div style="margin-top:6px">${where}</div>
+        <div id="emap" role="img" aria-label="Map of the event location"></div>
+        <a class="btn full" href="${dirUrl(e)}" target="_blank" rel="noopener">Get directions ↗</a>
+        <div class="row2"><button class="btn" data-a="copy">Copy link</button><button class="btn" data-a="soon" data-v="Demo: opens the share sheet on a phone">Share</button></div>
+        <div class="row2"><button class="btn" disabled>Save <em>Soon</em></button><button class="btn" disabled>Follow host <em>Soon</em></button></div>
+      </div></aside>
+    </div>
+  </div>
+  <div class="bar"><div class="wrap">
+    <div class="when">${e.allDay?fmtDay(e.date):fmtDay(e.date)+' · '+t12(e.time)} <small>${money(e.price)}${e.spots?' · '+e.spots+' spots left':''} · ${e.tz}</small></div>
+    <div class="acts">
+      <div class="popwrap"><button class="btn ${S.calOpen?'':'pri'}" data-a="calmenu">Add to calendar ▾</button>
+      ${S.calOpen?`<div class="calmenu"><a href="${googleUrl(e)}" target="_blank" rel="noopener">Google Calendar</a><button data-a="ics">Apple Calendar (.ics)</button><button data-a="ics">Outlook (.ics)</button></div>`:''}</div>
+      <a class="btn" href="javascript:void 0" data-a="soon" data-v="Demo: opens the organizer’s registration page">${e.price===0?'Details':'Register'} ↗</a>
+    </div>
+  </div></div>`;
+}
+
+/* ---------- modals ---------- */
+function modalHTML(){
+  if(!S.modal)return '';
+  if(S.modal==='report'){
+    return `<div class="scrim" data-a="closemodal"><div class="modal" role="dialog" aria-modal="true" aria-label="Report a problem"><h3>Report a problem</h3><p>No sign-in needed. We’ll look at it.</p>
+    <form data-a="sendreport">${['The date or time is wrong','It was cancelled','The place is wrong','It looks like spam','Something else'].map((r,i)=>`<label class="radio"><input type="radio" name="r" value="${r}" ${i===0?'checked':''}>${r}</label>`).join('')}
+    <div class="row2" style="margin-top:12px"><button type="button" class="btn" data-a="closemodal">Cancel</button><button class="btn pri">Send report</button></div></form></div></div>`;
+  }
+  if(S.modal==='submit'){
+    return `<div class="scrim" data-a="closemodal"><div class="modal" role="dialog" aria-modal="true"><h3>Submit an event</h3><p>Coming next: paste a link, the text of your post, or a photo of your flyer, and we fill in the details for you to check. Your event goes through a quick review before it appears.</p><button class="btn pri full" data-a="closemodal">Got it</button></div></div>`;
+  }
+  return '';
+}
+
+/* ---------- render ---------- */
+function mountMaps(){
+  if(map){map.remove();map=null}
+  if(emap){emap.remove();emap=null}
+  if(typeof L==='undefined')return;
+  const m=document.getElementById('map');
+  if(m){
+    map=L.map(m,{scrollWheelZoom:false}).setView([39,-96],4);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(map);
+    const seen={};const pts=[];
+    filtered(false,false).forEach(e=>{
+      const k=e.id;if(seen[k])return;seen[k]=1;
+      const ll=[e.lat,e.lng];pts.push(ll);
+      L.circleMarker(ll,{radius:10,color:'#fff',weight:2,fillColor:'#0d0d0d',fillOpacity:1}).addTo(map)
+        .bindPopup(`<b>${esc(e.title)}</b><br>${fmtDay(e.date)} · ${money(e.price)}<br><a href="#event-${e.uid}">View event ›</a>`);
+    });
+    if(pts.length===1)map.setView(pts[0],9);else if(pts.length)map.fitBounds(pts,{padding:[30,30],maxZoom:9});
+  }
+}
+function mountEventMap(e){
+  if(typeof L==='undefined')return;
+  const el=document.getElementById('emap');if(!el)return;
+  emap=L.map(el,{scrollWheelZoom:false,zoomControl:true}).setView([e.lat,e.lng],e.privateAddr?11:15);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(emap);
+  if(e.privateAddr)L.circle([e.lat,e.lng],{radius:3000,color:'#0d0d0d',weight:2,fillColor:'#0d0d0d',fillOpacity:.15}).addTo(emap);
+  else L.circleMarker([e.lat,e.lng],{radius:10,color:'#fff',weight:2,fillColor:'#0d0d0d',fillOpacity:1}).addTo(emap);
+}
+function render(keepScroll){
+  const y=scrollY;
+  const h=location.hash;
+  const app=document.getElementById('app');
+  let ev=null;
+  if(h.startsWith('#event-')){ev=byUid(decodeURIComponent(h.slice(7)));}
+  if(ev){document.title=ev.title+' | Mahjong USA';app.innerHTML=eventHTML(ev);mountEventMap(ev)}
+  else{
+    if(h==='#lessons'&&!render.lessonsSet){S.type=new Set(['lesson']);render.lessonsSet=true}
+    document.title='Mahjong USA: events calendar prototype';app.innerHTML=homeHTML();mountMaps();
+  }
+  document.getElementById('modalroot').innerHTML=modalHTML();
+  if(keepScroll)scrollTo(0,y);
+}
+window.addEventListener('hashchange',()=>{S.pop=null;S.calOpen=false;S.modal=null;render();scrollTo(0,0)});
+
+/* ---------- actions ---------- */
+function setWhen(k){
+  S.when=k;S.rangeStart=null;
+  if(k==='any')S.range=null;
+  if(k==='weekend'){S.range=['2026-11-21','2026-11-22'];S.month={y:2026,m:10}}
+  if(k==='week')S.range=[TISO,iso(addDays(TODAY,6))];
+  if(k==='month')S.range=[TISO,'2026-11-30'];
+}
+function pickDay(ds){
+  if(ds<TISO)return;
+  if(!S.rangeStart){S.rangeStart=ds;S.range=[ds,ds];S.when='custom'}
+  else{const a=S.rangeStart<=ds?[S.rangeStart,ds]:[ds,S.rangeStart];S.range=a;S.rangeStart=null;S.when='custom'}
+}
+function eventFromHash(){const h=location.hash;return h.startsWith('#event-')?byUid(decodeURIComponent(h.slice(7))):null}
+document.addEventListener('submit',ev=>{
+  const f=ev.target.closest('form[data-a]');if(!f)return;ev.preventDefault();
+  const a=f.dataset.a;
+  if(a==='zip'){
+    const q=new FormData(f).get('q').trim();const u=q.toUpperCase();let st=null;
+    if(ZIPS[q])st=ZIPS[q];else if(STATES[u])st=u;else st=Object.keys(STATES).find(k=>STATES[k].n.toLowerCase()===q.toLowerCase());
+    if(st){S.state=st;lsSet('mj-state',st);S.pop=null;render(true)}else toast('Try a state name or a ZIP like 29492');
+  }
+  if(a==='sendreport'){
+    const e=eventFromHash();if(!e)return;
+    const r=reportsMine();r[e.id]=true;lsSet('mj-reports',r);S.modal=null;render(true);toast('Thanks. We’ll take a look.');
+  }
+});
+document.addEventListener('click',ev=>{
+  const el=ev.target.closest('[data-a]');
+  if(S.pop&&!ev.target.closest('.popwrap')){S.pop=null;if(!el||el.dataset.a==='pop'){}else{}render(true)}
+  if(S.calOpen&&!ev.target.closest('.popwrap')){S.calOpen=false;render(true)}
+  if(!el)return;
+  const a=el.dataset.a,v=el.dataset.v;
+  if(el.tagName==='FORM')return;
+  if(a==='closemodal'){if(ev.target.closest('.modal')&&!el.matches('button'))return;S.modal=null;render(true);return}
+  if(a==='pop'){S.pop=S.pop===v?null:v;render(true);return}
+  if(a==='where'){S.state=v;lsSet('mj-state',v);S.pop=null;render(true);return}
+  if(a==='geo'){S.state='SC';lsSet('mj-state','SC');S.pop=null;render(true);toast('Demo: using Charleston, SC');return}
+  if(a==='clearloc'){S.state='All';try{localStorage.removeItem('mj-state')}catch(e){}S.pop=null;render(true);toast('Saved location cleared');return}
+  if(a==='when'){setWhen(v);S.pop=null;render(true);return}
+  if(a==='style'){S.style=v;S.pop=null;render(true);return}
+  if(a==='cost'){S.cost=v;S.pop=null;render(true);return}
+  if(a==='type'){S.type.has(v)?S.type.delete(v):S.type.add(v);render(true);return}
+  if(a==='view'){S.view=v;render(true);return}
+  if(a==='day'){pickDay(v);render(true);return}
+  if(a==='stripday'){S.range=[v,v];S.when='custom';render(true);return}
+  if(a==='month'){let {y,m}=S.month;m+=Number(v);if(m<0){m=11;y--}if(m>11){m=0;y++}S.month={y,m};render(true);return}
+  if(a==='clearrange'){S.range=null;S.when='any';S.rangeStart=null;render(true);return}
+  if(a==='clear'){S.type=new Set();S.style='any';S.cost='any';S.range=null;S.when='any';S.rangeStart=null;render(true);return}
+  if(a==='submit'){S.modal='submit';render(true);return}
+  if(a==='report'){S.modal='report';render(true);return}
+  if(a==='unreport'){const e=eventFromHash();if(e){const r=reportsMine();delete r[e.id];lsSet('mj-reports',r);render(true);toast('Report removed')}return}
+  if(a==='copy'){const u=location.href;(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast('Link copied'),()=>toast('Copy this link: '+u));return}
+  if(a==='calmenu'){S.calOpen=!S.calOpen;render(true);return}
+  if(a==='ics'){const e=eventFromHash();if(e){downloadIcs(e);S.calOpen=false;render(true);toast('Calendar file downloaded')}return}
+  if(a==='soon'){ev.preventDefault();toast(v||'Coming soon');return}
+});
+render();
+</script>
+</body>
+</html>
