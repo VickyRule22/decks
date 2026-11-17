@@ -53,56 +53,72 @@ button{font:inherit;color:inherit;cursor:pointer}
 .hint b{color:var(--ink)}
 .linkbtn{background:none;border:0;padding:0;text-decoration:underline;font-weight:600;font-size:inherit}
 
-/* next up: the one heavy thing */
-.nextbar{display:flex;align-items:center;justify-content:space-between;gap:16px 28px;flex-wrap:wrap;background:var(--ink);color:#fff;border-radius:16px;padding:18px 24px;margin:0 0 18px}
-.nextbar .nl{margin:0;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#bdbdb8}
-.nextbar h2{margin:4px 0 2px;font-size:24px;line-height:1.15;letter-spacing:-.02em;font-weight:800}
-.nextbar .nm{margin:0;font-size:15px;color:#d6d6d1}
-.na{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
-.nbtn{display:inline-flex;align-items:center;height:40px;padding:0 18px;border-radius:999px;background:#fff;color:var(--ink);font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
-.nlink{color:#fff;font-size:14px;font-weight:600;white-space:nowrap}
-.nearest{background:var(--gray);border-radius:14px;padding:14px 16px;margin:0 0 16px;font-size:15px}
-.nearest b{display:block;font-size:16px;margin-bottom:2px}
+/* layout: left column (list or details), right stage (calendar or map) */
+.top{flex:none}
+.tb{position:relative;z-index:50;padding:10px 20px;border-bottom:1px solid var(--line);gap:22px;background:#fff}
+.chkopt{gap:10px;justify-content:flex-start}
+.chkopt .bx{flex:none;width:18px;height:18px;border:2px solid var(--ink);border-radius:5px;display:grid;place-items:center;font-style:normal;font-size:12px;line-height:1;color:#fff}
+.chkopt.on .bx{background:var(--ink)}
+.chkopt.on .bx::after{content:'\2713'}
+.pop .selall{font-weight:600;font-size:14px;text-decoration:underline}
+.fbstrip{padding:10px 20px 0}
+.split{display:grid;grid-template-columns:minmax(340px,420px) minmax(0,1fr)}
+.panel{overflow-y:auto;border-right:1px solid var(--line);background:#fff;min-height:0}
+.plist{padding:14px 18px 40px}
+.stage{min-width:0;min-height:0;padding:14px 20px 20px;display:flex;flex-direction:column;overflow:auto;position:relative;z-index:0}
+.calwrap{flex:1;min-height:0;display:flex;flex-direction:column}
 
-/* calendar: full width, quiet cells, click a day */
-.stage{padding-bottom:70px}
-.calhead{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-.calhead h3{margin:0 8px 0 0;font-size:26px;font-weight:800;letter-spacing:-.02em}
+/* next up: the one heavy thing */
+.nextup{background:var(--ink);color:#fff;border-radius:16px;padding:16px 18px;margin-bottom:6px}
+.nextup .nl{margin:0;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#bdbdb8}
+.nextup h2{margin:6px 0 4px;font-size:22px;line-height:1.15;letter-spacing:-.02em;font-weight:800}
+.nextup .nm{margin:0;font-size:14px;color:#d6d6d1}
+.na{display:flex;gap:14px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.nbtn{display:inline-flex;align-items:center;height:36px;padding:0 16px;border-radius:999px;background:#fff;color:var(--ink);font-weight:700;font-size:14px;text-decoration:none}
+.nlink{color:#fff;font-size:13px;font-weight:600}
+
+/* list */
+.lh{display:flex;justify-content:space-between;align-items:baseline;margin:14px 0 2px}
+.lh h3{margin:0;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);font-weight:700}
+.dg{margin:18px 0 2px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.lr{display:block;position:relative;padding:11px 28px 11px 10px;margin:0 -10px;text-decoration:none;border-bottom:1px solid #ecece8;border-radius:10px}
+.lr:hover{background:var(--gray)}
+.lr.cur{background:var(--gray);box-shadow:inset 3px 0 0 var(--ink)}
+.lr b{font-size:16px;font-weight:700}
+.lr .rm{font-size:13px;color:var(--mute);margin-top:1px}
+.ck{position:absolute;right:10px;top:12px;font-weight:800;font-size:15px}
+.seen .tt{color:#6a4fb3}
+.nearest{background:var(--gray);border-radius:14px;padding:14px 16px;margin:6px 0 10px;font-size:15px}
+.nearest b{display:block;font-size:16px;margin-bottom:2px}
+.more2{margin-top:12px;font-size:14px}
+
+/* calendar: quiet, full width. Dots and a count; details live in the left column */
+.calhead{display:flex;align-items:center;gap:12px;margin-bottom:10px;flex:none}
+.calhead h3{margin:0 8px 0 0;font-size:24px;font-weight:800;letter-spacing:-.02em}
 .calhead button{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:#fff;font-size:16px}
-.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)}
-.dow{padding:8px 10px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
-.day{min-height:104px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px 10px;display:flex;flex-direction:column;gap:4px;background:#fff;min-width:0}
-.day.has{cursor:pointer}
-.day.has:hover{background:#f7f7f4}
+.grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.dow{padding:8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.day{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 8px;display:flex;flex-direction:column;gap:6px;background:#fff;cursor:pointer;min-width:0}
+.day:hover{background:#fafaf8}
 .day.out{background:#fafaf8}
 .day.out .dn,.day.past .dn{color:#c4c4c0}
-.day.sel{background:#f0f0ec}
-.dn{font-size:13px;font-weight:600;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;margin-left:-4px}
-.day.today .dn{border:1.5px solid var(--ink)}
-.pips{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:4px}
-.pip{width:9px;height:9px;border-radius:50%;background:var(--ink);display:block;font-style:normal}
-.pip.nx{width:12px;height:12px;box-shadow:0 0 0 3px #d6d6d2}
-.pip.ad{background:none;width:auto;height:auto;font-size:13px;font-weight:800;line-height:1;border-radius:0}
-.cnt{font-size:12px;color:var(--mute);margin-top:auto}
-#map{height:calc(100vh - 230px);min-height:520px;border:1px solid var(--line);border-radius:16px;background:var(--gray)}
+.day.sel{background:#f0f0ec;box-shadow:inset 0 0 0 2px var(--ink)}
+.dn{font-size:13px;font-weight:600;width:26px;height:26px;border-radius:50%;display:grid;place-items:center}
+.day.today .dn{background:var(--ink);color:#fff}
+.pips{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.pip{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--ink);text-decoration:none;color:var(--ink)}
+.pip:hover{transform:scale(1.25)}
+.pip.nx{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--ink)}
+.pip.cu{box-shadow:0 0 0 2px #fff,0 0 0 4px #6a4fb3}
+.pip.ad{background:none;width:auto;height:auto;font-size:14px;font-weight:800;line-height:1}
+.cnt{font-size:12px;color:var(--mute)}
+#map{flex:1;min-height:420px;border:1px solid var(--line);border-radius:16px;background:var(--gray)}
 .leaflet-tile{filter:grayscale(1) contrast(1.05)}
-.leaflet-popup-content a{font-weight:700}
 
-/* day popup */
-.daypop{position:fixed;z-index:1500;width:340px;max-height:70vh;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 14px 40px rgba(0,0,0,.2);padding:6px 6px 8px}
-.dph{display:flex;align-items:center;justify-content:space-between;padding:8px 10px 6px}
-.dph b{font-size:16px}
-.x{width:32px;height:32px;border-radius:50%;border:0;background:none;font-size:22px;line-height:1}
-.x:hover{background:var(--gray)}
-.dr{display:flex;gap:12px;align-items:flex-start;padding:10px;border-radius:10px;text-decoration:none}
-.dr:hover{background:var(--gray)}
-.dr .dt{flex:none;width:66px;font-size:13px;font-weight:600;color:var(--mute);padding-top:2px}
-.dr .db{display:flex;flex-direction:column;min-width:0;flex:1}
-.dr b{font-size:15px;font-weight:700}
-.dr .rm{font-size:13px;color:var(--mute)}
-.ok{font-weight:800;font-size:16px}
-.seen{color:#6a4fb3}
-
+.hint{padding:10px;font-size:14px;color:var(--mute);line-height:1.4}
+.hint b{color:var(--ink)}
+.placeq{width:100%;height:42px;border:1px solid var(--line);border-radius:10px;padding:0 12px;font:inherit;margin-bottom:6px}
+.popw{min-width:340px}
 /* event overlay */
 .ovp{position:relative;background:#fff;border-radius:20px;width:100%;max-width:760px;max-height:92vh;overflow:auto;box-shadow:0 24px 70px rgba(0,0,0,.4)}
 .ovxw{position:sticky;top:0;height:0;z-index:5;display:flex;justify-content:flex-end}
@@ -167,34 +183,56 @@ details p{margin-top:6px;color:var(--mute);font-size:14px}
 .radio input{width:20px;height:20px;accent-color:#000}
 #toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-weight:600;z-index:3000;opacity:0;pointer-events:none;transition:opacity .2s}
 #toast.show{opacity:1}
+
+/* details panel (same content on desktop column and phone overlay) */
+.dhead{position:sticky;top:0;z-index:5;background:#fff;display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.dhead .sp{flex:1}
+.dback{background:none;border:0;font-weight:700;font-size:15px;padding:8px 10px;border-radius:999px}
+.dback:hover{background:var(--gray)}
+.btn.sm{height:36px;padding:0 14px;font-size:14px}
+.dbody{padding:14px 18px 28px}
+.dtitle{margin:14px 0 4px;font-size:28px;line-height:1.08;letter-spacing:-.03em;font-weight:800}
+.dbody .sec{margin:0 0 24px}
+.dbody .sec p{font-size:15px}
+.kv{display:grid;grid-template-columns:80px 1fr;gap:8px 12px;font-size:15px;margin:0 0 14px}
+.kv dt{font-weight:700}.kv dd{margin:0}
+.dbody .mini{grid-template-columns:1fr}
+.dbody #emap{height:170px}
+.dbar{position:sticky;bottom:0;z-index:5;background:#fff;border-top:2px solid var(--ink);padding:12px 16px;display:flex;gap:8px}
+.dbar .popwrap{flex:1}
+.dbar .btn{width:100%}
+.dbar>.btn{flex:1}
+.dbar .calmenu{left:0;right:0}
+.dbar .added{font-size:13px;color:var(--mute)}
+@media(min-width:901px){
+  html,body{height:100%}
+  body{display:flex;flex-direction:column;overflow:hidden}
+  #app{flex:1;min-height:0;display:flex;flex-direction:column}
+  .split{flex:1;min-height:0}
+}
 @media(max-width:900px){
   .wrap{padding:0 16px}
-  .tb{gap:18px}
+  .nav a.hide-m{display:none}
+  .tb{padding:10px 16px;gap:18px}
   .tb .right{margin-left:0;width:100%}
-  .nextbar{padding:16px 18px}
-  .nextbar h2{font-size:21px}
-  .day{min-height:54px;padding:4px 2px;align-items:center}
-  .dow{padding:6px 2px;text-align:center;font-size:11px}
-  .dn{margin-left:0;width:24px;height:24px}
-  .pips{gap:3px;justify-content:center;margin-top:2px}
-  .pip{width:7px;height:7px}
-  .pip.nx{width:9px;height:9px;box-shadow:0 0 0 2px #d6d6d2}
-  .pip.ad{font-size:11px}
+  .fbstrip{padding:10px 16px 0}
+  .split{display:flex;flex-direction:column}
+  .stage{order:1;padding:12px 16px;overflow:visible}
+  .panel{order:2;border-right:0;overflow:visible}
+  .plist{padding:6px 16px 40px}
+  .panel.detail{position:fixed;inset:0;z-index:1500;overflow-y:auto;border:0}
+  body.lock{overflow:hidden}
+  .grid{grid-template-rows:none!important;grid-auto-rows:minmax(54px,auto)}
+  .day{padding:4px 2px;align-items:center;gap:4px}
   .cnt{display:none}
+  .pips{justify-content:center;gap:3px}
+  .pip{width:9px;height:9px}
+  .dow{padding:6px 2px;text-align:center;font-size:11px}
   .calhead h3{font-size:20px}
-  #map{height:400px;min-height:0}
-  .daypop{left:0;right:0;bottom:0;top:auto;width:auto;max-height:65vh;border-radius:18px 18px 0 0}
-  .ovs{padding:0;align-items:end}
-  .ovp{max-height:94vh;border-radius:18px 18px 0 0}
-  .ovb{padding:22px 18px 8px}
-  .ehead h1{font-size:25px}
-  .ehead{align-items:flex-start}
-  .ovbar{padding:10px 14px}
-  .ovbar .when small{display:none}
-  .ovbar .when{font-size:14px}
-  .ovbar .btn{padding:0 12px;font-size:14px}
+  #map{flex:none;height:300px;min-height:0}
+  .nextup h2{font-size:20px}
+  .dtitle{font-size:26px}
 }
-
 </style>
 </head>
 <body>
@@ -209,8 +247,7 @@ details p{margin-top:6px;color:var(--mute);font-size:14px}
 <div id="toast"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-/* ---------- helpers ---------- */
+<script>/* ---------- helpers ---------- */
 const TODAY=new Date(2026,10,17);
 const MON=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const MS=MON.map(m=>m.slice(0,3));
@@ -288,14 +325,16 @@ const INTL=['canada','toronto','vancouver','montreal','mexico','cancun','london'
 const NOW='2026-11-17T12:00';
 const ALLTYPES=['open','social','lesson','tournament','cruise'];
 const S={
-  place:(function(){const p=lsGet('mj-place',null);return p&&p.kind?p:DEFAULT_PLACE})(),
-  types:new Set(ALLTYPES),style:'any',cost:'any',
-  view:'calendar',month:{y:2026,m:10},pop:null,modal:null,calOpen:false,dayOpen:null,
-  seen:lsGet('mj-seen',{}),added:lsGet('mj-added',{})
+  place:(function(){const p=lsGet('mj-place',null);return p&&p.kind?p:DEFAULT_PLACE})(),types:new Set(ALLTYPES),style:'any',cost:'any',day:null,
+  view:'calendar',month:{y:2026,m:10},pop:null,modal:null,calOpen:false,more:false,
+  seen:lsGet('mj-seen',{}),added:lsGet('mj-added',{}),listScroll:0,lastUid:null
 };
 let map=null,emap=null;
 function reportsMine(){return lsGet('mj-reports',{})}
 function reportCount(e){return (e.reports||0)+(reportsMine()[e.id]?1:0)}
+const markAdded=uid=>{S.added[uid]=1;lsSet('mj-added',S.added)};
+
+const nextUp=()=>filtered(true).find(e=>e.type!=='cruise')||null;
 const dist=(a,b)=>{const R=3959,r=x=>x*Math.PI/180;const dl=r(b.lat-a.lat),dg=r(b.lng-a.lng);const h=Math.sin(dl/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dg/2)**2;return 2*R*Math.asin(Math.sqrt(h))};
 const stateName=()=>S.place.label;
 const passBase=e=>(e.date+'T'+(e.time||'00:00'))>=NOW&&S.types.has(e.type)&&(S.style==='any'||e.style===S.style)&&(S.cost==='any'||(S.cost==='free'?e.price===0:e.price>0));
@@ -303,21 +342,20 @@ const inPlace=(e,p)=>e.type==='cruise'||p.kind==='all'||(p.kind==='state'?e.st==
 function eff(){
   const p=S.place;
   if(p.kind==='all')return {place:p,fb:null};
-  const pool=ALL.filter(passBase).filter(e=>e.type!=='cruise');
+  const pool=ALL.filter(e=>passBase(e)&&e.type!=='cruise');
   if(!pool.length||pool.some(e=>inPlace(e,p)))return {place:p,fb:null};
   const groups={};
-  pool.forEach(e=>{const k=e.city+'|'+e.st;groups[k]=groups[k]||{city:e.city,st:e.st,lat:e.lat,lng:e.lng}});
+  pool.forEach(e=>{const k=e.city+'|'+e.st;const g=groups[k]=groups[k]||{city:e.city,st:e.st,lat:e.lat,lng:e.lng}});
   const list=Object.values(groups).map(g=>({city:g.city,st:g.st,lat:g.lat,lng:g.lng,count:new Set(pool.filter(e=>dist(g,e)<=75).map(e=>e.id)).size,dist:dist(p,g)}));
   const minD=Math.min(...list.map(g=>g.dist));const cand=list.filter(g=>g.dist<=minD+60);
   cand.sort((a,b)=>b.count-a.count||a.dist-b.dist);
   const b=cand[0];
   return {place:{kind:'city',label:b.city+', '+b.st,city:b.city,st:b.st,lat:b.lat,lng:b.lng},fb:b};
 }
-function filtered(ignoreState){
-  const P=ignoreState?{kind:'all'}:eff().place;
-  return ALL.filter(e=>passBase(e)&&inPlace(e,P)).sort((a,b)=>(a.date+(a.time||'00:00')).localeCompare(b.date+(b.time||'00:00')));
+function filtered(ignoreDay){
+  const P=eff().place;
+  return ALL.filter(e=>passBase(e)&&inPlace(e,P)&&(ignoreDay||!S.day||e.date===S.day)).sort((a,b)=>(a.date+(a.time||'00:00')).localeCompare(b.date+(b.time||'00:00')));
 }
-const nextUp=()=>filtered(false).find(e=>e.type!=='cruise')||null;
 function fmtDay(s,long){const d=parse(s);return long?DOW[d.getDay()]+', '+MON[d.getMonth()]+' '+d.getDate():DS[d.getDay()]+', '+MS[d.getMonth()]+' '+d.getDate()}
 function timeText(e){
   if(e.allDay){const end=iso(addDays(parse(e.date),e.days));return fmtDay(e.date)+' to '+fmtDay(end)+' ('+e.days+' nights)'}
@@ -352,57 +390,60 @@ function downloadIcs(e){
   const x=document.createElement('a');x.href=url;x.download=e.id+'.ics';document.body.appendChild(x);x.click();x.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 const dirUrl=e=>'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(e.privateAddr?e.city+', '+e.st:e.venue+', '+e.city+', '+e.st);
-
-/* ---------- home ---------- */
-const TYPE_ORDER=['open','social','lesson','tournament','cruise'];
-const isSeen=e=>!!S.seen[e.id];
-const isAdded=e=>!!S.added[e.uid];
+/* ---------- list + calendar ---------- */
+const tagLabel=e=>e.type==='cruise'?'Cruise':TYPES[e.type].label;
 function tile(e){const d=parse(e.date);return `<div class="tile"><span class="m">${MS[d.getMonth()]}</span><span class="d">${d.getDate()}</span></div>`}
 function cardHTML(e){
   const rc=reportCount(e);
-  const meta=[TYPES[e.type].g+' '+TYPES[e.type].label,e.city+', '+e.st,e.allDay?e.days+' nights':t12(e.time)+' '+e.tz];
+  const meta=[TYPES[e.type].g+' '+tagLabel(e),e.city+', '+e.st,e.allDay?e.days+' nights':t12(e.time)+' '+e.tz];
   const tags=[`<span class="tag ${e.price===0?'solid':''}">${money(e.price)}</span>`];
   if(e.beginner)tags.push('<span class="tag soft">Beginner friendly</span>');
   if(e.rec)tags.push(`<span class="tag soft">Every ${DS[parse(e.date).getDay()]}</span>`);
-  if(isAdded(e))tags.push('<span class="tag">✓ On your calendar</span>');
+  if(e.spots&&e.spots<=12)tags.push(`<span class="tag">${e.spots} spots left</span>`);
   if(rc>=3)tags.push('<span class="tag warn">Reported</span>');
-  return `<a class="card" href="#event-${e.uid}">${tile(e)}<div><h3 class="${isSeen(e)?'seen':''}">${esc(e.title)}</h3><div class="meta">${meta.join(' · ')}</div><div class="tags">${tags.join('')}</div></div><span class="go" aria-hidden="true">›</span></a>`;
+  return `<a class="card${S.seen[e.uid]?' seen':''}" href="#event-${e.uid}">${tile(e)}<div><h3 class="tt">${esc(e.title)}</h3><div class="meta">${meta.join(' · ')}</div><div class="tags">${tags.join('')}</div></div><span class="go" aria-hidden="true">›</span></a>`;
 }
-function nextBar(nx){
+const shortT=t=>{const [h,m]=t.split(':').map(Number);return (h%12||12)+(m?':'+pad(m):'')+(h<12?'a':'p')};
+function rowHTML(e,cur){
+  const bits=[e.allDay?e.days+' nights':t12(e.time),e.type==='cruise'?'Trips and cruises':e.city,money(e.price)];if(e.beginner)bits.push('Beginner friendly');
+  return `<a class="lr${S.seen[e.uid]?' seen':''}${cur&&cur.uid===e.uid?' cur':''}" href="#event-${e.uid}"><b class="tt">${esc(e.title)}</b>${S.added[e.uid]?'<span class="ck" title="You added this to your calendar">✓</span>':''}<div class="rm">${bits.join(' · ')}</div></a>`;
+}
+function nextHTML(nx){
   if(!nx)return '';
   let label;
   if(nx.date===TISO)label=parseInt(nx.time)>=17?'Tonight':'Today';
   else if(nx.date===iso(addDays(TODAY,1)))label='Tomorrow';
   else label=DOW[parse(nx.date).getDay()];
-  return `<div class="nextbar"><div><p class="nl">Next up · ${label}</p><h2>${esc(nx.title)}</h2><p class="nm">${t12(nx.time)} ${nx.tz} · ${esc(nx.venue)}, ${esc(nx.city)} · ${money(nx.price)}</p></div><div class="na"><a class="nbtn" href="#event-${nx.uid}">See details</a><a class="nlink" data-a="gcal" data-uid="${nx.uid}" href="${googleUrl(nx)}" target="_blank" rel="noopener">${isAdded(nx)?'✓ Added to Google Calendar':'Add to Google Calendar'}</a></div></div>`;
+  return `<div class="nextup"><p class="nl">Next up · ${label}</p><h2>${esc(nx.title)}</h2><p class="nm">${t12(nx.time)} ${nx.tz} · ${esc(nx.venue)}, ${esc(nx.city)} · ${money(nx.price)}</p><div class="na"><a class="nbtn" href="#event-${nx.uid}">See details</a><a class="nlink" data-a="gcal" data-v="${nx.uid}" href="${googleUrl(nx)}" target="_blank" rel="noopener">${S.added[nx.uid]?'✓ Added to calendar':'Add to Google Calendar'}</a></div></div>`;
 }
-function calHTML(nx){
+function listHTML(nx,cur){
+  if(!filtered(true).length)return `<div class="nearest"><b>No games match these filters.</b><button class="linkbtn" data-a="clear">Clear filters</button></div>`;
+  const all=filtered(false);
+  const rows=S.day?all:all.filter(e=>!nx||e.uid!==nx.uid);
+  let out=`<div class="lh"><h3>${S.day?fmtDay(S.day,true):'Coming up'}</h3>${S.day?`<button class="linkbtn" data-a="day" data-v="${S.day}">Show all</button>`:''}</div>`;
+  if(S.day&&!rows.length)return out+`<p class="meta">No games this day.</p>`;
+  const limit=S.day||S.more?rows.length:12;
+  let last='';
+  rows.slice(0,limit).forEach(e=>{
+    if(!S.day&&e.date!==last){last=e.date;out+=`<div class="dg">${e.date===TISO?'Today · ':''}${fmtDay(e.date,true)}</div>`}
+    out+=rowHTML(e,cur);
+  });
+  if(rows.length>limit)out+=`<button class="linkbtn more2" data-a="more">Show ${rows.length-limit} more</button>`;
+  return out;
+}
+function calHTML(nx,cur){
   const {y,m}=S.month;const first=new Date(y,m,1);const start=addDays(first,-first.getDay());
-  const dim=new Date(y,m+1,0).getDate();const count=Math.ceil((first.getDay()+dim)/7)*7;
-  const byDay={};filtered(false).forEach(e=>{(byDay[e.date]=byDay[e.date]||[]).push(e)});
+  const dim=new Date(y,m+1,0).getDate();const rows=Math.ceil((first.getDay()+dim)/7);
+  const byDay={};filtered(true).forEach(e=>{(byDay[e.date]=byDay[e.date]||[]).push(e)});
   let cells=DS.map(d=>`<div class="dow">${d}</div>`).join('');
-  for(let i=0;i<count;i++){
+  for(let i=0;i<rows*7;i++){
     const d=addDays(start,i);const ds=iso(d);const evs=byDay[ds]||[];
-    let cls='day';if(d.getMonth()!==m)cls+=' out';if(ds<TISO)cls+=' past';if(ds===TISO)cls+=' today';if(evs.length)cls+=' has';if(S.dayOpen===ds)cls+=' sel';
-    const pips=evs.slice(0,6).map(e=>isAdded(e)?'<i class="pip ad">✓</i>':`<i class="pip ${nx&&nx.uid===e.uid?'nx':''}"></i>`).join('');
+    let cls='day';if(d.getMonth()!==m)cls+=' out';if(ds<TISO)cls+=' past';if(ds===TISO)cls+=' today';if(S.day===ds)cls+=' sel';
+    const pips=evs.slice(0,6).map(e=>`<a class="pip${nx&&nx.uid===e.uid?' nx':''}${cur&&cur.uid===e.uid?' cu':''}${S.added[e.uid]?' ad':''}" href="#event-${e.uid}" title="${esc(e.title)}" aria-label="${esc(e.title)}">${S.added[e.uid]?'✓':''}</a>`).join('');
     const cnt=evs.length?`<span class="cnt">${evs.length} ${evs.length===1?'game':'games'}</span>`:'';
-    cells+=`<div class="${cls}"${evs.length?` data-a="day" data-v="${ds}" data-day="${ds}"`:''}><span class="dn">${d.getDate()}</span><span class="pips">${pips}</span>${cnt}</div>`;
+    cells+=`<div class="${cls}" data-a="day" data-v="${ds}"><span class="dn">${d.getDate()}</span><div class="pips">${pips}</div>${cnt}</div>`;
   }
-  return `<div class="calhead"><h3>${MON[m]} ${y}</h3><button data-a="month" data-v="-1" aria-label="Previous month">‹</button><button data-a="month" data-v="1" aria-label="Next month">›</button></div><div class="grid">${cells}</div>`;
-}
-function dayPopHTML(){
-  if(!S.dayOpen||S.view!=='calendar')return '';
-  const evs=filtered(false).filter(e=>e.date===S.dayOpen);
-  if(!evs.length)return '';
-  return `<div class="daypop" id="daypop" role="dialog" aria-label="Games on ${fmtDay(S.dayOpen,true)}"><div class="dph"><b>${fmtDay(S.dayOpen,true)}</b><button class="x" data-a="closeday" aria-label="Close">×</button></div>${evs.map(e=>`<a class="dr" href="#event-${e.uid}"><span class="dt">${e.allDay?'All day':t12(e.time)}</span><span class="db"><b class="${isSeen(e)?'seen':''}">${esc(e.title)}${isAdded(e)?' <span class="ok">✓</span>':''}</b><span class="rm">${esc(e.city)}, ${e.st} · ${money(e.price)}${e.type!=='open'?' · '+TYPES[e.type].label:''}</span></span></a>`).join('')}</div>`;
-}
-function positionDayPop(){
-  const p=document.getElementById('daypop');if(!p||innerWidth<=900)return;
-  const c=document.querySelector('.day[data-day="'+S.dayOpen+'"]');if(!c)return;
-  const r=c.getBoundingClientRect();const w=340;
-  let left=r.right+8;if(left+w>innerWidth-12)left=r.left-w-8;if(left<12)left=Math.max(12,Math.min(r.left,innerWidth-w-12));
-  let top=r.top;const h=p.offsetHeight;if(top+h>innerHeight-12)top=Math.max(76,innerHeight-h-12);
-  p.style.left=left+'px';p.style.top=top+'px';
+  return `<div class="calwrap"><div class="calhead"><h3>${MON[m]} ${y}</h3><button data-a="month" data-v="-1" aria-label="Previous month">‹</button><button data-a="month" data-v="1" aria-label="Next month">›</button></div><div class="grid" style="grid-template-rows:auto repeat(${rows},minmax(76px,1fr))">${cells}</div></div>`;
 }
 function placeCount(p){const ids=new Set();ALL.forEach(e=>{if(e.type!=='cruise'&&passBase(e)&&inPlace(e,p))ids.add(e.id)});return ids.size}
 function sug(p,i,pre){const n=placeCount(p);return `<button class="opt" data-a="pick" data-v="${i}">${pre||''}${esc(p.label)}<span>${n?n+' '+(n===1?'game':'games'):'No games yet'}</span></button>`}
@@ -428,19 +469,30 @@ function suggestHTML(q){
 function fbHTML(fb){
   return fb?`<div class="nearest"><b>No games near ${esc(S.place.label)}.</b>Showing ${esc(fb.city)}, ${fb.st} instead: ${fb.count} ${fb.count===1?'game':'games'}, about ${Math.round(fb.dist)} miles away. <button class="linkbtn" data-a="pop" data-v="where">Change location</button></div>`:'';
 }
-function typeLabel(){
-  if(S.types.size===ALLTYPES.length)return 'All games';
-  if(S.types.size===1)return TYPES[[...S.types][0]].label;
-  return S.types.size+' types';
+
+/* ---------- modals ---------- */
+function modalHTML(){
+  if(!S.modal)return '';
+  if(S.modal==='report'){
+    return `<div class="scrim" data-a="closemodal"><div class="modal" role="dialog" aria-modal="true" aria-label="Report a problem"><h3>Report a problem</h3><p>No sign-in needed. We’ll look at it.</p>
+    <form data-a="sendreport">${['The date or time is wrong','It was cancelled','The place is wrong','It looks like spam','Something else'].map((r,i)=>`<label class="radio"><input type="radio" name="r" value="${r}" ${i===0?'checked':''}>${r}</label>`).join('')}
+    <div class="row2" style="margin-top:12px"><button type="button" class="btn" data-a="closemodal">Cancel</button><button class="btn pri">Send report</button></div></form></div></div>`;
+  }
+  if(S.modal==='submit'){
+    return `<div class="scrim" data-a="closemodal"><div class="modal" role="dialog" aria-modal="true"><h3>Submit an event</h3><p>Coming next: paste a link, the text of your post, or a photo of your flyer, and we fill in the details for you to check. Your event goes through a quick review before it appears.</p><button class="btn pri full" data-a="closemodal">Got it</button></div></div>`;
+  }
+  return '';
 }
+
+/* ---------- toolbar popovers + home ---------- */
+function typeLabel(){const n=S.types.size;if(n===ALLTYPES.length)return 'All games';if(n===1)return TYPES[[...S.types][0]].label;return n+' types'}
 function popHTML(which){
   if(S.pop!==which)return '';
   if(which==='where'){
     return `<div class="pop popw"><input id="placeq" class="placeq" placeholder="City, state or ZIP" autocomplete="off" aria-label="City, state or ZIP"><div id="sugg">${suggestHTML('')}</div></div>`;
   }
   if(which==='type'){
-    const all=S.types.size===ALLTYPES.length;
-    return `<div class="pop"><button class="opt chkopt ${all?'sel':''}" data-a="typeall"><i class="bx">${all?'✓':''}</i>All games</button><hr>${TYPE_ORDER.map(k=>{const on=S.types.has(k);return `<button class="opt chkopt ${on?'sel':''}" data-a="type" data-v="${k}"><i class="bx">${on?'✓':''}</i>${TYPES[k].label}</button>`}).join('')}<div class="plink hint" style="padding:6px 10px 2px">Pick as many as you like.</div></div>`;
+    return `<div class="pop"><h4>Show</h4>${ALLTYPES.map(k=>`<button class="opt chkopt ${S.types.has(k)?'on':''}" data-a="type" data-v="${k}" role="checkbox" aria-checked="${S.types.has(k)}"><i class="bx"></i>${TYPES[k].label}</button>`).join('')}<hr><button class="opt selall" data-a="typeall">Select all</button></div>`;
   }
   if(which==='filters'){
     return `<div class="pop"><h4>Rules</h4><button class="opt ${S.style==='any'?'sel':''}" data-a="style" data-v="any">Any style</button>${STYLES.map(s=>`<button class="opt ${S.style===s?'sel':''}" data-a="style" data-v="${s}">${s}</button>`).join('')}<hr><h4>Cost</h4>${[['any','Any price'],['free','Free'],['paid','Paid']].map(([k,l])=>`<button class="opt ${S.cost===k?'sel':''}" data-a="cost" data-v="${k}">${l}</button>`).join('')}<hr><button class="opt" data-a="clear">Clear filters</button></div>`;
@@ -448,12 +500,14 @@ function popHTML(which){
   return '';
 }
 function homeHTML(){
+  const cur=eventFromHash();
   const nx=nextUp();
   const nf=(S.style!=='any'?1:0)+(S.cost!=='any'?1:0);
-  const none=!filtered(false).length;
-  const pane=S.view==='map'?'<div id="map" role="img" aria-label="Map of games"></div>':calHTML(nx);
+  const pane=S.view==='map'?'<div id="map" role="img" aria-label="Map of games"></div>':calHTML(nx,cur);
+  const panel=cur
+    ?`<section class="panel detail" aria-label="Event details">${detailHTML(cur)}</section>`
+    :`<section class="panel" aria-label="Events list"><div class="plist">${S.day?'':nextHTML(nx)}${listHTML(nx,cur)}</div></section>`;
   return `
-  <div class="wrap stage">
     <div class="tb">
       <div class="popwrap"><button class="tbtn" data-a="pop" data-v="where">${esc(stateName())} ▾</button>${popHTML('where')}</div>
       <div class="popwrap"><button class="tbtn" data-a="pop" data-v="type">${typeLabel()} ▾</button>${popHTML('type')}</div>
@@ -463,65 +517,55 @@ function homeHTML(){
         <button class="tab ${S.view==='map'?'on':''}" data-a="view" data-v="map">Map</button>
       </div>
     </div>
-    ${fbHTML(eff().fb)}
-    ${none?`<div class="nearest"><b>No games match these filters.</b><button class="linkbtn" data-a="clear">Clear filters</button></div>`:nextBar(nx)}
-    ${pane}
-    ${dayPopHTML()}
-  </div>
-  <footer class="foot"><div class="wrap">Sample layout with made-up events. Black and white until the logo and brand colors arrive.</div></footer>`;
+    ${eff().fb?`<div class="fbstrip">${fbHTML(eff().fb)}</div>`:''}
+    <div class="split">${panel}<div class="stage">${pane}</div></div>`;
 }
 
-/* ---------- event overlay ---------- */
-function eventOverlay(e){
+/* ---------- event details (one component: desktop column and phone overlay) ---------- */
+function detailHTML(e){
   const o=ORGS[e.org];const rc=reportCount(e);const mine=!!reportsMine()[e.id];
   const t=TYPES[e.type];
   let banner='';
   if(rc===1)banner=`<div class="banner" role="status"><div><b>1 person reported a problem with this event.</b>Check the details with the organizer before you go.</div>${mine?'<button data-a="unreport">Undo my report</button>':''}</div>`;
   else if(rc>=3)banner=`<div class="banner" role="status"><div><b>Several people reported a problem.</b>This event may be wrong or cancelled. Confirm with the organizer before you go.</div></div>`;
   else if(rc===2)banner=`<div class="banner" role="status"><div><b>2 people reported a problem with this event.</b>Check the details with the organizer before you go.</div>${mine?'<button data-a="unreport">Undo my report</button>':''}</div>`;
-  const hostEvents=ALL.filter(x=>x.org===e.org&&x.id!==e.id&&x.date>=TISO).filter((x,i,a)=>a.findIndex(y=>y.id===x.id)===i).slice(0,3);
-  const stateEvents=ALL.filter(x=>x.st===e.st&&x.id!==e.id&&x.org!==e.org&&x.date>=TISO).filter((x,i,a)=>a.findIndex(y=>y.id===x.id)===i).slice(0,4);
+  const uniq=(x,i,a)=>a.findIndex(y=>y.id===x.id)===i;
+  const hostEvents=ALL.filter(x=>x.org===e.org&&x.id!==e.id&&x.date>=TISO).filter(uniq).slice(0,3);
+  const stateEvents=ALL.filter(x=>x.st===e.st&&x.id!==e.id&&x.org!==e.org&&x.date>=TISO).filter(uniq).slice(0,3);
   const faq=[
     ['Do I need to bring my own set?',e.type==='cruise'?'Sets are provided in the card room. Check with the organizer for details.':'Most hosts provide sets. Check with the organizer if you want to be sure.'],
     ['Is this beginner friendly?',e.beginner?'Yes. Beginners are welcome.':'This one is better if you already know the rules. Check lessons near you if you are new.'],
     ['Do I need a partner?','No. You will be seated at a table with other players.']
   ];
   const where=e.privateAddr?`${esc(e.city)}, ${e.st}<br><span class="meta">The host shares the exact address privately. Message them for it.</span>`:`${esc(e.venue)}<br>${esc(e.city)}, ${e.st}`;
-  const added=isAdded(e);
-  return `<div class="scrim ovs" data-a="closeov"><div class="ovp" role="dialog" aria-modal="true" aria-label="${esc(e.title)}">
-  <div class="ovxw"><button class="x ovx" data-a="closeov" aria-label="Close">×</button></div>
-  <div class="ovb">
+  const added=!!S.added[e.uid];
+  return `
+  <div class="dhead"><button class="dback" data-a="closedetail">‹ All events</button><span class="sp"></span><button class="btn sm" data-a="copy">Copy link</button></div>
+  <div class="dbody">
     ${banner}
-    <div class="ehead">${tile(e)}<div><h1>${esc(e.title)}</h1><div class="tags" style="margin-top:10px"><span class="tag solid">${t.g} ${t.label}</span><span class="tag">${e.style}</span>${e.beginner?'<span class="tag">Beginner friendly</span>':''}${e.rec?`<span class="tag soft">Every ${DOW[parse(e.date).getDay()]}</span>`:''}</div></div></div>
-    <div class="box">
-      <b style="font-size:17px">${timeText(e)}</b>
-      <div style="margin-top:6px">${where}</div>
+    <div class="tags" style="margin:0"><span class="tag solid">${t.g} ${tagLabel(e)}</span><span class="tag">${e.style}</span>${e.beginner?'<span class="tag">Beginner friendly</span>':''}${e.rec?`<span class="tag soft">Every ${DOW[parse(e.date).getDay()]}</span>`:''}</div>
+    <h1 class="dtitle">${esc(e.title)}</h1>
+    <div class="sec"><dl class="kv"><dt>When</dt><dd>${timeText(e)}</dd><dt>Where</dt><dd>${where}</dd><dt>Cost</dt><dd>${money(e.price)}${e.spots?' · '+e.spots+' spots left':''}</dd></dl>
       <div id="emap" role="img" aria-label="Map of the event location"></div>
-      <a class="btn full" href="${dirUrl(e)}" target="_blank" rel="noopener">Get directions ↗</a>
-      <div class="row2"><button class="btn" data-a="copy">Copy link</button><button class="btn" data-a="soon" data-v="Demo: opens the share sheet on a phone">Share</button></div>
-      <div class="row2"><button class="btn" disabled>Save <em>Soon</em></button><button class="btn" disabled>Follow host <em>Soon</em></button></div>
-    </div>
-    <div class="sec"><h2>About</h2><p>${esc(e.desc)}</p><p class="meta" style="margin-top:8px">${money(e.price)}${e.spots?' · '+e.spots+' spots left':''}</p></div>
+      <a class="btn full" href="${dirUrl(e)}" target="_blank" rel="noopener">Get directions ↗</a></div>
+    <div class="sec"><h2>About</h2><p>${esc(e.desc)}</p></div>
     ${e.refund?`<div class="sec"><h2>Refunds</h2><p>${esc(e.refund)}</p><p class="meta" style="margin-top:6px">As stated by the organizer. Mahjong USA does not handle payments.</p></div>`:''}
     ${e.code?`<div class="sec"><h2>Discount code</h2><p><span class="codebox">${e.code}</span>${esc(e.codeNote||'')}</p><p class="meta" style="margin-top:6px">Enter it at registration on the organizer’s site.</p></div>`:''}
     <div class="sec"><h2>Good to know</h2>${faq.map(([q,a])=>`<details><summary>${q}</summary><p>${a}</p></details>`).join('')}</div>
-    <div class="sec"><h2>Organizer</h2><div class="org"><div class="avatar">${o.n[0]}</div><div><b>${o.n}</b><div class="meta">${o.y} years on Mahjong USA · ${o.c} events listed</div></div><a class="btn" style="margin-left:auto" href="javascript:void 0" data-a="soon" data-v="Opens the organizer’s own page">Their page ↗</a></div></div>
+    <div class="sec"><h2>Organizer</h2><div class="org"><div class="avatar">${o.n[0]}</div><div><b>${o.n}</b><div class="meta">${o.y} years on Mahjong USA · ${o.c} events listed</div></div></div></div>
     <div class="sec"><p class="meta">Last checked Nov 16, 2026 · <button class="linkbtn" data-a="report">${mine?'You reported this':'Report a problem'}</button> · <button class="linkbtn" data-a="soon" data-v="Demo: this would email the Mahjong USA team">Is this your event? Fix or remove it</button></p></div>
-    ${hostEvents.length?`<div class="sec"><h2>More from ${o.n}</h2><div class="mini">${hostEvents.map(x=>cardHTML(x)).join('')}</div></div>`:''}
-    ${stateEvents.length?`<div class="sec"><h2>More in ${STATES[e.st].n}</h2><div class="mini">${stateEvents.map(x=>cardHTML(x)).join('')}</div></div>`:''}
+    ${hostEvents.length?`<div class="sec"><h2>More from ${o.n}</h2><div class="mini">${hostEvents.map(cardHTML).join('')}</div></div>`:''}
+    ${stateEvents.length?`<div class="sec"><h2>More in ${STATES[e.st].n}</h2><div class="mini">${stateEvents.map(cardHTML).join('')}</div></div>`:''}
   </div>
-  <div class="ovbar">
-    <div class="when">${e.allDay?fmtDay(e.date):fmtDay(e.date)+' · '+t12(e.time)} <small>${money(e.price)}${e.spots?' · '+e.spots+' spots left':''} · ${e.tz}</small></div>
-    <div class="acts">
-      <div class="popwrap"><button class="btn ${added?'':'pri'}" data-a="calmenu">${added?'✓ Added':'Add to calendar'} ▾</button>
-      ${S.calOpen?`<div class="calmenu"><a href="${googleUrl(e)}" data-a="gcal" data-uid="${e.uid}" target="_blank" rel="noopener">Google Calendar</a><button data-a="ics">Apple Calendar (.ics)</button><button data-a="ics">Outlook (.ics)</button></div>`:''}</div>
-      <a class="btn" href="javascript:void 0" data-a="soon" data-v="Demo: opens the organizer’s registration page">${e.price===0?'Details':'Register'} ↗</a>
-    </div>
-  </div></div></div>`;
+  <div class="dbar">
+    <div class="popwrap"><button class="btn ${S.calOpen?'':'pri'}" data-a="calmenu">${added?'✓ Added · ':''}Add to calendar ▾</button>
+    ${S.calOpen?`<div class="calmenu"><a data-a="gcal" data-v="${e.uid}" href="${googleUrl(e)}" target="_blank" rel="noopener">Google Calendar</a><button data-a="ics">Apple Calendar (.ics)</button><button data-a="ics">Outlook (.ics)</button></div>`:''}</div>
+    <a class="btn" href="javascript:void 0" data-a="soon" data-v="Demo: opens the organizer’s registration page">${e.price===0?'Details':'Register'} ↗</a>
+  </div>`;
 }
 
 /* ---------- render ---------- */
-function mountMaps(){
+function mountMaps(cur){
   if(map){map.remove();map=null}
   if(emap){emap.remove();emap=null}
   if(typeof L==='undefined')return;
@@ -529,15 +573,18 @@ function mountMaps(){
   if(m){
     map=L.map(m,{scrollWheelZoom:false}).setView([39,-96],4);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(map);
-    const nx=nextUp();const seen={};const pts=[];
-    filtered(false).forEach(e=>{
+    const nx=nextUp();const seen={};const pts=[],land=[];
+    filtered(true).forEach(e=>{
       if(seen[e.id])return;seen[e.id]=1;
-      const ll=[e.lat,e.lng];pts.push(ll);
-      const isNext=nx&&nx.id===e.id;
-      L.circleMarker(ll,isNext?{radius:12,color:'#fff',weight:3,fillColor:'#0d0d0d',fillOpacity:1}:{radius:7,color:'#0d0d0d',weight:2,fillColor:'#fff',fillOpacity:1}).addTo(map)
-        .bindPopup(`<b>${esc(e.title)}</b><br>${fmtDay(e.date)} · ${money(e.price)}<br><a href="#event-${e.uid}">View event ›</a>`);
+      const ll=[e.lat,e.lng];pts.push(ll);if(e.type!=='cruise')land.push(ll);
+      const isNext=nx&&nx.id===e.id,isCur=cur&&cur.id===e.id;
+      const st=isCur?{radius:13,color:'#6a4fb3',weight:4,fillColor:'#0d0d0d',fillOpacity:1}:isNext?{radius:12,color:'#fff',weight:3,fillColor:'#0d0d0d',fillOpacity:1}:{radius:8,color:'#0d0d0d',weight:2,fillColor:S.seen[e.uid]?'#d9d0ee':'#fff',fillOpacity:1};
+      const mk=L.circleMarker(ll,st).addTo(map);
+      mk.bindTooltip(e.title,{direction:'top'});
+      mk.on('click',()=>{location.hash='#event-'+e.uid});
     });
-    if(pts.length===1)map.setView(pts[0],9);else if(pts.length)map.fitBounds(pts,{padding:[30,30],maxZoom:9});
+    const fit=land.length?land:pts;
+    if(fit.length===1)map.setView(fit[0],9);else if(fit.length)map.fitBounds(fit,{padding:[30,30],maxZoom:9});
   }
 }
 function mountEventMap(e){
@@ -548,89 +595,76 @@ function mountEventMap(e){
   if(e.privateAddr)L.circle([e.lat,e.lng],{radius:3000,color:'#0d0d0d',weight:2,fillColor:'#0d0d0d',fillOpacity:.15}).addTo(emap);
   else L.circleMarker([e.lat,e.lng],{radius:10,color:'#fff',weight:2,fillColor:'#0d0d0d',fillOpacity:1}).addTo(emap);
 }
-function eventFromHash(){const h=location.hash;return h.startsWith('#event-')?(byUid(decodeURIComponent(h.slice(7)))||null):null}
-function modalHTML(ev){
-  let out=ev?eventOverlay(ev):'';
-  if(S.modal==='report'){
-    out+=`<div class="scrim" data-a="closemodal"><div class="modal" role="dialog" aria-modal="true" aria-label="Report a problem"><h3>Report a problem</h3><p>No sign-in needed. We’ll look at it.</p>
-    <form data-a="sendreport">${['The date or time is wrong','It was cancelled','The place is wrong','It looks like spam','Something else'].map((r,i)=>`<label class="radio"><input type="radio" name="r" value="${r}" ${i===0?'checked':''}>${r}</label>`).join('')}
-    <div class="row2" style="margin-top:12px"><button type="button" class="btn" data-a="closemodal">Cancel</button><button class="btn pri">Send report</button></div></form></div></div>`;
-  }
-  if(S.modal==='submit'){
-    out+=`<div class="scrim" data-a="closemodal"><div class="modal" role="dialog" aria-modal="true"><h3>Submit an event</h3><p>Coming next: paste a link, the text of your post, or a photo of your flyer, and we fill in the details for you to check. Your event goes through a quick review before it appears.</p><button class="btn pri full" data-a="closemodal">Got it</button></div></div>`;
-  }
-  return out;
-}
-function render(keepScroll,resetOv){
-  const y=scrollY;const op=document.querySelector('.ovp');const ost=op?op.scrollTop:0;
+function eventFromHash(){const h=location.hash;return h.startsWith('#event-')?byUid(decodeURIComponent(h.slice(7))):null}
+function render(){
+  if(location.hash==='#trips'){S.types=new Set(['cruise']);history.replaceState(null,'','#home')}
+  const y=scrollY;
+  const pn0=document.querySelector('.panel'),st0=document.querySelector('.stage');
+  const wasDetail=!!(pn0&&pn0.classList.contains('detail'));
+  const prev=pn0?pn0.scrollTop:0,prevSt=st0?st0.scrollTop:0;
+  if(pn0&&!wasDetail)S.listScroll=prev;
   const ev=eventFromHash();
-  if(ev&&!S.seen[ev.id]){S.seen[ev.id]=1;lsSet('mj-seen',S.seen)}
+  if(ev&&!S.seen[ev.uid]){S.seen[ev.uid]=1;lsSet('mj-seen',S.seen)}
   document.title=ev?ev.title+' | Mahjong USA':'Mahjong USA: events calendar prototype';
   document.getElementById('app').innerHTML=homeHTML();
-  mountMaps();
-  document.getElementById('modalroot').innerHTML=modalHTML(ev);
+  mountMaps(ev);
   if(ev)mountEventMap(ev);
-  document.body.style.overflow=(ev||S.modal)?'hidden':'';
-  const np=document.querySelector('.ovp');if(np&&!resetOv)np.scrollTop=ost;
-  positionDayPop();
+  document.getElementById('modalroot').innerHTML=modalHTML();
+  document.body.classList.toggle('lock',!!ev&&innerWidth<=900);
+  const pn=document.querySelector('.panel'),st=document.querySelector('.stage');
+  if(pn)pn.scrollTop=ev?((wasDetail&&S.lastUid===ev.uid)?prev:0):(wasDetail?S.listScroll:prev);
+  if(st)st.scrollTop=prevSt;
+  S.lastUid=ev?ev.uid:null;
+  if(innerWidth<=900)scrollTo(0,y);
   const pq=document.getElementById('placeq');if(pq)pq.focus();
-  if(keepScroll)scrollTo(0,y);
 }
-function closeOverlay(){S.calOpen=false;location.hash='#home'}
-window.addEventListener('hashchange',()=>{S.pop=null;S.calOpen=false;S.modal=null;S.dayOpen=null;render(true,true)});
-window.addEventListener('resize',positionDayPop);
+window.addEventListener('hashchange',()=>{S.pop=null;S.calOpen=false;S.modal=null;render()});
 
 /* ---------- actions ---------- */
-function setPlace(p){S.place=p;lsSet('mj-place',p);S.pop=null;S.dayOpen=null;render(true)}
-function markAdded(uid){S.added[uid]=true;lsSet('mj-added',S.added)}
+function setPlace(p){S.place=p;lsSet('mj-place',p);S.pop=null;S.day=null;render()}
+const go=h=>{if(location.hash!==h)location.hash=h;else render()};
 document.addEventListener('input',ev=>{if(ev.target.id==='placeq')document.getElementById('sugg').innerHTML=suggestHTML(ev.target.value)});
 document.addEventListener('keydown',ev=>{
   if(ev.target.id==='placeq'&&ev.key==='Enter'){ev.preventDefault();const b=document.querySelector('#sugg [data-a=pick]');if(b)b.click()}
-  if(ev.key==='Escape'){
-    if(S.modal){S.modal=null;render(true)}
-    else if(S.pop||S.calOpen){S.pop=null;S.calOpen=false;render(true)}
-    else if(eventFromHash())closeOverlay();
-    else if(S.dayOpen){S.dayOpen=null;render(true)}
-  }
+  if(ev.key==='Escape'){if(S.pop){S.pop=null;render()}else if(S.modal){S.modal=null;render()}else if(eventFromHash())go('#home')}
 });
 document.addEventListener('submit',ev=>{
   const f=ev.target.closest('form[data-a]');if(!f)return;ev.preventDefault();
   if(f.dataset.a==='sendreport'){
     const e=eventFromHash();if(!e)return;
-    const r=reportsMine();r[e.id]=true;lsSet('mj-reports',r);S.modal=null;render(true);toast('Thanks. We’ll take a look.');
+    const r=reportsMine();r[e.id]=true;lsSet('mj-reports',r);S.modal=null;render();toast('Thanks. We’ll take a look.');
   }
 });
 document.addEventListener('click',ev=>{
   const el=ev.target.closest('[data-a]');
-  if(S.pop&&!ev.target.closest('.popwrap')){S.pop=null;render(true)}
-  if(S.calOpen&&!ev.target.closest('.popwrap')){S.calOpen=false;render(true)}
-  if(S.dayOpen&&!ev.target.closest('.daypop,.day.has')){S.dayOpen=null;render(true)}
+  if(S.pop&&!ev.target.closest('.popwrap')){S.pop=null;render()}
+  if(S.calOpen&&!ev.target.closest('.popwrap')){S.calOpen=false;render()}
   if(ev.target.closest('a[href^="#"]')&&!ev.target.closest('a[data-a]'))return;
   if(!el)return;
   const a=el.dataset.a,v=el.dataset.v;
   if(el.tagName==='FORM')return;
-  if(a==='closemodal'){if(ev.target.closest('.modal')&&!el.matches('button'))return;S.modal=null;render(true);return}
-  if(a==='closeov'){if(ev.target===el||ev.target.closest('.ovx'))closeOverlay();return}
-  if(a==='closeday'){S.dayOpen=null;render(true);return}
-  if(a==='pop'){S.pop=S.pop===v?null:v;render(true);return}
+  if(a==='closemodal'){if(ev.target.closest('.modal')&&!el.matches('button'))return;S.modal=null;render();return}
+  if(a==='pop'){S.pop=S.pop===v?null:v;render();return}
   if(a==='pick'){setPlace(PLACES[Number(v)]);return}
   if(a==='allstates'){setPlace({kind:'all',label:'All states'});return}
   if(a==='geo'){setPlace(PLACES.find(p=>p.label==='Charleston, SC'));toast('Demo: using Charleston, SC');return}
-  if(a==='type'){if(S.types.has(v))S.types.delete(v);else S.types.add(v);if(!S.types.size)S.types=new Set(ALLTYPES);S.dayOpen=null;render(true);return}
-  if(a==='typeall'){S.types=new Set(ALLTYPES);S.dayOpen=null;render(true);return}
-  if(a==='style'){S.style=v;S.pop=null;render(true);return}
-  if(a==='cost'){S.cost=v;S.pop=null;render(true);return}
-  if(a==='view'){S.view=v;S.dayOpen=null;render(true);return}
-  if(a==='day'){S.dayOpen=S.dayOpen===v?null:v;render(true);return}
-  if(a==='month'){let {y,m}=S.month;m+=Number(v);if(m<0){m=11;y--}if(m>11){m=0;y++}S.month={y,m};S.dayOpen=null;render(true);return}
-  if(a==='clear'){S.types=new Set(ALLTYPES);S.style='any';S.cost='any';S.dayOpen=null;S.pop=null;render(true);return}
-  if(a==='submit'){S.modal='submit';render(true);return}
-  if(a==='report'){S.modal='report';render(true);return}
-  if(a==='unreport'){const e=eventFromHash();if(e){const r=reportsMine();delete r[e.id];lsSet('mj-reports',r);render(true);toast('Report removed')}return}
+  if(a==='type'){if(S.types.has(v))S.types.delete(v);else S.types.add(v);if(!S.types.size)S.types=new Set(ALLTYPES);S.day=null;render();return}
+  if(a==='typeall'){S.types=new Set(ALLTYPES);S.day=null;render();return}
+  if(a==='style'){S.style=v;S.pop=null;render();return}
+  if(a==='cost'){S.cost=v;S.pop=null;render();return}
+  if(a==='view'){S.view=v;render();return}
+  if(a==='day'){S.day=S.day===v?null:v;S.more=false;if(eventFromHash())go('#home');else render();return}
+  if(a==='more'){S.more=true;render();return}
+  if(a==='month'){let {y,m}=S.month;m+=Number(v);if(m<0){m=11;y--}if(m>11){m=0;y++}S.month={y,m};render();return}
+  if(a==='clear'){S.types=new Set(ALLTYPES);S.style='any';S.cost='any';S.day=null;S.pop=null;render();return}
+  if(a==='closedetail'){go('#home');return}
+  if(a==='submit'){S.modal='submit';render();return}
+  if(a==='report'){S.modal='report';render();return}
+  if(a==='unreport'){const e=eventFromHash();if(e){const r=reportsMine();delete r[e.id];lsSet('mj-reports',r);render();toast('Report removed')}return}
   if(a==='copy'){const u=location.href;(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast('Link copied'),()=>toast('Copy this link: '+u));return}
-  if(a==='calmenu'){S.calOpen=!S.calOpen;render(true);return}
-  if(a==='gcal'){markAdded(el.dataset.uid);S.calOpen=false;setTimeout(()=>render(true),0);return}
-  if(a==='ics'){const e=eventFromHash();if(e){downloadIcs(e);markAdded(e.uid);S.calOpen=false;render(true);toast('Calendar file downloaded')}return}
+  if(a==='calmenu'){S.calOpen=!S.calOpen;render();return}
+  if(a==='gcal'){markAdded(v);S.calOpen=false;setTimeout(render,0);return}
+  if(a==='ics'){const e=eventFromHash();if(e){downloadIcs(e);markAdded(e.uid);S.calOpen=false;render();toast('Calendar file downloaded')}return}
   if(a==='soon'){ev.preventDefault();toast(v||'Coming soon');return}
 });
 render();
