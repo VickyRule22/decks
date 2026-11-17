@@ -400,7 +400,7 @@ function cardHTML(e){
   if(e.beginner)tags.push('<span class="tag soft">Beginner friendly</span>');
   if(e.rec)tags.push(`<span class="tag soft">Every ${DS[parse(e.date).getDay()]}</span>`);
   if(e.spots&&e.spots<=12)tags.push(`<span class="tag">${e.spots} spots left</span>`);
-  if(rc>=3)tags.push('<span class="tag warn">Reported</span>');
+  if(S.added[e.uid])tags.push('<span class="tag">✓ On your calendar</span>');if(rc>=3)tags.push('<span class="tag warn">Reported</span>');
   return `<a class="card${S.seen[e.uid]?' seen':''}" href="#event-${e.uid}">${tile(e)}<div><h3 class="tt">${esc(e.title)}</h3><div class="meta">${meta.join(' · ')}</div><div class="tags">${tags.join('')}</div></div><span class="go" aria-hidden="true">›</span></a>`;
 }
 const shortT=t=>{const [h,m]=t.split(':').map(Number);return (h%12||12)+(m?':'+pad(m):'')+(h<12?'a':'p')};
