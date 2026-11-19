@@ -26,7 +26,8 @@ window.REAL_EVENTS=[
   "verified": false,
   "real": true,
   "pulled": "2026-11-19",
-  "areaOnly": true
+  "areaOnly": true,
+  "contact": "hadassahaustinorg@gmail.com"
  },
  {
   "id": "morning-mah-jongg-2026-11-20-austin",
@@ -366,7 +367,8 @@ window.REAL_EVENTS=[
   "verified": false,
   "real": true,
   "pulled": "2026-11-19",
-  "areaOnly": true
+  "areaOnly": true,
+  "contact": "hadassahaustinorg@gmail.com"
  },
  {
   "id": "st-john-women-s-monthly-mahjong-2026-12-03-austin",
@@ -506,7 +508,8 @@ window.REAL_EVENTS=[
   "verified": false,
   "real": true,
   "pulled": "2026-11-19",
-  "areaOnly": true
+  "areaOnly": true,
+  "contact": "hadassahaustinorg@gmail.com"
  },
  {
   "id": "morning-mah-jongg-2026-12-18-austin",
