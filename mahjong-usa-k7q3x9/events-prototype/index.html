@@ -271,6 +271,7 @@ details{padding:var(--s3) 0}
 
 button,a,.day{touch-action:manipulation}
 .chips-m{display:none}
+.evq{width:100%;box-sizing:border-box;border:1px solid var(--ink);border-radius:999px;padding:9px 16px;font:inherit;font-size:15px;margin:0 0 12px;background:#fff}
 .placeq{font-size:16px}
 .dbar{padding-bottom:calc(var(--s3) + env(safe-area-inset-bottom,0px))}
 @media(min-width:901px){
@@ -280,6 +281,8 @@ button,a,.day{touch-action:manipulation}
   .split{flex:1;min-height:0}
 }
 @media(max-width:900px){
+  .showall{display:none}
+  .pip{pointer-events:none}
   .wrap{padding:0 16px}
   .nav a.hide-m{display:none}
   .tb{padding:10px 16px;gap:18px}
@@ -402,6 +405,7 @@ const markAdded=uid=>{S.added[uid]=1;lsSet('mj-added',S.added)};
 const nextUp=()=>filtered(true).find(e=>e.type!=='cruise')||null;
 const dist=(a,b)=>{const R=3959,r=x=>x*Math.PI/180;const dl=r(b.lat-a.lat),dg=r(b.lng-a.lng);const h=Math.sin(dl/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dg/2)**2;return 2*R*Math.asin(Math.sqrt(h))};
 const stateName=()=>S.place.label;
+const matchQ=e=>{const q=(S.q||'').trim().toLowerCase();return !q||[e.title,e.venue,e.city,e.orgName,e.style].join(' ').toLowerCase().includes(q)};
 function whenOk(e){
   const w=S.when;if(w==='any'||e.type==='cruise'&&w==='any')return true;
   const d=e.date;
@@ -410,7 +414,7 @@ function whenOk(e){
   if(w==='weekend'){const dw=parse(d).getDay();const lim=iso(addDays(TODAY,((7-TODAY.getDay())%7)+(TODAY.getDay()===0?0:0)));const fri=[5,6,0].includes(dw);return fri&&d<=iso(addDays(TODAY,9))&&d>=TISO}
   return true;
 }
-const passBase=e=>(e.date+'T'+(e.time||'00:00'))>=NOW&&whenOk(e)&&S.types.has(e.type)&&(S.style==='any'||e.style===S.style)&&(S.cost==='any'||(S.cost==='free'?e.price===0:e.price>0));
+const passBase=e=>(e.date+'T'+(e.time||'00:00'))>=NOW&&(S.view!=='map'||whenOk(e))&&matchQ(e)&&S.types.has(e.type)&&(S.style==='any'||e.style===S.style)&&(S.cost==='any'||(S.cost==='free'?e.price===0:e.price>0));
 const inPlace=(e,p)=>e.type==='cruise'||p.kind==='all'||(p.kind==='state'?e.st===p.st:dist(p,e)<=75);
 function eff(){
   const p=S.place;
@@ -495,18 +499,20 @@ function nextHTML(nx){
 }
 const WHENS=[['any','Any time'],['today','Today'],['weekend','This weekend'],['week','Next 7 days']];
 function chipsHTML(cls){
+  if(S.view!=='map')return '';
   const dirty=S.when!=='any'||S.types.size<ALLTYPES.length||S.style!=='any'||S.cost!=='any'||S.day;
   return `<div class="chips ${cls||'chips-d'}" role="group" aria-label="When">${WHENS.map(([k,l])=>`<button class="chip${S.when===k?' on':''}" data-a="when" data-v="${k}" aria-pressed="${S.when===k}">${l}</button>`).join('')}${dirty?'<button class="linkbtn rst" data-a="clear">Reset all</button>':''}</div>`;
 }
+function searchHTML(){return `<input id="evq" class="evq" type="search" placeholder="Search by event, place or host" value="${esc(S.q||'')}" aria-label="Search events">`}
 function listHTML(nx,cur){
   if(!filtered(true).length){
     const WL={today:'Today',weekend:'This weekend',week:'Next 7 days'};
     const act=[S.when!=='any'?WL[S.when]:'',S.types.size<ALLTYPES.length?typeLabel():'',S.style!=='any'?S.style:'',S.cost!=='any'?(S.cost==='free'?'Free':'Paid'):''].filter(Boolean);
-    return chipsHTML()+`<div class="nearest"><b>No games match${act.length?': '+esc(act.join(' \u00B7 ')):' here yet'}.</b><button class="linkbtn" data-a="clear">Reset all filters</button></div>`;
+    return searchHTML()+chipsHTML()+`<div class="nearest"><b>No games match${act.length?': '+esc(act.join(' \u00B7 ')):' here yet'}.</b><button class="linkbtn" data-a="clear">Reset all filters</button></div>`;
   }
   const all=filtered(false);
   const rows=all;
-  let out=chipsHTML()+`<div class="lh"><h3>${S.day?fmtDay(S.day,true):'Coming up'}</h3>${S.day?`<button class="linkbtn" data-a="day" data-v="${S.day}">Show all</button>`:''}</div>`;
+  let out=searchHTML()+chipsHTML()+`<div class="lh"><h3>${S.day?fmtDay(S.day,true):'Coming up'}</h3>${S.day?`<button class="linkbtn showall" data-a="day" data-v="${S.day}">Show all</button>`:''}</div>`;
   if(S.day&&!rows.length)return out+`<p class="meta">No games this day.</p>`;
   const limit=S.day||S.more?rows.length:12;
   let last='';
@@ -752,7 +758,8 @@ window.addEventListener('hashchange',()=>{S.pop=null;S.calOpen=false;S.modal=nul
 /* ---------- actions ---------- */
 function setPlace(p){S.area=null;S.place=p;lsSet('mj-place',p);S.pop=null;S.day=null;render()}
 const go=h=>{if(location.hash!==h)location.hash=h;else render()};
-document.addEventListener('input',ev=>{if(ev.target.id==='placeq')document.getElementById('sugg').innerHTML=suggestHTML(ev.target.value)});
+document.addEventListener('input',ev=>{if(ev.target.id==='evq'){const pos=ev.target.selectionStart;S.q=ev.target.value;S.day=null;render();const i=document.getElementById('evq');if(i){i.focus();try{i.setSelectionRange(pos,pos)}catch(e){}}return}
+  if(ev.target.id==='placeq')document.getElementById('sugg').innerHTML=suggestHTML(ev.target.value)});
 document.addEventListener('keydown',ev=>{
   if((ev.key==='Enter'||ev.key===' ')&&ev.target.matches&&ev.target.matches('.day[role=button]')){ev.preventDefault();ev.target.click();return}
   if(ev.target.id==='placeq'&&ev.key==='Enter'){ev.preventDefault();const b=document.querySelector('#sugg [data-a=pick]');if(b)b.click()}
@@ -786,12 +793,12 @@ document.addEventListener('click',ev=>{
   if(a==='searcharea'){if(map){const b=map.getBounds();S.area=[b.getSouth(),b.getWest(),b.getNorth(),b.getEast()];S.day=null;render()}return}
   if(a==='cleararea'){S.area=null;render();return}
   if(a==='mapwide'){S.mapWide=!S.mapWide;render();return}
-  if(a==='goev'){go('#event-'+v);return}
+  if(a==='goev'){if(innerWidth<=900){const d=ALL.find(x=>x.uid===v);if(d){S.day=d.date;S.more=false;render();setTimeout(()=>{const p=document.querySelector('.panel');if(p)scrollTo({top:p.getBoundingClientRect().top+scrollY-12,behavior:'smooth'})},50);return}}go('#event-'+v);return}
   if(a==='day'){S.day=S.day===v?null:v;S.more=false;if(eventFromHash())go('#home');else render();if(S.day&&innerWidth<=900)setTimeout(()=>{const p=document.querySelector('.panel');if(p)scrollTo({top:p.getBoundingClientRect().top+scrollY-8,behavior:'smooth'})},50);return}
   if(a==='more'){S.more=true;render();return}
   if(a==='month'){let {y,m}=S.month;m+=Number(v);if(m<0){m=11;y--}if(m>11){m=0;y++}S.month={y,m};render();return}
   if(a==='when'){S.when=v;S.day=null;render();return}
-  if(a==='clear'){S.area=null;S.types=new Set(ALLTYPES);S.style='any';S.cost='any';S.when='any';S.day=null;S.pop=null;render();return}
+  if(a==='clear'){S.area=null;S.types=new Set(ALLTYPES);S.style='any';S.cost='any';S.when='any';S.q='';S.day=null;S.pop=null;render();return}
   if(a==='closedetail'){go('#home');return}
   if(a==='report'){S.modal='report';render();return}
   if(a==='unreport'){const e=eventFromHash();if(e){const r=reportsMine();delete r[e.id];lsSet('mj-reports',r);render();toast('Report withdrawn')}return}
