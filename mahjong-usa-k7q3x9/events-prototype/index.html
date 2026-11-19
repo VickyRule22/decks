@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <title>Mahjong USA: events calendar prototype</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -269,6 +269,10 @@ details{padding:var(--s3) 0}
 .dbar{padding:var(--s3) var(--s4)}
 .banner{margin:0 0 var(--s4)}
 
+button,a,.day{touch-action:manipulation}
+.chips-m{display:none}
+.placeq{font-size:16px}
+.dbar{padding-bottom:calc(var(--s3) + env(safe-area-inset-bottom,0px))}
 @media(min-width:901px){
   html,body{height:100%}
   body{display:flex;flex-direction:column;overflow:hidden}
@@ -299,6 +303,23 @@ details{padding:var(--s3) 0}
   #map{flex:none;height:300px;min-height:0}
   .nextup h2{font-size:20px}
   .dtitle{font-size:26px}
+  .chips-d{display:none}
+  .chips-m{display:flex;flex-wrap:nowrap;overflow-x:auto;margin:0 0 var(--s3);padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .chips-m::-webkit-scrollbar{display:none}
+  .chips-m .chip,.chips-m .rst{flex:none;white-space:nowrap}
+  .chip{padding:10px 16px;font-size:14px}
+  .tb{position:relative;gap:4px 20px}
+  .tbtn,.tab{min-height:44px;display:inline-flex;align-items:center}
+  .tb .right{border-top:1px solid var(--line);gap:24px;padding-top:0}
+  .popwrap{position:static}
+  .pop,.popw{position:absolute;left:12px;right:12px;top:100%;min-width:0;max-height:60vh;overflow:auto;z-index:2200}
+  .opt{min-height:44px}
+  .lr{padding-top:var(--s4);padding-bottom:var(--s4)}
+  .dbtn,.btn{min-height:44px}
+  .dback{min-height:44px}
+  .iconbtn{width:44px;height:44px}
+  .searcharea{top:12px}
+  .calhead button{width:44px;height:44px}
 }
 </style>
 </head>
@@ -494,9 +515,9 @@ function nextHTML(nx){
   return `<div class="nextup"><p class="nl">Next up · ${label}</p><h2>${esc(nx.title)}</h2><p class="nm">${t12(nx.time)} ${nx.tz} · ${esc(nx.venue)}, ${esc(nx.city)} · ${money(nx.price)}</p><div class="na"><a class="nbtn" href="#event-${nx.uid}">See details</a><a class="nlink" data-a="gcal" data-v="${nx.uid}" href="${googleUrl(nx)}" target="_blank" rel="noopener">${S.added[nx.uid]?'✓ Added to calendar':'Add to Google Calendar'}</a></div></div>`;
 }
 const WHENS=[['any','Any time'],['today','Today'],['weekend','This weekend'],['week','Next 7 days']];
-function chipsHTML(){
+function chipsHTML(cls){
   const dirty=S.when!=='any'||S.types.size<ALLTYPES.length||S.style!=='any'||S.cost!=='any'||S.day;
-  return `<div class="chips" role="group" aria-label="When">${WHENS.map(([k,l])=>`<button class="chip${S.when===k?' on':''}" data-a="when" data-v="${k}" aria-pressed="${S.when===k}">${l}</button>`).join('')}${dirty?'<button class="linkbtn rst" data-a="clear">Reset all</button>':''}</div>`;
+  return `<div class="chips ${cls||'chips-d'}" role="group" aria-label="When">${WHENS.map(([k,l])=>`<button class="chip${S.when===k?' on':''}" data-a="when" data-v="${k}" aria-pressed="${S.when===k}">${l}</button>`).join('')}${dirty?'<button class="linkbtn rst" data-a="clear">Reset all</button>':''}</div>`;
 }
 function listHTML(nx,cur){
   if(!filtered(true).length){
@@ -536,7 +557,7 @@ function calHTML(nx,cur){
     if(evs.length)cls+=' has';
     cells+=`<div class="${cls}" data-day="${ds}"${act}><span class="dn">${d.getDate()}</span><div class="pills">${pills}</div><div class="pips">${pips}</div>${cnt}</div>`;
   }
-  return `<div class="calwrap"><div class="calhead"><h3>${MON[m]} ${y}</h3><button data-a="month" data-v="-1" aria-label="Previous month" ${curMonth?'disabled':''}>‹</button><button data-a="month" data-v="1" aria-label="Next month">›</button></div><div class="legend" aria-label="Key"><span class="lg-dot"><i class="pip"></i> a game</span><span><i class="pip ad">\u2713</i> on your calendar</span><span><b class="vis">Purple</b> = you\u2019ve opened it</span></div><div class="grid" style="grid-template-rows:auto repeat(${shown},minmax(100px,1fr))">${cells}</div></div>`;
+  return `<div class="calwrap"><div class="calhead"><h3>${MON[m]} ${y}</h3><button data-a="month" data-v="-1" aria-label="Previous month" ${curMonth?'disabled':''}>‹</button><button data-a="month" data-v="1" aria-label="Next month">›</button></div><div class="grid" style="grid-template-rows:auto repeat(${shown},minmax(100px,1fr))">${cells}</div></div>`;
 }
 function fitPills(){
   if(innerWidth<=900)return;
@@ -630,7 +651,7 @@ function homeHTML(){
       </div>
     </div>
     ${eff().fb?`<div class="fbstrip">${fbHTML(eff().fb)}</div>`:''}
-    <div class="split">${panel}<div class="stage">${pane}</div></div>`;
+    <div class="split">${panel}<div class="stage">${chipsHTML('chips-m')}${pane}</div></div>`;
 }
 
 /* ---------- event details (one component: desktop column and phone overlay) ---------- */
@@ -789,7 +810,7 @@ document.addEventListener('click',ev=>{
   if(a==='cleararea'){S.area=null;render();return}
   if(a==='mapwide'){S.mapWide=!S.mapWide;render();return}
   if(a==='goev'){go('#event-'+v);return}
-  if(a==='day'){S.day=S.day===v?null:v;S.more=false;if(eventFromHash())go('#home');else render();return}
+  if(a==='day'){S.day=S.day===v?null:v;S.more=false;if(eventFromHash())go('#home');else render();if(S.day&&innerWidth<=900)setTimeout(()=>{const p=document.querySelector('.panel');if(p)scrollTo({top:p.getBoundingClientRect().top+scrollY-8,behavior:'smooth'})},50);return}
   if(a==='more'){S.more=true;render();return}
   if(a==='month'){let {y,m}=S.month;m+=Number(v);if(m<0){m=11;y--}if(m>11){m=0;y++}S.month={y,m};render();return}
   if(a==='when'){S.when=v;S.day=null;render();return}
