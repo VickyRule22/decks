@@ -174,6 +174,10 @@ details p{margin-top:6px;color:var(--mute);font-size:14px}
 .cnt{font-size:13px;color:#555}
 :focus-visible{outline:3px solid #4b2f99;outline-offset:2px}
 .day:focus-visible{outline-offset:-3px}
+.iconbtn{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:#fff;display:grid;place-items:center}
+.iconbtn:hover{background:var(--gray)}
+.dirlink{display:inline-block;margin-top:10px;font-weight:600;font-size:15px;text-decoration:underline}
+.dbar>.btn.ghost{border-color:transparent;background:none;flex:0 0 auto;width:auto;text-decoration:underline}
 .foot{border-top:1px solid var(--line);padding:28px 0 60px;color:var(--mute);font-size:14px}
 
 /* cards (inside overlay lists) */
@@ -284,7 +288,7 @@ const lsGet=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d
 const lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
 
 const TYPES={tournament:{label:'Tournament',g:'◆'},open:{label:'Open play',g:'○'},lesson:{label:'Lesson',g:'▲'},cruise:{label:'Trips and cruises',g:'■'},social:{label:'Social',g:'●'}};
-const STYLES=['American (NMJL)','Riichi','Chinese official'];
+const STYLES=['American (NMJL)','Riichi','Chinese official','Hong Kong'];
 const TZ={ET:['America/New_York',-5],CT:['America/Chicago',-6],MT:['America/Denver',-7],PT:['America/Los_Angeles',-8]};
 const STATES={
  SC:{n:'South Carolina',lat:33.9,lng:-80.9},FL:{n:'Florida',lat:28.1,lng:-82.4},TX:{n:'Texas',lat:31.2,lng:-98.7},
@@ -300,18 +304,15 @@ const ORGS={
  o7:{n:'Pacific Tiles',y:3,c:55},o8:{n:'Peach State Players',y:1,c:14},o9:{n:'Blue Ridge Tiles',y:2,c:22}
 };
 const RAW=[
- {id:'lowcountry-open-play',title:'Lowcountry Open Play',type:'open',style:'American (NMJL)',date:'2026-11-17',time:'18:30',dur:3,weekly:'Tuesday',org:'o1',venue:'Magnolia Community Center',city:'Charleston',st:'SC',lat:32.7876,lng:-79.9403,price:0,beginner:true,tz:'ET',desc:'Drop in and play. Tables form as people arrive, and there are always a few friendly faces to seat you.'},
  {id:'columbia-beginner-lesson',title:'Beginner Lesson Night',type:'lesson',style:'American (NMJL)',date:'2026-11-19',time:'18:00',dur:2,org:'o2',venue:'The Tile Room',city:'Columbia',st:'SC',lat:34.0007,lng:-81.0348,price:25,beginner:true,spots:6,tz:'ET',refund:'Full refund up to 48 hours before the lesson.',desc:'Learn the card, the tiles and how a game flows. Sets are provided.'},
  {id:'brooklyn-mahj-night',title:'Brooklyn Mahj Night',type:'social',style:'American (NMJL)',date:'2026-11-20',time:'19:00',dur:3,org:'o6',venue:'Gowanus Social Hall',city:'Brooklyn',st:'NY',lat:40.6782,lng:-73.9442,price:15,tz:'ET',reports:3,desc:'Cocktails, snacks and a few rounds with new friends.'},
  {id:'greenville-riichi-social',title:'Riichi Social',type:'social',style:'Riichi',date:'2026-11-21',time:'14:00',dur:4,org:'o9',venue:'Host’s home',city:'Greenville',st:'SC',lat:34.8526,lng:-82.394,price:0,tz:'ET',privateAddr:true,desc:'A relaxed afternoon of riichi for people who know the basics. Tea provided.'},
- {id:'mimosas-brunch',title:'Mahjong & Mimosas Brunch',type:'social',style:'American (NMJL)',date:'2026-11-22',time:'11:00',dur:3,org:'o1',venue:'Harbor Hotel Ballroom',city:'Charleston',st:'SC',lat:32.7765,lng:-79.9311,price:30,beginner:true,spots:9,tz:'ET',refund:'Refundable until 7 days before. After that, you can give your spot to a friend.',desc:'Brunch, bubbles and a few relaxed games. Beginners welcome.'},
  {id:'savannah-open-play',title:'Savannah Open Play',type:'open',style:'American (NMJL)',date:'2026-11-23',time:'18:00',dur:3,weekly:'Monday',org:'o8',venue:'Forsyth Cafe Back Room',city:'Savannah',st:'GA',lat:32.0809,lng:-81.0912,price:0,beginner:true,tz:'ET',desc:'A friendly weekly table. Sets provided.'},
  {id:'atlanta-lesson-series',title:'Atlanta Beginner Lesson Series',type:'lesson',style:'American (NMJL)',date:'2026-11-28',time:'10:00',dur:2,org:'o8',venue:'Peachtree Rec Center',city:'Atlanta',st:'GA',lat:33.749,lng:-84.388,price:40,beginner:true,spots:4,tz:'ET',refund:'Refundable until the first class.',desc:'Four Saturdays, one class each. Learn at your own pace.'},
  {id:'hill-country-lesson',title:'Chinese Official Rules Intro',type:'lesson',style:'Chinese official',date:'2026-12-02',time:'18:30',dur:2,org:'o5',venue:'Alamo Library Annex',city:'San Antonio',st:'TX',lat:29.4241,lng:-98.4936,price:20,tz:'CT',desc:'A first look at Chinese official rules, scoring and etiquette.'},
  {id:'asheville-social',title:'Asheville Mahj Social',type:'social',style:'American (NMJL)',date:'2026-12-03',time:'17:30',dur:3,org:'o9',venue:'Blue Ridge Brewing Taproom',city:'Asheville',st:'NC',lat:35.5951,lng:-82.5515,price:0,tz:'ET',desc:'Casual tables at a local taproom. Walk-ins welcome.'},
  {id:'naples-weekend',title:'Naples Tournament Weekend',type:'tournament',style:'American (NMJL)',date:'2026-12-05',time:'09:00',dur:8,org:'o4',venue:'Gulfshore Convention Center',city:'Naples',st:'FL',lat:26.142,lng:-81.7948,price:120,spots:20,tz:'ET',reports:1,refund:'Full refund up to 14 days before. 50% up to 3 days before.',desc:'Six rounds over one day, with lunch included.'},
  {id:'charlotte-marathon',title:'Charlotte Mahj Marathon',type:'tournament',style:'American (NMJL)',date:'2026-12-12',time:'09:30',dur:8,org:'o9',venue:'Queen City Event Hall',city:'Charlotte',st:'NC',lat:35.2271,lng:-80.8431,price:60,spots:15,tz:'ET',refund:'Refundable up to 10 days before.',desc:'A one-day tournament for all levels, with prizes for the top tables.'},
- {id:'austin-riichi',title:'Austin Riichi Meetup',type:'open',style:'Riichi',date:'2026-11-18',time:'19:00',dur:3,weekly:'Wednesday',org:'o5',venue:'Eastside Game Cafe',city:'Austin',st:'TX',lat:30.2672,lng:-97.7431,price:0,tz:'CT',desc:'A weekly riichi table. Newcomers welcome, rules explained as we go.'},
  {id:'la-riichi',title:'LA Riichi Open Play',type:'open',style:'Riichi',date:'2026-11-19',time:'19:00',dur:3,weekly:'Thursday',org:'o7',venue:'Silver Lake Game Lounge',city:'Los Angeles',st:'CA',lat:34.0522,lng:-118.2437,price:5,tz:'PT',desc:'Weekly riichi at a game lounge. Small cover charge for the table.'},
  {id:'columbia-sunday',title:'Sunday Open Play',type:'open',style:'American (NMJL)',date:'2026-11-22',time:'14:00',dur:3,weekly:'Sunday',org:'o2',venue:'The Tile Room',city:'Columbia',st:'SC',lat:34.0007,lng:-81.0348,price:0,beginner:true,tz:'ET',desc:'Sunday afternoon games. Bring a friend or come on your own.'},
  {id:'hh-tournament',title:'Hilton Head Island Tournament',type:'tournament',style:'American (NMJL)',date:'2027-01-16',time:'08:30',dur:9,org:'o3',venue:'Island Resort Ballroom',city:'Hilton Head Island',st:'SC',lat:32.2163,lng:-80.7526,price:75,spots:28,tz:'ET',refund:'Full refund up to 21 days before.',desc:'A scenic one-day tournament with lunch and prizes.'},
@@ -321,6 +322,8 @@ const RAW=[
  {id:'cruise-week',title:'Mahjong Cruise Week',type:'cruise',style:'American (NMJL)',date:'2027-04-04',allDay:true,days:7,org:'o4',venue:'Departs from PortMiami',city:'Miami',st:'FL',lat:25.7743,lng:-80.17,price:1299,tz:'ET',refund:'Per the cruise line: refundable until 90 days before sailing.',desc:'Seven nights, daily play and lessons, with a final-day tournament.'},
  {id:'pacific-cruise',title:'Pacific Coast Mahjong Cruise',type:'cruise',style:'American (NMJL)',date:'2027-05-16',allDay:true,days:5,org:'o7',venue:'Departs from Port of Los Angeles',city:'San Pedro',st:'CA',lat:33.7361,lng:-118.2923,price:1799,tz:'PT',refund:'Per the cruise line: refundable until 75 days before sailing.',desc:'Five nights up the coast with lessons and a tournament at sea.'}
 ];
+/* real listings (Austin + Charleston), generated by tools/build_real_events.py */
+(window.REAL_EVENTS||[]).forEach(e=>{ORGS[e.org]=ORGS[e.org]||{n:e.orgName,real:true};RAW.push(e)});
 const ALL=[];
 RAW.forEach(e=>{
   if(e.weekly){
@@ -386,8 +389,8 @@ function filtered(ignoreDay){
 function fmtDay(s,long){const d=parse(s);return long?DOW[d.getDay()]+', '+MON[d.getMonth()]+' '+d.getDate():DS[d.getDay()]+', '+MS[d.getMonth()]+' '+d.getDate()}
 function timeText(e){
   if(e.allDay){const end=iso(addDays(parse(e.date),e.days));return fmtDay(e.date)+' to '+fmtDay(end)+' ('+e.days+' nights)'}
-  const [h,m]=e.time.split(':').map(Number);const eh=h+e.dur;
-  return fmtDay(e.date)+' · '+t12(e.time)+'–'+t12(pad(eh%24)+':'+pad(m))+' '+e.tz;
+  const [h,m]=e.time.split(':').map(Number);const tot=Math.round(h*60+m+e.dur*60);
+  return fmtDay(e.date)+' · '+t12(e.time)+'–'+t12(pad(Math.floor(tot/60)%24)+':'+pad(tot%60))+' '+e.tz;
 }
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2200)}
 
@@ -588,26 +591,25 @@ function detailHTML(e){
   const where=e.privateAddr?`${esc(e.city)}, ${e.st}<br><span class="meta">The host shares the exact address privately. Message them for it.</span>`:`${esc(e.venue)}<br>${esc(e.city)}, ${e.st}`;
   const added=!!S.added[e.uid];
   return `
-  <div class="dhead"><button class="dback" data-a="closedetail">‹ All events</button><span class="sp"></span><button class="btn sm" data-a="copy">Copy link</button></div>
+  <div class="dhead"><button class="dback" data-a="closedetail">‹ All events</button><span class="sp"></span><button class="iconbtn" data-a="copy" aria-label="Copy link" title="Copy link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg></button></div>
   <div class="dbody">
     ${banner}
-    <div class="tags" style="margin:0"><span class="tag">${t.g} ${tagLabel(e)}</span><span class="tag">${e.style}</span>${e.beginner?'<span class="tag">Beginner friendly</span>':''}${e.rec?`<span class="tag soft">Every ${DOW[parse(e.date).getDay()]}</span>`:''}</div>
+    <div class="tags" style="margin:0"><span class="tag">${t.g} ${tagLabel(e)}</span><span class="tag">${e.style}</span>${e.beginner?'<span class="tag">Beginner friendly</span>':''}${e.rec?`<span class="tag">Every ${DOW[parse(e.date).getDay()]}</span>`:''}</div>
     <h1 class="dtitle">${esc(e.title)}</h1>
-    <div class="sec"><dl class="kv"><dt>When</dt><dd>${timeText(e)}</dd><dt>Where</dt><dd>${where}</dd><dt>Cost</dt><dd>${money(e.price)}${e.spots?' · '+e.spots+' spots left':''}</dd></dl>
+    <div class="sec"><dl class="kv"><dt>When</dt><dd>${timeText(e)}</dd><dt>Where</dt><dd>${where}</dd><dt>Cost</dt><dd>${e.priceUnknown?'See the organizer':money(e.price)}${e.priceNote&&e.priceNote!==('$'+e.price)?' <span class="meta">('+esc(e.priceNote)+')</span>':''}${e.soldOut?' · <b>Sold out</b>':e.spots?' · '+e.spots+' spots left':''}</dd></dl>
       <div id="emap" role="img" aria-label="Map of the event location"></div>
-      <a class="btn full" href="${dirUrl(e)}" target="_blank" rel="noopener">Get directions ↗</a></div>
-    <div class="sec"><h2>About</h2><p>${esc(e.desc)}</p></div>
+      <a class="dirlink" href="${dirUrl(e)}" target="_blank" rel="noopener">Get directions ↗</a></div>
+    <div class="sec"><h2>About</h2><p>${esc(e.desc)}</p>${e.real&&!e.verified?'<p class="meta" style="margin-top:6px">Date and time come from a search result and have not been confirmed on the organizer’s page.</p>':''}${!e.real?'<p class="meta" style="margin-top:6px">Sample listing for this prototype.</p>':''}</div>
     ${e.refund?`<div class="sec"><h2>Refunds</h2><p>${esc(e.refund)}</p><p class="meta" style="margin-top:6px">As stated by the organizer. Mahjong USA does not handle payments.</p></div>`:''}
     ${e.code?`<div class="sec"><h2>Discount code</h2><p><span class="codebox">${e.code}</span>${esc(e.codeNote||'')}</p><p class="meta" style="margin-top:6px">Enter it at registration on the organizer’s site.</p></div>`:''}
     <div class="sec"><h2>Good to know</h2>${faq.map(([q,a])=>`<details><summary>${q}</summary><p>${a}</p></details>`).join('')}</div>
-    <div class="sec"><h2>Organizer</h2><div class="org"><div class="avatar">${o.n[0]}</div><div><b>${o.n}</b><div class="meta">${o.y} years on Mahjong USA · ${o.c} events listed</div></div></div></div>
-    <div class="sec"><p class="meta">Last checked Nov 16, 2026 · <button class="linkbtn" data-a="report">${mine?'You reported this':'Report a problem'}</button> · <button class="linkbtn" data-a="soon" data-v="Demo: this would email the Mahjong USA team">Is this your event? Fix or remove it</button></p></div>
-    ${hostEvents.length?`<div class="sec"><h2>More from ${o.n}</h2><div class="hostlist">${hostEvents.map(hostRow).join('')}</div></div>`:''}
+    <div class="sec"><h2>Organizer</h2><div class="org"><div class="avatar">${o.n[0]}</div><div><b>${o.n}</b><div class="meta">${o.real?'Listed from a public page · organizers can claim their listing':o.y+' years on Mahjong USA · '+o.c+' events listed'}</div></div></div></div>
+    <div class="sec"><p class="meta">${e.real?'Pulled from the organizer’s public page Nov 17, 2026'+(e.url?' · <a href="'+esc(e.url)+'" target="_blank" rel="noopener">Source ↗</a>':''):'Last checked Nov 16, 2026'} · <button class="linkbtn" data-a="report">${mine?'You reported this':'Report a problem'}</button></p></div>
   </div>
   <div class="dbar">
     <div class="popwrap"><button class="btn ${S.calOpen?'':'pri'}" data-a="calmenu">${added?'✓ Added · ':''}Add to calendar ▾</button>
     ${S.calOpen?`<div class="calmenu"><a data-a="gcal" data-v="${e.uid}" href="${googleUrl(e)}" target="_blank" rel="noopener">Google Calendar</a><button data-a="ics">Apple Calendar (.ics)</button><button data-a="ics">Outlook (.ics)</button></div>`:''}</div>
-    <a class="btn" href="javascript:void 0" data-a="soon" data-v="Demo: opens the organizer’s registration page">${e.price===0?'Details':'Register'} ↗</a>
+    ${e.real&&e.url?`<a class="btn ghost" href="${esc(e.url)}" target="_blank" rel="noopener">${e.soldOut?'Sold out · view page':(e.price===0?'Details':'Register')} ↗</a>`:`<a class="btn ghost" href="javascript:void 0" data-a="soon" data-v="Demo: opens the organizer’s registration page">${e.price===0?'Details':'Register'} ↗</a>`}
   </div>`;
 }
 
