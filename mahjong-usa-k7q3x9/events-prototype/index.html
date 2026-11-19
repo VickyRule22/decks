@@ -227,6 +227,34 @@ details p{margin-top:6px;color:var(--mute);font-size:14px}
 .dbar>.btn{flex:1}
 .dbar .calmenu{left:0;right:0}
 .dbar .added{font-size:13px;color:var(--mute)}
+/* vertical rhythm: one 4px-based scale (4 8 12 16 24 32) so spacing can be retuned in one place when branding lands */
+:root{--s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px}
+.plist{padding:var(--s5) 20px 48px}
+.chips{gap:var(--s2);margin:0 0 var(--s5)}
+.chip{padding:6px 12px;font-size:13.5px;line-height:1.2}
+.lh{margin:0 0 var(--s1)}
+.dg{margin:var(--s5) 0 var(--s1);line-height:1.2}
+.lh + .dg{margin-top:var(--s3)}
+.lr{padding:var(--s3) 32px var(--s3) var(--s3);margin:0 calc(var(--s3) * -1);line-height:1.35}
+.lr b{display:block;font-size:16px;line-height:1.3}
+.lr .rm{margin-top:var(--s1);line-height:1.35}
+.ck{top:var(--s3);right:var(--s3)}
+.nearest{margin:0 0 var(--s4);padding:var(--s4)}
+.dbody{padding:var(--s5) 20px var(--s6)}
+.dbody .tags{margin:0 0 var(--s3)!important}
+.dtitle{margin:0 0 var(--s5);line-height:1.12}
+.kv{gap:var(--s3) var(--s4);margin:0 0 var(--s4)}
+.dbody #emap{margin:0 0 var(--s3)}
+.dirlink{margin:0}
+.dbody .sec{margin:0 0 var(--s6)}
+.dbody .sec:first-of-type{margin-bottom:var(--s6)}
+.sec h2{margin:0 0 var(--s2)}
+.dbody .sec p{line-height:1.5}
+details{padding:var(--s3) 0}
+.dhead{padding:var(--s2) var(--s3)}
+.dbar{padding:var(--s3) var(--s4)}
+.banner{margin:0 0 var(--s4)}
+
 @media(min-width:901px){
   html,body{height:100%}
   body{display:flex;flex-direction:column;overflow:hidden}
@@ -242,7 +270,7 @@ details p{margin-top:6px;color:var(--mute);font-size:14px}
   .split{display:flex;flex-direction:column}
   .stage{order:1;padding:12px 16px;overflow:visible}
   .panel{order:2;border-right:0;overflow:visible}
-  .plist{padding:6px 16px 40px}
+  .plist{padding:var(--s4) 16px 40px}
   .panel.detail{position:fixed;inset:0;z-index:1500;overflow-y:auto;border:0}
   body.lock{overflow:hidden}
   .grid{grid-template-rows:none!important;grid-auto-rows:minmax(54px,auto)}
@@ -270,6 +298,7 @@ details p{margin-top:6px;color:var(--mute);font-size:14px}
 <div id="toast"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="data/real-events.js"></script>
 <script>/* ---------- helpers ---------- */
 const TODAY=new Date(2026,10,17);
 const MON=['January','February','March','April','May','June','July','August','September','October','November','December'];
