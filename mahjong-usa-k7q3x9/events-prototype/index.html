@@ -105,7 +105,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .day.sel{background:#f0f0ec;box-shadow:inset 0 0 0 2px var(--ink)}
 .dn{font-size:13px;font-weight:600;width:26px;height:26px;border-radius:50%;display:grid;place-items:center}
 .day.today .dn{background:var(--ink);color:#fff}
-.pips{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.pips{display:none;gap:5px;flex-wrap:wrap;align-items:center}
 .pip{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--ink);text-decoration:none;color:var(--ink)}
 .pip:hover{transform:scale(1.25)}
 .pip.nx{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--ink)}
@@ -171,7 +171,7 @@ details p{margin-top:6px;color:var(--mute);font-size:14px}
 .opt .ot small{font-size:12px;color:#595959;font-weight:400;margin-top:1px}
 .calhead button:disabled{opacity:.35;cursor:default}
 .seen .tt,.card h3.seen{color:#4b2f99}
-.cnt{font-size:13px;color:#555}
+.cnt{display:none}
 :focus-visible{outline:3px solid #4b2f99;outline-offset:2px}
 .day:focus-visible{outline-offset:-3px}
 .iconbtn{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:#fff;display:grid;place-items:center}
@@ -180,6 +180,18 @@ details p{margin-top:6px;color:var(--mute);font-size:14px}
 .dbar>.btn.ghost{border-color:transparent;background:none;flex:0 0 auto;width:auto;text-decoration:underline}
 .searcharea{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:1000;background:#fff;color:var(--ink);border:1px solid var(--ink);border-radius:999px;padding:8px 16px;font-weight:700;font-size:14px;box-shadow:0 4px 14px rgba(0,0,0,.2)}
 .searcharea:hover{background:var(--gray)}
+.pills{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pill{display:flex;gap:5px;align-items:baseline;height:20px;padding:0 6px;border-radius:5px;background:var(--gray);font-size:12px;line-height:20px;text-decoration:none;color:var(--ink);overflow:hidden;white-space:nowrap}
+.pill:hover{background:#e4e4e0}
+.pill .pt{flex:none;color:#555;font-weight:600}
+.pill .ttl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.pill[hidden]{display:none}
+.pill.cu{background:var(--ink);color:#fff}.pill.cu .pt{color:#ddd}
+.pill.seen .ttl{color:#4b2f99}.pill.cu.seen .ttl{color:#fff}
+.pill .ck2{flex:none;font-weight:800}
+.pills .more{font-size:12px;font-weight:600;background:none;border:0;text-align:left;padding:0 6px;height:18px;color:#555}
+.pills .more:hover{text-decoration:underline}
+.legend .lg-dot{display:none}
 .foot{border-top:1px solid var(--line);padding:28px 0 60px;color:var(--mute);font-size:14px}
 
 /* cards (inside overlay lists) */
@@ -278,7 +290,9 @@ details{padding:var(--s3) 0}
   .grid{grid-template-rows:none!important;grid-auto-rows:minmax(54px,auto)}
   .day{padding:4px 2px;align-items:center;gap:4px}
   .cnt{display:none}
-  .pips{justify-content:center;gap:3px}
+  .pips{display:flex;justify-content:center;gap:3px}
+  .pills{display:none!important}
+  .lg-dot{display:inline-flex!important}
   .pip{width:9px;height:9px}
   .dow{padding:6px 2px;text-align:center;font-size:11px}
   .calhead h3{font-size:20px}
@@ -506,7 +520,7 @@ function listHTML(nx,cur){
 function calHTML(nx,cur){
   const {y,m}=S.month;const first=new Date(y,m,1);const start=addDays(first,-first.getDay());
   const dim=new Date(y,m+1,0).getDate();const rows=Math.ceil((first.getDay()+dim)/7);
-  const byDay={};filtered(true).forEach(e=>{(byDay[e.date]=byDay[e.date]||[]).push(e)});
+  const byDay={};filtered(true).forEach(e=>{(byDay[e.date]=byDay[e.date]||[]).push(e)});S.byDayCount={};Object.keys(byDay).forEach(k=>S.byDayCount[k]=byDay[k].length);
   let cells=DS.map(d=>`<div class="dow">${d}</div>`).join('');
   const curMonth=(y===TODAY.getFullYear()&&m===TODAY.getMonth());
   const skip=curMonth?Math.floor((first.getDay()+TODAY.getDate()-1)/7):0;
@@ -516,13 +530,30 @@ function calHTML(nx,cur){
     let cls='day';if(d.getMonth()!==m)cls+=' out';if(ds<TISO)cls+=' past';if(ds===TISO)cls+=' today';if(S.day===ds)cls+=' sel';
     const pips=evs.slice(0,6).map(e=>`<a class="pip${nx&&nx.uid===e.uid?' nx':''}${cur&&cur.uid===e.uid?' cu':''}${S.added[e.uid]?' ad':''}" href="#event-${e.uid}" title="${esc(e.title)}" tabindex="-1" aria-hidden="true">${S.added[e.uid]?'✓':''}</a>`).join('');
     const cnt=evs.length?`<span class="cnt">${evs.length} ${evs.length===1?'game':'games'}</span>`:'';
+    const pills=evs.slice(0,10).map(e=>`<a class="pill${cur&&cur.uid===e.uid?' cu':''}${S.seen[e.uid]?' seen':''}" href="#event-${e.uid}" title="${esc(e.title)}" tabindex="-1" aria-hidden="true">${S.added[e.uid]?'<span class="ck2">\u2713</span>':''}${e.allDay?'':'<span class="pt">'+shortT(e.time)+'</span>'}<span class="ttl">${esc(e.title)}</span></a>`).join('');
     const lab=fmtDay(ds,true)+(evs.length?', '+evs.length+(evs.length===1?' game':' games'):', no games');
     const act=!evs.length?'':(evs.length===1?` data-a="goev" data-v="${evs[0].uid}"`:` data-a="day" data-v="${ds}"`)+` role="button" tabindex="0" aria-label="${esc(lab)}"`;
     if(evs.length)cls+=' has';
-    cells+=`<div class="${cls}"${act}><span class="dn">${d.getDate()}</span><div class="pips">${pips}</div>${cnt}</div>`;
+    cells+=`<div class="${cls}" data-day="${ds}"${act}><span class="dn">${d.getDate()}</span><div class="pills">${pills}</div><div class="pips">${pips}</div>${cnt}</div>`;
   }
-  return `<div class="calwrap"><div class="calhead"><h3>${MON[m]} ${y}</h3><button data-a="month" data-v="-1" aria-label="Previous month" ${curMonth?'disabled':''}>‹</button><button data-a="month" data-v="1" aria-label="Next month">›</button></div><div class="legend" aria-label="Key"><span><i class="pip"></i> a game</span><span><i class="pip ad">\u2713</i> on your calendar</span><span><b class="vis">Purple</b> = you\u2019ve opened it</span></div><div class="grid" style="grid-template-rows:auto repeat(${shown},minmax(76px,1fr))">${cells}</div></div>`;
+  return `<div class="calwrap"><div class="calhead"><h3>${MON[m]} ${y}</h3><button data-a="month" data-v="-1" aria-label="Previous month" ${curMonth?'disabled':''}>‹</button><button data-a="month" data-v="1" aria-label="Next month">›</button></div><div class="legend" aria-label="Key"><span class="lg-dot"><i class="pip"></i> a game</span><span><i class="pip ad">\u2713</i> on your calendar</span><span><b class="vis">Purple</b> = you\u2019ve opened it</span></div><div class="grid" style="grid-template-rows:auto repeat(${shown},minmax(100px,1fr))">${cells}</div></div>`;
 }
+function fitPills(){
+  if(innerWidth<=900)return;
+  document.querySelectorAll('.day.has').forEach(c=>{
+    const box=c.querySelector('.pills');if(!box)return;
+    box.querySelector('.more')?.remove();
+    const pills=[...box.querySelectorAll('.pill')];pills.forEach(p=>p.hidden=false);
+    const avail=c.clientHeight-c.querySelector('.dn').offsetHeight-18;
+    const slots=Math.max(1,Math.floor((avail+2)/22));
+    const total=(S.byDayCount&&S.byDayCount[c.dataset.day])||pills.length;
+    if(total>slots){
+      const keep=Math.max(1,slots-1);pills.forEach((p,i)=>p.hidden=i>=keep);
+      const b=document.createElement('button');b.className='more';b.dataset.a='day';b.dataset.v=c.dataset.day;b.textContent=(total-keep)+' more';box.appendChild(b);
+    }
+  });
+}
+window.addEventListener('resize',()=>{clearTimeout(fitPills.t);fitPills.t=setTimeout(fitPills,100)});
 function placeCount(p){const ids=new Set();ALL.forEach(e=>{if(e.type!=='cruise'&&passBase(e)&&inPlace(e,p))ids.add(e.id)});return ids.size}
 function sug(p,i,pre){const n=placeCount(p);return `<button class="opt" data-a="pick" data-v="${i}">${pre||''}${esc(p.label)}<span>${n?n+' '+(n===1?'game':'games'):'No games yet'}</span></button>`}
 function suggestHTML(q){
@@ -716,6 +747,7 @@ function render(){
   S.lastUid=ev?ev.uid:null;
   if(innerWidth<=900)scrollTo(0,y);
   const pq=document.getElementById('placeq');if(pq)pq.focus();
+  fitPills();
 }
 window.addEventListener('hashchange',()=>{S.pop=null;S.calOpen=false;S.modal=null;render()});
 
