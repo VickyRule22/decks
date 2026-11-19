@@ -599,14 +599,14 @@ function modalHTML(){
 /* ---------- toolbar popovers + home ---------- */
 const TYPE_HELP={open:'Drop in and play, no sign-up',social:'Games with food, drinks and friends',lesson:'Learn how to play',tournament:'Competitive, often with prizes',cruise:'Trips with mahjong built in'};
 const STYLE_HELP={'American (NMJL)':'The card-based game most played in the US','Riichi':'Japanese style, with riichi calls','Chinese official':'Tournament rules used worldwide'};
-function typeLabel(){const n=S.types.size;if(n===ALLTYPES.length)return 'All game types';if(n===1)return TYPES[[...S.types][0]].label;return n+' types'}
+function typeLabel(){const n=S.types.size;if(n===0)return 'No game types';if(n===ALLTYPES.length)return 'All game types';if(n===1)return TYPES[[...S.types][0]].label;return n+' types'}
 function popHTML(which){
   if(S.pop!==which)return '';
   if(which==='where'){
     return `<div class="pop popw"><input id="placeq" class="placeq" placeholder="City, state or ZIP" autocomplete="off" aria-label="City, state or ZIP"><div id="sugg">${suggestHTML('')}</div></div>`;
   }
   if(which==='type'){
-    return `<div class="pop"><h4>Show</h4>${ALLTYPES.map(k=>`<button class="opt chkopt ${S.types.has(k)?'on':''}" data-a="type" data-v="${k}" role="checkbox" aria-checked="${S.types.has(k)}"><i class="bx"></i><span class="ot">${TYPES[k].label}<small>${TYPE_HELP[k]}</small></span></button>`).join('')}<hr><button class="opt selall" data-a="typeall">Select all</button></div>`;
+    return `<div class="pop"><h4>Show</h4>${ALLTYPES.map(k=>`<button class="opt chkopt ${S.types.has(k)?'on':''}" data-a="type" data-v="${k}" role="checkbox" aria-checked="${S.types.has(k)}"><i class="bx"></i><span class="ot">${TYPES[k].label}<small>${TYPE_HELP[k]}</small></span></button>`).join('')}<hr><button class="opt selall" data-a="typeall">${S.types.size===ALLTYPES.length?'Deselect all':'Select all'}</button></div>`;
   }
   if(which==='filters'){
     return `<div class="pop"><h4>Rules</h4><button class="opt ${S.style==='any'?'sel':''}" data-a="style" data-v="any">Any style</button>${STYLES.map(s=>`<button class="opt ${S.style===s?'sel':''}" data-a="style" data-v="${s}"><span class="ot">${s}<small>${STYLE_HELP[s]}</small></span></button>`).join('')}<hr><h4>Cost</h4>${[['any','Any price'],['free','Free'],['paid','Paid']].map(([k,l])=>`<button class="opt ${S.cost===k?'sel':''}" data-a="cost" data-v="${k}">${l}</button>`).join('')}<hr><button class="opt" data-a="clear">Reset all filters</button></div>`;
@@ -670,7 +670,7 @@ function detailHTML(e){
     ${e.refund?`<div class="sec"><h2>Refunds</h2><p>${esc(e.refund)}</p><p class="meta" style="margin-top:6px">As stated by the organizer. Mahjong USA does not handle payments.</p></div>`:''}
     ${e.code?`<div class="sec"><h2>Discount code</h2><p><span class="codebox">${e.code}</span>${esc(e.codeNote||'')}</p><p class="meta" style="margin-top:6px">Enter it at registration on the organizer’s site.</p></div>`:''}
     <div class="sec"><h2>Good to know</h2>${faq.map(([q,a])=>`<details><summary>${q}</summary><p>${a}</p></details>`).join('')}</div>
-    <div class="sec"><h2>Organizer</h2><div class="org"><div class="avatar">${o.n[0]}</div><div><b>${o.n}</b><div class="meta">Listed from a public page</div></div></div></div>
+    <div class="sec"><h2>Organizer</h2><div class="org"><div class="avatar">${o.n[0]}</div><div><b>${o.n}</b><div class="meta">Listed from a public page</div></div></div><p class="meta" style="margin-top:10px">Is this your event? <button class="linkbtn" data-a="claim">Claim the listing</button> to keep it fresh, add details and get found by more players.</p></div>
     <div class="sec"><p class="meta">Pulled from the organizer’s public page ${fmtPulled(e.pulled)}${e.url?' · <a href="'+esc(e.url)+'" target="_blank" rel="noopener">Source ↗</a>':''} · <button class="linkbtn rep ${mine?'on':''}" data-a="${mine?'unreport':'report'}" aria-pressed="${mine}">${mine?'✓ Reported':'Report a problem'}</button></p></div>
   </div>
   <div class="dbar">
@@ -785,8 +785,9 @@ document.addEventListener('click',ev=>{
   if(a==='pick'){setPlace(PLACES[Number(v)]);return}
   if(a==='allstates'){setPlace({kind:'all',label:'All states'});return}
   if(a==='geo'){if(!navigator.geolocation){toast('Location is not available here');return}navigator.geolocation.getCurrentPosition(pos=>{const me={lat:pos.coords.latitude,lng:pos.coords.longitude};const cities=PLACES.filter(p=>p.kind==='city');cities.sort((x,y)=>dist(me,x)-dist(me,y));if(cities.length){setPlace(cities[0]);toast('Using '+cities[0].label)}},()=>toast('Could not get your location. Type a city instead.'));return}
-  if(a==='type'){if(S.types.has(v))S.types.delete(v);else S.types.add(v);if(!S.types.size)S.types=new Set(ALLTYPES);S.day=null;render();return}
-  if(a==='typeall'){S.types=new Set(ALLTYPES);S.day=null;render();return}
+  if(a==='type'){if(S.types.has(v))S.types.delete(v);else S.types.add(v);S.day=null;render();return}
+  if(a==='claim'){toast('Claiming comes next: we email the host a one-tap link to verify');return}
+  if(a==='typeall'){S.types=S.types.size===ALLTYPES.length?new Set():new Set(ALLTYPES);S.day=null;render();return}
   if(a==='style'){S.style=v;S.pop=null;render();return}
   if(a==='cost'){S.cost=v;S.pop=null;render();return}
   if(a==='view'){S.view=v;if(v==='calendar')S.area=null;render();return}
