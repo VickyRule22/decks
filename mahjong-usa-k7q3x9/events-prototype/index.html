@@ -618,7 +618,7 @@ function homeHTML(){
   const nx=nextUp();
   const nf=(S.style!=='any'?1:0)+(S.cost!=='any'?1:0);
   const P0=eff().place,near=P0.kind==='city'&&!S.mapWide&&!S.area;
-  const pane=S.view==='map'?(S.area?`<div class="mapnote">Showing games in this map area. <button class="linkbtn" data-a="cleararea">Back to ${esc(P0.label)}</button></div>`:P0.kind==='city'?`<div class="mapnote">${near?'Showing games within about an hour of '+esc(P0.label)+'.':'Showing every game in '+esc(P0.label)+' and beyond.'} <button class="linkbtn" data-a="mapwide">${near?'Show wider area':'Back to 1 hour'}</button></div>`:'')+'<div id="map" role="img" aria-label="Map of games. The same games are listed in the panel beside the map."></div>':calHTML(nx,cur);
+  const pane=S.view==='map'?(S.area?`<div class="mapnote">Showing games in this map area. <button class="linkbtn" data-a="cleararea">Back to ${esc(P0.label)}</button></div>`:'')+'<div id="map" role="img" aria-label="Map of games. The same games are listed in the panel beside the map."></div>':calHTML(nx,cur);
   const panel=cur
     ?`<section class="panel detail" aria-label="Event details">${detailHTML(cur)}</section>`
     :`<section class="panel" aria-label="Events list"><div class="plist">${listHTML(nx,cur)}</div></section>`;
