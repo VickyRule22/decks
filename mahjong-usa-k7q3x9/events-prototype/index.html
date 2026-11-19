@@ -655,7 +655,7 @@ function detailHTML(e){
   const where=e.privateAddr?`${esc(e.city)}, ${e.st}<br><span class="meta">The host shares the exact address privately. Message them for it.</span>`:`${esc(e.venue)}<br>${esc(e.city)}, ${e.st}`;
   const added=!!S.added[e.uid];
   return `
-  <div class="dhead"><button class="dback" data-a="closedetail">‹ All events</button><span class="sp"></span><button class="iconbtn" data-a="copy" aria-label="Copy link" title="Copy link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg></button></div>
+  <div class="dhead"><button class="dback" data-a="closedetail">‹ All events</button><span class="sp"></span><button class="iconbtn" data-a="copy" aria-label="Copy link" title="Copy link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="M8 7l4-4 4 4"/><path d="M8.5 10H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-1.5"/></svg></button></div>
   <div class="dbody">
     ${banner}
     <div class="tags" style="margin:0"><span class="tag">${t.g} ${tagLabel(e)}</span><span class="tag">${e.style}</span>${e.beginner?'<span class="tag">Beginner friendly</span>':''}${e.rec?`<span class="tag">Every ${DOW[parse(e.date).getDay()]}</span>`:''}</div>
