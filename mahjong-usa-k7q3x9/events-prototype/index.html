@@ -321,13 +321,13 @@ button,a,.day{touch-action:manipulation}
   .searcharea{top:12px}
   .calhead button{width:44px;height:44px}
 }
+button.rep.on{font-weight:700;text-decoration:none;background:#f3e3a6;border-radius:999px;padding:2px 10px}
 </style>
 </head>
 <body>
 <header class="top"><div class="wrap">
   <a class="brand" href="#home"><span class="mark">M</span>Mahjong USA</a>
   <nav class="nav">
-    <button data-a="submit" class="cta">Submit an event</button>
   </nav>
 </div></header>
 <main id="app"></main>
@@ -335,7 +335,7 @@ button,a,.day{touch-action:manipulation}
 <div id="toast"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="data/real-events.js"></script>
+<script>if(/[?&]real\b/.test(location.search))document.write('<script src="data/real-events.js"><\/script>')</script>
 <script>/* ---------- helpers ---------- */
 const TODAY=new Date(2026,10,17);
 const MON=['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -605,11 +605,8 @@ function modalHTML(){
   if(!S.modal)return '';
   if(S.modal==='report'){
     return `<div class="scrim" data-a="closemodal"><div class="modal" role="dialog" aria-modal="true" aria-label="Report a problem"><h3>Report a problem</h3><p>No sign-in needed. We’ll look at it.</p>
-    <form data-a="sendreport">${['The date or time is wrong','It was cancelled','The place is wrong','It looks like spam','Something else'].map((r,i)=>`<label class="radio"><input type="radio" name="r" value="${r}" ${i===0?'checked':''}>${r}</label>`).join('')}
-    <div class="row2" style="margin-top:12px"><button type="button" class="btn" data-a="closemodal">Cancel</button><button class="btn pri">Send report</button></div></form></div></div>`;
-  }
-  if(S.modal==='submit'){
-    return `<div class="scrim" data-a="closemodal"><div class="modal" role="dialog" aria-modal="true"><h3>Submit an event</h3><p>Coming next: paste a link, the text of your post, or a photo of your flyer, and we fill in the details for you to check. Your event goes through a quick review before it appears.</p><button class="btn pri full" data-a="closemodal">Got it</button></div></div>`;
+    <form data-a="sendreport">${['The date or time is wrong','It was cancelled','The place is wrong','It looks like spam','Other'].map((r,i)=>`<label class="radio"><input type="radio" name="r" value="${r}" ${i===0?'checked':''}>${r}</label>`).join('')}
+    <textarea name="note" rows="2" maxlength="200" placeholder="Optional: tell us more" style="width:100%;margin-top:8px;font:inherit;padding:8px;border:1px solid var(--line,#ccc);border-radius:8px"></textarea><div class="row2" style="margin-top:12px"><button type="button" class="btn" data-a="closemodal">Cancel</button><button class="btn pri">Send report</button></div></form></div></div>`;
   }
   return '';
 }
@@ -663,9 +660,9 @@ function detailHTML(e){
   const o=ORGS[e.org];const rc=reportCount(e);const mine=!!reportsMine()[e.id];
   const t=TYPES[e.type];
   let banner='';
-  if(rc===1)banner=`<div class="banner" role="status"><div><b>1 person reported a problem with this event.</b>Check the details with the organizer before you go.</div>${mine?'<button data-a="unreport">Undo my report</button>':''}</div>`;
+  if(rc===1)banner=`<div class="banner" role="status"><div><b>1 person reported a problem with this event.</b>Check the details with the organizer before you go.</div></div>`;
   else if(rc>=3)banner=`<div class="banner" role="status"><div><b>Several people reported a problem.</b>This event may be wrong or cancelled. Confirm with the organizer before you go.</div></div>`;
-  else if(rc===2)banner=`<div class="banner" role="status"><div><b>2 people reported a problem with this event.</b>Check the details with the organizer before you go.</div>${mine?'<button data-a="unreport">Undo my report</button>':''}</div>`;
+  else if(rc===2)banner=`<div class="banner" role="status"><div><b>2 people reported a problem with this event.</b>Check the details with the organizer before you go.</div></div>`;
   const uniq=(x,i,a)=>a.findIndex(y=>y.id===x.id)===i;
   const hostEvents=ALL.filter(x=>x.org===e.org&&x.id!==e.id&&x.date>=TISO).filter(uniq).slice(0,3);
   const faq=[
@@ -688,13 +685,13 @@ function detailHTML(e){
     ${e.refund?`<div class="sec"><h2>Refunds</h2><p>${esc(e.refund)}</p><p class="meta" style="margin-top:6px">As stated by the organizer. Mahjong USA does not handle payments.</p></div>`:''}
     ${e.code?`<div class="sec"><h2>Discount code</h2><p><span class="codebox">${e.code}</span>${esc(e.codeNote||'')}</p><p class="meta" style="margin-top:6px">Enter it at registration on the organizer’s site.</p></div>`:''}
     <div class="sec"><h2>Good to know</h2>${faq.map(([q,a])=>`<details><summary>${q}</summary><p>${a}</p></details>`).join('')}</div>
-    <div class="sec"><h2>Organizer</h2><div class="org"><div class="avatar">${o.n[0]}</div><div><b>${o.n}</b><div class="meta">${o.real?'Listed from a public page · organizers can claim their listing':o.y+' years on Mahjong USA · '+o.c+' events listed'}</div></div></div></div>
-    <div class="sec"><p class="meta">${e.real?'Pulled from the organizer’s public page Nov 17, 2026'+(e.url?' · <a href="'+esc(e.url)+'" target="_blank" rel="noopener">Source ↗</a>':''):'Last checked Nov 16, 2026'} · <button class="linkbtn" data-a="report">${mine?'You reported this':'Report a problem'}</button></p></div>
+    <div class="sec"><h2>Organizer</h2><div class="org"><div class="avatar">${o.n[0]}</div><div><b>${o.n}</b><div class="meta">${o.real?'Listed from a public page':o.y+' years on Mahjong USA · '+o.c+' events listed'}</div></div></div></div>
+    <div class="sec"><p class="meta">${e.real?'Pulled from the organizer’s public page Nov 17, 2026'+(e.url?' · <a href="'+esc(e.url)+'" target="_blank" rel="noopener">Source ↗</a>':''):'Last checked Nov 16, 2026'} · <button class="linkbtn rep ${mine?'on':''}" data-a="${mine?'unreport':'report'}" aria-pressed="${mine}">${mine?'✓ Reported':'Report a problem'}</button></p></div>
   </div>
   <div class="dbar">
     <div class="popwrap"><button class="btn ${S.calOpen?'':'pri'}" data-a="calmenu">${added?'✓ Added · ':''}Add to calendar ▾</button>
     ${S.calOpen?`<div class="calmenu"><a data-a="gcal" data-v="${e.uid}" href="${googleUrl(e)}" target="_blank" rel="noopener">Google Calendar</a><button data-a="ics">Apple Calendar (.ics)</button><button data-a="ics">Outlook (.ics)</button></div>`:''}</div>
-    ${e.real&&e.url?`<a class="btn ghost" href="${esc(e.url)}" target="_blank" rel="noopener">${e.soldOut?'Sold out · view page':(e.price===0?'Details':'Register')} ↗</a>`:`<a class="btn ghost" href="javascript:void 0" data-a="soon" data-v="Demo: opens the organizer’s registration page">${e.price===0?'Details':'Register'} ↗</a>`}
+    ${e.real&&e.url?`<a class="btn ghost" href="${esc(e.url)}" target="_blank" rel="noopener">${e.soldOut?'Sold out · view page':(e.price===0?'Details':'Register')} ↗</a>`:''}
   </div>`;
 }
 
@@ -785,7 +782,7 @@ document.addEventListener('submit',ev=>{
   const f=ev.target.closest('form[data-a]');if(!f)return;ev.preventDefault();
   if(f.dataset.a==='sendreport'){
     const e=eventFromHash();if(!e)return;
-    const r=reportsMine();r[e.id]=true;lsSet('mj-reports',r);S.modal=null;render();toast('Thanks. We’ll take a look.');
+    const r=reportsMine();const fd=new FormData(f);r[e.id]={reason:fd.get('r'),note:(fd.get('note')||'').trim()};lsSet('mj-reports',r);S.modal=null;render();toast('Reported. Tap again to undo.');
   }
 });
 document.addEventListener('click',ev=>{
@@ -816,14 +813,12 @@ document.addEventListener('click',ev=>{
   if(a==='when'){S.when=v;S.day=null;render();return}
   if(a==='clear'){S.area=null;S.types=new Set(ALLTYPES);S.style='any';S.cost='any';S.when='any';S.day=null;S.pop=null;render();return}
   if(a==='closedetail'){go('#home');return}
-  if(a==='submit'){S.modal='submit';render();return}
   if(a==='report'){S.modal='report';render();return}
-  if(a==='unreport'){const e=eventFromHash();if(e){const r=reportsMine();delete r[e.id];lsSet('mj-reports',r);render();toast('Report removed')}return}
+  if(a==='unreport'){const e=eventFromHash();if(e){const r=reportsMine();delete r[e.id];lsSet('mj-reports',r);render();toast('Report withdrawn')}return}
   if(a==='copy'){const u=location.href;(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast('Link copied'),()=>toast('Copy this link: '+u));return}
   if(a==='calmenu'){S.calOpen=!S.calOpen;render();return}
   if(a==='gcal'){markAdded(v);S.calOpen=false;setTimeout(render,0);return}
   if(a==='ics'){const e=eventFromHash();if(e){downloadIcs(e);markAdded(e.uid);S.calOpen=false;render();toast('Calendar file downloaded')}return}
-  if(a==='soon'){ev.preventDefault();toast(v||'Coming soon');return}
 });
 render();
 </script>
