@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Mahjong USA: events calendar prototype</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Serif+SC:wght@900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 :root{--ink:#0d0d0d;--paper:#fff;--gray:#f3f3f1;--line:#d6d6d2;--mute:#666;--warn:#fff4d6}
@@ -325,11 +325,112 @@ button,a,.day{touch-action:manipulation}
   .calhead button{width:44px;height:44px}
 }
 button.rep.on{font-weight:700;text-decoration:none;background:#f3e3a6;border-radius:999px;padding:2px 10px}
+
+/* ===== Cut Red skin (2026-11-20) =====
+   Tokens first, then each surface reads them. Source of truth: ~/Desktop/mahjong/brand/cut-red-style-guide.html
+   Original look is saved as index.before-cutred.html. No JS or data changed except map marker colours. */
+:root{
+ --red:#C62D1A;--red-deep:#9E2214;--red-wash:#F7E4E0;--paper:#FBFAF7;--paper-deep:#EFECE6;
+ --ink:#1B1B1A;--ink-soft:#5C5A56;--visited:#5E4B7A;
+ --gray:var(--paper-deep);--mute:var(--ink-soft);--line:#D8D4CB;--warn:var(--red-wash);
+ --font-display:'Bricolage Grotesque',system-ui,sans-serif;--font-ui:'Figtree',system-ui,sans-serif;--font-num:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+ --r-tile:8px;--r-paper:3px;
+}
+body{font-family:var(--font-ui);background:var(--paper);font-size:16px}
+.tb,.panel,.day,.dhead,.dbar,.ovp,.ovbar,.pop,.calmenu,.modal,.box,.chip,.btn,.iconbtn,.calhead button,.evq,.searcharea,.org,.ovx,.top .wrap+*{background:var(--paper)}
+.brand,.calhead h3,.nextup h2,.ehead h1,.dtitle,.modal h3,.tile .d{font-family:var(--font-display);font-weight:800;letter-spacing:-.035em}
+
+/* header: the red band, with a small scalloped paper edge */
+.top{background:var(--red);color:var(--paper);border-bottom:0;overflow:visible}
+.top a,.top .nav a,.top .nav button{color:var(--paper)}
+.brand{font-size:22px}
+.mark{width:34px;height:34px;border:0;border-radius:5px;background:var(--paper);color:var(--red);box-shadow:0 2px 0 rgba(0,0,0,.28);font:900 22px/1 'Noto Serif SC',serif;transform:rotate(-3deg)}
+.nav a,.nav button{border-radius:var(--r-tile)}
+.nav a:hover,.nav button:hover{background:rgba(255,255,255,.18)}
+.nav .cta{border-color:var(--paper)}
+.top :focus-visible{outline-color:var(--paper)}
+.top::after{content:"";position:absolute;left:0;right:0;bottom:-10px;height:10px;pointer-events:none;background:radial-gradient(circle at 7px 0,var(--red) 6.4px,transparent 7px) 0 0/14px 10px repeat-x}
+.tb{padding-top:18px}
+.tab.on{border-bottom-color:var(--red)}
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+
+/* buttons and chips: tile-radius, flat, black is the main action */
+.btn{border-radius:var(--r-tile);font-family:var(--font-ui);font-size:16px}
+.btn.pri{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.btn.pri:hover{background:#000}
+.btn em{background:var(--paper-deep)}
+.chip{border:1.5px solid var(--ink);border-radius:var(--r-tile);font-size:15px;font-weight:600;line-height:1.2;padding:8px 14px}
+.chip:hover{background:var(--paper-deep)}
+.chip.on{background:var(--ink);color:var(--paper);box-shadow:none}
+.chip.on::before{content:"\2713\00a0"}
+.chips-m .chip{padding:10px 16px}
+.evq,.placeq{border:1.5px solid var(--ink);border-radius:var(--r-tile)}
+.calhead button,.iconbtn,.ovx{border-radius:var(--r-tile);border:1.5px solid var(--ink)}
+
+/* the one loud thing: next up is the red card */
+.nextup{background:var(--red);color:var(--paper);border-radius:var(--r-paper)}
+.nextup .nl{color:var(--paper);font-size:13px}
+.nextup .nm,.nlink{color:var(--paper)}
+.nextup .nm{font-size:15px}
+.nbtn{background:var(--paper);color:var(--ink);border-radius:var(--r-tile);height:40px}
+.nextup :focus-visible{outline-color:var(--paper)}
+
+/* list: ruled like a score sheet, no tracked caps */
+.dg,.lh h3{font:800 20px/1.15 var(--font-display);letter-spacing:-.02em;text-transform:none;color:var(--ink);padding-bottom:6px;border-bottom:1.5px solid var(--ink)}
+.lh{border-bottom:1.5px solid var(--ink);padding-bottom:6px;margin-bottom:var(--s2)}
+.lh h3{font-size:22px;border:0;padding:0}
+.lr{border-radius:var(--r-paper)}
+.lr.cur{background:var(--red-wash);box-shadow:inset 3px 0 0 var(--red)}
+.lr b{font-size:17px}
+.lr .rm,.meta{font-size:15px}
+.ck{color:var(--red)}
+.nearest,.box,.org,.banner{border-radius:var(--r-paper)}
+.banner{background:var(--red-wash);border-color:var(--red)}
+.sec h2{font:800 20px/1.2 var(--font-display);letter-spacing:-.02em;text-transform:none;color:var(--ink)}
+
+/* calendar: red dots are games, black marks today */
+.pip{background:var(--red)}
+.pip.nx{box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--ink)}
+.pip.cu{box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--visited)}
+.day:hover,.day.out{background:var(--paper-deep)}
+.day.sel{background:var(--paper-deep);box-shadow:inset 0 0 0 2px var(--ink)}
+.dow{font-size:13px}
+.pill{border-radius:3px;background:var(--paper-deep)}
+.pill:hover{background:#E2DED4}
+.pill.cu{background:var(--red);color:var(--paper)}
+.pill.cu .pt{color:var(--paper)}
+.legend{font-size:14px;color:var(--ink-soft)}
+#map,#emap{border:1.5px solid var(--ink);border-radius:var(--r-paper)}
+
+/* date tile and tags */
+.tile{border:2px solid var(--ink);border-radius:var(--r-tile);box-shadow:0 3px 0 var(--ink);background:var(--paper)}
+.tile .m{font-family:var(--font-num);font-size:12px;font-weight:600}
+.tile .d{color:var(--red);font-size:28px}
+.card{border-radius:var(--r-paper)}
+.card h3{font-family:var(--font-ui);font-size:17px}
+.tag{font-size:14px;border-radius:5px}
+.tag.warn{background:var(--red-wash)}
+.avatar{background:var(--red)}
+
+/* overlays: flat, ruled, no soft shadows */
+.pop,.calmenu{border:1.5px solid var(--ink);border-radius:var(--r-paper);box-shadow:none}
+.ovp{border:2px solid var(--ink);border-radius:var(--r-paper);box-shadow:none}
+.modal{border:2px solid var(--ink);border-radius:var(--r-paper);box-shadow:none}
+.dbar,.ovbar{border-top:1.5px solid var(--ink)}
+.searcharea{border:1.5px solid var(--ink);border-radius:var(--r-tile);box-shadow:none}
+#toast{border-radius:var(--r-tile)}
+.pop h4{font-size:13px}
+
+/* visited stays purple, one shared token */
+.seen .tt,.card h3.seen,.pill.seen .ttl{color:var(--visited)}
+.pill.cu.seen .ttl{color:var(--paper)}
+.legend .vis{color:var(--visited)}
+button.rep.on{background:var(--red-wash)}
 </style>
 </head>
 <body>
 <header class="top"><div class="wrap">
-  <a class="brand" href="#home"><span class="mark">M</span>Mahjong USA</a>
+  <a class="brand" href="#home"><span class="mark" aria-hidden="true">麻</span>Mahjong USA</a>
   <nav class="nav">
   </nav>
 </div></header>
@@ -706,14 +807,14 @@ function mountMaps(cur){
       if(near&&(e.type==='cruise'||dist(P,e)>50))return;
       const ll=[e.lat,e.lng];pts.push(ll);if(e.type!=='cruise')land.push(ll);
       const isNext=nx&&nx.id===e.id,isCur=cur&&cur.id===e.id;
-      const st=isCur?{radius:13,color:'#6a4fb3',weight:4,fillColor:'#0d0d0d',fillOpacity:1}:isNext?{radius:12,color:'#fff',weight:3,fillColor:'#0d0d0d',fillOpacity:1}:{radius:8,color:'#0d0d0d',weight:2,fillColor:S.seen[e.uid]?'#d9d0ee':'#fff',fillOpacity:1};
-      const mk=isArea(e)?L.circle(ll,{radius:3000,color:isCur?'#6a4fb3':'#0d0d0d',weight:isCur?3:2,fillColor:isCur?'#6a4fb3':'#0d0d0d',fillOpacity:.18}).addTo(map):L.circleMarker(ll,st).addTo(map);
+      const st=isCur?{radius:13,color:'#5E4B7A',weight:4,fillColor:'#1B1B1A',fillOpacity:1}:isNext?{radius:12,color:'#fff',weight:3,fillColor:'#C62D1A',fillOpacity:1}:{radius:8,color:'#1B1B1A',weight:2,fillColor:S.seen[e.uid]?'#DDD5E8':'#fff',fillOpacity:1};
+      const mk=isArea(e)?L.circle(ll,{radius:3000,color:isCur?'#5E4B7A':'#1B1B1A',weight:isCur?3:2,fillColor:isCur?'#5E4B7A':'#1B1B1A',fillOpacity:.18}).addTo(map):L.circleMarker(ll,st).addTo(map);
       mk.bindTooltip(e.title,{direction:'top'});
       mk.on('click',()=>{location.hash='#event-'+e.uid});
     });
     if(near){
-      const c=L.circle([P.lat,P.lng],{radius:50*1609,color:'#0d0d0d',weight:1.5,dashArray:'6 6',fillColor:'#0d0d0d',fillOpacity:.04,interactive:false}).addTo(map);
-      L.circleMarker([P.lat,P.lng],{radius:16,color:'#6a4fb3',weight:2,fillColor:'#6a4fb3',fillOpacity:.15,interactive:false}).addTo(map).bringToBack();
+      const c=L.circle([P.lat,P.lng],{radius:50*1609,color:'#1B1B1A',weight:1.5,dashArray:'6 6',fillColor:'#1B1B1A',fillOpacity:.04,interactive:false}).addTo(map);
+      L.circleMarker([P.lat,P.lng],{radius:16,color:'#5E4B7A',weight:2,fillColor:'#5E4B7A',fillOpacity:.15,interactive:false}).addTo(map).bringToBack();
       map.invalidateSize();map.fitBounds(c.getBounds(),{padding:[10,10]});setTimeout(()=>{if(map){map.invalidateSize();map.fitBounds(c.getBounds(),{padding:[10,10]})}},200);return;
     }
     if(S.area){const b=S.area;map.invalidateSize();map.fitBounds([[b[0],b[1]],[b[2],b[3]]]);return}
@@ -726,8 +827,8 @@ function mountEventMap(e){
   const el=document.getElementById('emap');if(!el)return;
   emap=L.map(el,{scrollWheelZoom:false,zoomControl:true}).setView([e.lat,e.lng],isArea(e)?12:15);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(emap);
-  if(isArea(e))L.circle([e.lat,e.lng],{radius:3000,color:'#0d0d0d',weight:2,fillColor:'#0d0d0d',fillOpacity:.15}).addTo(emap);
-  else L.circleMarker([e.lat,e.lng],{radius:10,color:'#fff',weight:2,fillColor:'#0d0d0d',fillOpacity:1}).addTo(emap);
+  if(isArea(e))L.circle([e.lat,e.lng],{radius:3000,color:'#1B1B1A',weight:2,fillColor:'#1B1B1A',fillOpacity:.15}).addTo(emap);
+  else L.circleMarker([e.lat,e.lng],{radius:10,color:'#fff',weight:2,fillColor:'#1B1B1A',fillOpacity:1}).addTo(emap);
 }
 function eventFromHash(){const h=location.hash;return h.startsWith('#event-')?byUid(decodeURIComponent(h.slice(7))):null}
 function render(){
