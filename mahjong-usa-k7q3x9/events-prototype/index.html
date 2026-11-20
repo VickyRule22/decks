@@ -435,6 +435,16 @@ button.rep.on{background:var(--red-wash)}
 .mark{background:var(--saffron);color:var(--ink)}
 .nextup .nl{background:var(--saffron);color:var(--ink);display:inline-block;padding:2px 8px;border-radius:2px;font-weight:700}
 .seen .tt,.card h3.seen,.pill.seen .ttl,.legend .vis{color:var(--plum)}
+
+/* Semi-opaque purple (2026-11-20) */
+:root{--purple-a:rgba(94,75,122,.12);--purple-b:rgba(94,75,122,.22)}
+.lr:hover{background:var(--purple-a)}
+.day:hover{background:var(--purple-a)}
+.day.sel{background:var(--purple-b);box-shadow:inset 0 0 0 2px var(--ink)}
+.chip:hover{background:var(--purple-a)}
+.pill:hover{background:var(--purple-b)}
+.scrim{background:rgba(62,31,71,.55);backdrop-filter:blur(2px)}
+.top::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 55%,rgba(94,75,122,.35));pointer-events:none}
 </style>
 </head>
 <body>
@@ -822,7 +832,7 @@ function mountMaps(cur){
       mk.on('click',()=>{location.hash='#event-'+e.uid});
     });
     if(near){
-      const c=L.circle([P.lat,P.lng],{radius:50*1609,color:'#1B1B1A',weight:1.5,dashArray:'6 6',fillColor:'#1B1B1A',fillOpacity:.04,interactive:false}).addTo(map);
+      const c=L.circle([P.lat,P.lng],{radius:50*1609,color:'#5E4B7A',weight:2,dashArray:'6 6',fillColor:'#7B5EA7',fillOpacity:.14,interactive:false}).addTo(map);
       L.circleMarker([P.lat,P.lng],{radius:16,color:'#5E4B7A',weight:2,fillColor:'#5E4B7A',fillOpacity:.15,interactive:false}).addTo(map).bringToBack();
       map.invalidateSize();map.fitBounds(c.getBounds(),{padding:[10,10]});setTimeout(()=>{if(map){map.invalidateSize();map.fitBounds(c.getBounds(),{padding:[10,10]})}},200);return;
     }
@@ -836,7 +846,7 @@ function mountEventMap(e){
   const el=document.getElementById('emap');if(!el)return;
   emap=L.map(el,{scrollWheelZoom:false,zoomControl:true}).setView([e.lat,e.lng],isArea(e)?12:15);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(emap);
-  if(isArea(e))L.circle([e.lat,e.lng],{radius:3000,color:'#1B1B1A',weight:2,fillColor:'#1B1B1A',fillOpacity:.15}).addTo(emap);
+  if(isArea(e))L.circle([e.lat,e.lng],{radius:3000,color:'#5E4B7A',weight:2,fillColor:'#7B5EA7',fillOpacity:.25}).addTo(emap);
   else L.circleMarker([e.lat,e.lng],{radius:10,color:'#fff',weight:2,fillColor:'#1B1B1A',fillOpacity:1}).addTo(emap);
 }
 function eventFromHash(){const h=location.hash;return h.startsWith('#event-')?byUid(decodeURIComponent(h.slice(7))):null}
