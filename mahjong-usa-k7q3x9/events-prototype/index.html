@@ -426,6 +426,15 @@ body{font-family:var(--font-ui);background:var(--paper);font-size:16px}
 .pill.cu.seen .ttl{color:var(--paper)}
 .legend .vis{color:var(--visited)}
 button.rep.on{background:var(--red-wash)}
+
+/* Saffron accent (2026-11-20): fills only, always black text on it */
+:root{--saffron:#F2A81D;--saffron-wash:#FCEFD2;--plum:#3E1F47}
+.tile{background:var(--saffron)}
+.tile .d,.tile .m{color:var(--ink)}
+.day.today .dn{background:var(--saffron);color:var(--ink);box-shadow:0 0 0 2px var(--ink)}
+.mark{background:var(--saffron);color:var(--ink)}
+.nextup .nl{background:var(--saffron);color:var(--ink);display:inline-block;padding:2px 8px;border-radius:2px;font-weight:700}
+.seen .tt,.card h3.seen,.pill.seen .ttl,.legend .vis{color:var(--plum)}
 </style>
 </head>
 <body>
@@ -798,7 +807,7 @@ function mountMaps(cur){
   const m=document.getElementById('map');
   if(m){
     map=L.map(m,{scrollWheelZoom:false}).setView([39,-96],4);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19,attribution:'© OpenStreetMap © CARTO'}).addTo(map);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(map);
     const nx=nextUp();const seen={};const pts=[],land=[];
     const P=eff().place,near=P.kind==='city'&&!S.mapWide&&!S.area;
     watchMap();
@@ -826,7 +835,7 @@ function mountEventMap(e){
   if(typeof L==='undefined')return;
   const el=document.getElementById('emap');if(!el)return;
   emap=L.map(el,{scrollWheelZoom:false,zoomControl:true}).setView([e.lat,e.lng],isArea(e)?12:15);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19,attribution:'© OpenStreetMap © CARTO'}).addTo(emap);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(emap);
   if(isArea(e))L.circle([e.lat,e.lng],{radius:3000,color:'#1B1B1A',weight:2,fillColor:'#1B1B1A',fillOpacity:.15}).addTo(emap);
   else L.circleMarker([e.lat,e.lng],{radius:10,color:'#fff',weight:2,fillColor:'#1B1B1A',fillOpacity:1}).addTo(emap);
 }
