@@ -815,7 +815,7 @@ function detailHTML(e){
   const where=isArea(e)?`${e.areaOnly?esc(e.city)+', '+e.st:esc(e.venue)+'<br>'+esc(e.city)+', '+e.st}<br><span class="meta">${e.areaOnly?'Approximate area. The host gives the exact address when you register.':'Approximate area on the map. Check the organizer’s page for the exact spot.'}</span>`:`${esc(e.venue)}<br>${esc(e.city)}, ${e.st}`;
   const added=!!S.added[e.uid];
   return `
-  <div class="dhead"><button class="dback" data-a="closedetail">‹ All events</button><span class="sp"></span><button class="iconbtn" data-a="copy" aria-label="Copy link" title="Copy link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="M8 7l4-4 4 4"/><path d="M8.5 10H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-1.5"/></svg></button></div>
+  <div class="dhead"><button class="dback" data-a="closedetail">‹ All events</button></div>
   <div class="dbody">
     ${banner}
     <div class="tags" style="margin:0"><span class="tag">${t.g} ${tagLabel(e)}</span><span class="tag">${e.style}</span>${e.beginner?'<span class="tag">Beginner friendly</span>':''}${e.rec?`<span class="tag">Every ${DOW[parse(e.date).getDay()]}</span>`:''}</div>
@@ -834,7 +834,7 @@ function detailHTML(e){
   <div class="dbar">
     ${e.soldOut?'':`<div class="popwrap"><button class="btn ${S.calOpen?'':'pri'}" data-a="calmenu">${added?'✓ Added · ':''}Add to calendar ▾</button>
     ${S.calOpen?`<div class="calmenu"><a data-a="gcal" data-v="${e.uid}" href="${googleUrl(e)}" target="_blank" rel="noopener">Google Calendar</a><button data-a="ics">Apple Calendar</button><button data-a="ics">Outlook</button></div>`:''}</div>`}
-    <a class="btn ghost" data-a="sendme" href="mailto:?subject=${encodeURIComponent(e.title)}&body=${encodeURIComponent(e.title+'\n'+timeText(e).replace(/<[^>]+>/g,'')+'\n'+(isArea(e)?e.city+', '+e.st:e.venue+', '+e.city+', '+e.st)+'\n\n'+location.href)}">Send to myself</a>
+    <button class="btn ghost" data-a="copy">Copy link</button>
     ${e.contact?`<a class="btn ghost" href="${e.contact.includes('@')?'mailto:'+esc(e.contact)+'?subject='+encodeURIComponent('Question about '+e.title):'tel:'+esc(e.contact)}">Message the host</a>`:''}
     ${e.real&&e.url?`<a class="btn ghost" href="${esc(e.url)}" target="_blank" rel="noopener">${e.soldOut?'Sold out · view page':(e.price===0?'Details':'Register')} ↗</a>`:''}
   </div>`;
