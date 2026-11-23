@@ -444,7 +444,6 @@ button.rep.on{background:var(--red-wash)}
 .chip:hover{background:var(--purple-a)}
 .pill:hover{background:var(--purple-b)}
 .scrim{background:rgba(62,31,71,.55);backdrop-filter:blur(2px)}
-.top::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 55%,rgba(94,75,122,.35));pointer-events:none}
 
 /* ===== Big touch pass (2026-11-23): 60-year-old test, phone first ===== */
 .tagline{margin:0;font-size:16px;font-weight:600;color:#fff}
@@ -478,6 +477,8 @@ details p{font-size:16px}
   .evq{font-size:17px;min-height:52px}
   .opt{font-size:17px}
 }
+#map,#emap,.leaflet-container{isolation:isolate;z-index:0}
+.tb{z-index:1200}
 </style>
 </head>
 <body>
@@ -754,7 +755,7 @@ function modalHTML(){
 /* ---------- toolbar popovers + home ---------- */
 const TYPE_HELP={open:'Drop in and play, no sign-up',social:'Games with food, drinks and friends',lesson:'Learn how to play',tournament:'Competitive, often with prizes',cruise:'Trips with mahjong built in'};
 const TYPE_PLAIN={open:'Open play means drop-in games: show up and join a table.',lesson:'A lesson: someone teaches you how to play.',tournament:'A tournament: players compete for prizes.',social:'A social game: relaxed, friendly play.',cruise:'A trip with mahjong built in.'};
-const STYLE_HELP={'American (NMJL)':'NMJL is the National Mah Jongg League, the group that makes the yearly card American players use','Riichi':'Japanese style, with riichi calls','Chinese official':'Tournament rules used worldwide'};
+const STYLE_HELP={'Hong Kong':'Hong Kong rules, played with a 13-tile hand','American (NMJL)':'NMJL is the National Mah Jongg League, the group that makes the yearly card American players use','Riichi':'Japanese style, with riichi calls','Chinese official':'Tournament rules used worldwide'};
 function typeLabel(){const n=S.types.size;if(n===0)return 'No game types';if(n===ALLTYPES.length)return 'All game types';if(n===1)return TYPES[[...S.types][0]].label;return n+' types'}
 function popHTML(which){
   if(S.pop!==which)return '';
@@ -765,7 +766,7 @@ function popHTML(which){
     return `<div class="pop"><h4>Show</h4>${ALLTYPES.map(k=>`<button class="opt chkopt ${S.types.has(k)?'on':''}" data-a="type" data-v="${k}" role="checkbox" aria-checked="${S.types.has(k)}"><i class="bx"></i><span class="ot">${TYPES[k].label}<small>${TYPE_HELP[k]}</small></span></button>`).join('')}<hr><button class="opt selall" data-a="typeall">${S.types.size===ALLTYPES.length?'Deselect all':'Select all'}</button></div>`;
   }
   if(which==='filters'){
-    return `<div class="pop"><h4>Rules</h4><button class="opt ${S.style==='any'?'sel':''}" data-a="style" data-v="any">Any style</button>${STYLES.map(s=>`<button class="opt ${S.style===s?'sel':''}" data-a="style" data-v="${s}"><span class="ot">${s}<small>${STYLE_HELP[s]}</small></span></button>`).join('')}<hr><h4>Cost</h4>${[['any','Any price'],['free','Free'],['paid','Paid']].map(([k,l])=>`<button class="opt ${S.cost===k?'sel':''}" data-a="cost" data-v="${k}">${l}</button>`).join('')}<hr><button class="opt" data-a="clear">Reset all filters</button></div>`;
+    return `<div class="pop"><h4>Rules</h4><button class="opt ${S.style==='any'?'sel':''}" data-a="style" data-v="any">Any style</button>${STYLES.map(s=>`<button class="opt ${S.style===s?'sel':''}" data-a="style" data-v="${s}"><span class="ot">${s}<small>${STYLE_HELP[s]||'Hong Kong rules, played with a 13-tile hand'}</small></span></button>`).join('')}<hr><h4>Cost</h4>${[['any','Any price'],['free','Free'],['paid','Paid']].map(([k,l])=>`<button class="opt ${S.cost===k?'sel':''}" data-a="cost" data-v="${k}">${l}</button>`).join('')}<hr><button class="opt" data-a="clear">Reset all filters</button></div>`;
   }
   return '';
 }
