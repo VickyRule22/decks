@@ -445,11 +445,45 @@ button.rep.on{background:var(--red-wash)}
 .pill:hover{background:var(--purple-b)}
 .scrim{background:rgba(62,31,71,.55);backdrop-filter:blur(2px)}
 .top::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 55%,rgba(94,75,122,.35));pointer-events:none}
+
+/* ===== Big touch pass (2026-11-23): 60-year-old test, phone first ===== */
+.tagline{margin:0;font-size:16px;font-weight:600;color:#fff}
+.sec p a,.sec .meta a{display:inline-block;padding:12px 4px;font-size:16px}
+.plain{margin:8px 0 14px;font-size:17px;line-height:1.4;color:var(--ink-soft)}
+.dirlink,.linkbtn,summary{min-height:44px;display:inline-flex;align-items:center}
+summary{display:flex;font-size:17px}
+details p{font-size:16px}
+.dbar{flex-wrap:wrap}
+.dbar .popwrap{flex:1 1 100%}
+.dbar>.btn,.dbar .btn{flex:1 1 140px;min-width:0;white-space:normal;text-align:center;height:auto;min-height:52px;font-size:17px}
+.dbar .btn.ghost{border:2px solid var(--ink);background:#fff;text-decoration:none;display:flex;align-items:center;justify-content:center;padding:8px 12px}
+.dbar{gap:10px}
+.dbar .calmenu a,.dbar .calmenu button{min-height:52px;display:flex;align-items:center;font-size:17px}
+.leaflet-touch .leaflet-bar a{width:44px;height:44px;line-height:44px;font-size:22px}
+#toast{font-size:17px;padding:14px 20px}
+@media(max-width:900px){
+  .top .wrap{flex-wrap:wrap;row-gap:2px;height:auto!important;min-height:64px;padding-top:8px}
+  .tagline{flex:1 1 100%;order:3;padding-bottom:10px}
+  .dn{font-size:17px;width:34px;height:34px}
+  .dow{font-size:13px}
+  .pip{width:12px;height:12px}
+  .grid{grid-auto-rows:minmax(64px,auto)!important}
+  .tbtn,.tab{font-size:17px}
+  .card h3,.lr b{font-size:19px}
+  .lr .rm,.meta,.card .meta{font-size:16px}
+  .chip{font-size:16px;min-height:44px}
+  .kv{font-size:17px}
+  .dbody .sec p{font-size:17px}
+  .tag{font-size:15px;padding:4px 9px}
+  .evq{font-size:17px;min-height:52px}
+  .opt{font-size:17px}
+}
 </style>
 </head>
 <body>
 <header class="top"><div class="wrap">
   <a class="brand" href="#home"><span class="mark" aria-hidden="true">麻</span>Mahjong USA</a>
+  <p class="tagline">Find a mahjong game near you</p>
   <nav class="nav">
   </nav>
 </div></header>
@@ -557,11 +591,12 @@ function filtered(ignoreDay){
 }
 function fmtDay(s,long){const d=parse(s);return long?DOW[d.getDay()]+', '+MON[d.getMonth()]+' '+d.getDate():DS[d.getDay()]+', '+MS[d.getMonth()]+' '+d.getDate()}
 function timeText(e){
+  if(e.dayOnly)return fmtDay(e.date)+' · start time not on the flyer';
   if(e.allDay){const end=iso(addDays(parse(e.date),e.days));return fmtDay(e.date)+' to '+fmtDay(end)+' ('+e.days+' nights)'}
   const [h,m]=e.time.split(':').map(Number);const tot=Math.round(h*60+m+e.dur*60);
   return fmtDay(e.date)+' · '+t12(e.time)+'–'+t12(pad(Math.floor(tot/60)%24)+':'+pad(tot%60))+' '+e.tz;
 }
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2200)}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),5000)}
 
 
 /* ---------- calendar files ---------- */
@@ -596,7 +631,7 @@ const tagLabel=e=>e.type==='cruise'?'Cruise':TYPES[e.type].label;
 function tile(e){const d=parse(e.date);return `<div class="tile"><span class="m">${MS[d.getMonth()]}</span><span class="d">${d.getDate()}</span></div>`}
 function cardHTML(e){
   const rc=reportCount(e);
-  const meta=[TYPES[e.type].g+' '+tagLabel(e),e.city+', '+e.st,e.allDay?e.days+' nights':t12(e.time)+' '+e.tz];
+  const meta=[TYPES[e.type].g+' '+tagLabel(e),e.city+', '+e.st,e.dayOnly?'Time TBD':e.allDay?e.days+' nights':t12(e.time)+' '+e.tz];
   const tags=[`<span class="tag ${e.price===0?'solid':''}">${money(e.price)}</span>`];
   if(e.beginner)tags.push('<span class="tag soft">Beginner friendly</span>');
   if(e.rec)tags.push(`<span class="tag soft">Every ${DS[parse(e.date).getDay()]}</span>`);
@@ -606,7 +641,7 @@ function cardHTML(e){
 }
 const shortT=t=>{const [h,m]=t.split(':').map(Number);return (h%12||12)+(m?':'+pad(m):'')+(h<12?'a':'p')};
 function rowHTML(e,cur){
-  const bits=[e.allDay?e.days+' nights':t12(e.time),e.type==='cruise'?'Trips and cruises':e.city,money(e.price)];if(e.beginner)bits.push('Beginner friendly');
+  const bits=[e.dayOnly?'Time TBD':e.allDay?e.days+' nights':t12(e.time),e.type==='cruise'?'Trips and cruises':e.city,money(e.price)];if(e.beginner)bits.push('Beginner friendly');
   return `<a class="lr${S.seen[e.uid]?' seen':''}${cur&&cur.uid===e.uid?' cur':''}" href="#event-${e.uid}"><b class="tt">${esc(e.title)}</b>${S.added[e.uid]?'<span class="ck" title="You added this to your calendar">✓</span>':''}<div class="rm">${bits.join(' · ')}</div></a>`;
 }
 function nextHTML(nx){
@@ -718,7 +753,8 @@ function modalHTML(){
 
 /* ---------- toolbar popovers + home ---------- */
 const TYPE_HELP={open:'Drop in and play, no sign-up',social:'Games with food, drinks and friends',lesson:'Learn how to play',tournament:'Competitive, often with prizes',cruise:'Trips with mahjong built in'};
-const STYLE_HELP={'American (NMJL)':'The card-based game most played in the US','Riichi':'Japanese style, with riichi calls','Chinese official':'Tournament rules used worldwide'};
+const TYPE_PLAIN={open:'Open play means drop-in games: show up and join a table.',lesson:'A lesson: someone teaches you how to play.',tournament:'A tournament: players compete for prizes.',social:'A social game: relaxed, friendly play.',cruise:'A trip with mahjong built in.'};
+const STYLE_HELP={'American (NMJL)':'NMJL is the National Mah Jongg League, the group that makes the yearly card American players use','Riichi':'Japanese style, with riichi calls','Chinese official':'Tournament rules used worldwide'};
 function typeLabel(){const n=S.types.size;if(n===0)return 'No game types';if(n===ALLTYPES.length)return 'All game types';if(n===1)return TYPES[[...S.types][0]].label;return n+' types'}
 function popHTML(which){
   if(S.pop!==which)return '';
@@ -783,6 +819,7 @@ function detailHTML(e){
     ${banner}
     <div class="tags" style="margin:0"><span class="tag">${t.g} ${tagLabel(e)}</span><span class="tag">${e.style}</span>${e.beginner?'<span class="tag">Beginner friendly</span>':''}${e.rec?`<span class="tag">Every ${DOW[parse(e.date).getDay()]}</span>`:''}</div>
     <h1 class="dtitle">${esc(e.title)}</h1>
+    <p class="plain">${TYPE_PLAIN[e.type]||''} ${STYLE_HELP[e.style]?STYLE_HELP[e.style]+'.':''}</p>
     <div class="sec"><dl class="kv"><dt>When</dt><dd>${timeText(e)}</dd><dt>Where</dt><dd>${where}</dd><dt>Cost</dt><dd>${e.priceUnknown?'See the organizer':money(e.price)}${e.priceNote&&e.priceNote!==('$'+e.price)?' <span class="meta">('+esc(e.priceNote)+')</span>':''}${e.soldOut?' · <b>Sold out</b>':e.spots?' · '+e.spots+' spots left':''}</dd></dl>
       <div id="emap" role="img" aria-label="Map of the event location"></div>
       ${isArea(e)?'':`<a class="dirlink" href="${dirUrl(e)}" target="_blank" rel="noopener">Get directions ↗</a>`}</div>
@@ -794,8 +831,9 @@ function detailHTML(e){
     <div class="sec"><p class="meta">Pulled from the organizer’s public page ${fmtPulled(e.pulled)}${e.url?' · <a href="'+esc(e.url)+'" target="_blank" rel="noopener">Source ↗</a>':''} · <button class="linkbtn rep ${mine?'on':''}" data-a="${mine?'unreport':'report'}" aria-pressed="${mine}">${mine?'✓ Reported':'Report a problem'}</button></p></div>
   </div>
   <div class="dbar">
-    <div class="popwrap"><button class="btn ${S.calOpen?'':'pri'}" data-a="calmenu">${added?'✓ Added · ':''}Add to calendar ▾</button>
-    ${S.calOpen?`<div class="calmenu"><a data-a="gcal" data-v="${e.uid}" href="${googleUrl(e)}" target="_blank" rel="noopener">Google Calendar</a><button data-a="ics">Apple Calendar (.ics)</button><button data-a="ics">Outlook (.ics)</button></div>`:''}</div>
+    ${e.soldOut?'':`<div class="popwrap"><button class="btn ${S.calOpen?'':'pri'}" data-a="calmenu">${added?'✓ Added · ':''}Add to calendar ▾</button>
+    ${S.calOpen?`<div class="calmenu"><a data-a="gcal" data-v="${e.uid}" href="${googleUrl(e)}" target="_blank" rel="noopener">Google Calendar</a><button data-a="ics">Apple Calendar</button><button data-a="ics">Outlook</button></div>`:''}</div>`}
+    <a class="btn ghost" data-a="sendme" href="mailto:?subject=${encodeURIComponent(e.title)}&body=${encodeURIComponent(e.title+'\n'+timeText(e).replace(/<[^>]+>/g,'')+'\n'+(isArea(e)?e.city+', '+e.st:e.venue+', '+e.city+', '+e.st)+'\n\n'+location.href)}">Send to myself</a>
     ${e.contact?`<a class="btn ghost" href="${e.contact.includes('@')?'mailto:'+esc(e.contact)+'?subject='+encodeURIComponent('Question about '+e.title):'tel:'+esc(e.contact)}">Message the host</a>`:''}
     ${e.real&&e.url?`<a class="btn ghost" href="${esc(e.url)}" target="_blank" rel="noopener">${e.soldOut?'Sold out · view page':(e.price===0?'Details':'Register')} ↗</a>`:''}
   </div>`;
@@ -925,8 +963,8 @@ document.addEventListener('click',ev=>{
   if(a==='unreport'){const e=eventFromHash();if(e){const r=reportsMine();delete r[e.id];lsSet('mj-reports',r);render();toast('Report withdrawn')}return}
   if(a==='copy'){const u=location.href;(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast('Link copied'),()=>toast('Copy this link: '+u));return}
   if(a==='calmenu'){S.calOpen=!S.calOpen;render();return}
-  if(a==='gcal'){markAdded(v);S.calOpen=false;setTimeout(render,0);return}
-  if(a==='ics'){const e=eventFromHash();if(e){downloadIcs(e);markAdded(e.uid);S.calOpen=false;render();toast('Calendar file downloaded')}return}
+  if(a==='gcal'){markAdded(v);S.calOpen=false;setTimeout(()=>{render();toast('Google Calendar opened in a new tab. Tap Save there to finish.')},0);return}
+  if(a==='ics'){const e=eventFromHash();if(e){downloadIcs(e);markAdded(e.uid);S.calOpen=false;render();toast('Done. Open the downloaded file to add it to your calendar.')}return}
 });
 render();
 </script>
