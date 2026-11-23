@@ -479,6 +479,67 @@ details p{font-size:16px}
 }
 #map,#emap,.leaflet-container{isolation:isolate;z-index:0}
 .tb{z-index:1200}
+
+/* ===== UI pass (2026-11-23) =====
+   Dropdown tile on Good to know, no red for "selected" (black knockout with grey text instead),
+   counts on filter options, list hierarchy (big day, time first), sold-out pills.
+   Previous version: index.before-ui-pass.html */
+:root{--knock-grey:#B8B4AB}
+
+/* Good to know: a little ivory mahjong tile with a chevron, flips when open */
+summary{list-style:none;justify-content:space-between;gap:12px;width:100%}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"";flex:none;width:30px;height:36px;border:1.5px solid var(--ink);border-radius:6px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M2 5l5 5 5-5' fill='none' stroke='%231B1B1A' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/14px no-repeat;box-shadow:0 3px 0 var(--ink)}
+details[open] summary::after{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M2 9l5-5 5 5' fill='none' stroke='%231B1B1A' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+summary:hover::after{background-color:var(--paper-deep)}
+
+/* selected = black knockout with grey secondary text, never red */
+.tab.on{border-bottom-color:var(--ink)}
+.opt.sel,.opt.chkopt.on{background:var(--ink);color:var(--paper)}
+.opt.sel:hover,.opt.chkopt.on:hover{background:var(--ink)}
+.opt.sel span,.opt.sel small,.opt.chkopt.on small,.opt.sel .n,.opt.chkopt.on .n{color:var(--knock-grey)}
+.opt.chkopt.on .bx{background:var(--paper);border-color:var(--paper)}
+.opt.chkopt.on .bx::after{color:var(--ink)}
+.opt:not(.chkopt).sel::after{margin-left:10px}
+button.rep.on{background:var(--paper-deep)}
+.lr.cur{background:var(--ink);color:var(--paper);box-shadow:none}
+.lr.cur:hover{background:var(--ink)}
+.lr.cur .tt,.lr.cur.seen .tt,.lr.cur .tm{color:var(--paper)}
+.lr.cur .rm,.lr.cur .tm small{color:var(--knock-grey)}
+.lr.cur .ck{color:var(--paper)}
+.pill.cu{background:var(--ink);color:var(--paper)}
+.pill.cu .pt{color:var(--knock-grey)}
+.ck{color:var(--ink)}
+
+/* counts on filter options */
+.opt .n{margin-left:auto;padding-left:12px;font:600 14px/1 var(--font-num);color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.opt.zero:not(.sel):not(.on){opacity:.5}
+
+/* list: the day is the headline, the time leads each row */
+.dg{display:flex;align-items:center;gap:12px;margin:var(--s5) 0 var(--s1);padding:0 0 8px;border-bottom:1.5px solid var(--ink)}
+.dg .dn2,.lh h3 .dn2{font:800 34px/1 var(--font-display);letter-spacing:-.04em}
+.dg .dw,.lh h3 .dw{display:flex;flex-direction:column;font:800 17px/1.15 var(--font-display);letter-spacing:-.01em}
+.dg .dw small,.lh h3 .dw small{font:500 14px/1.2 var(--font-ui);color:var(--ink-soft);letter-spacing:0}
+.dg.today .dn2{background:var(--saffron);box-shadow:0 0 0 2px var(--ink);border-radius:8px;padding:5px 9px}
+.lh h3.big{display:flex;align-items:center;gap:12px;font-size:17px;text-transform:none;letter-spacing:0;color:var(--ink)}
+.lh h3.big .dn2{background:var(--saffron);box-shadow:0 0 0 2px var(--ink);border-radius:8px;padding:5px 9px}
+.lh h3.month{font:800 22px/1.1 var(--font-display);text-transform:none;letter-spacing:-.02em;color:var(--ink)}
+.lh h3.month small{font:500 14px var(--font-ui);color:var(--ink-soft);margin-left:8px;letter-spacing:0}
+.lr{display:grid;grid-template-columns:76px 1fr;column-gap:12px;align-items:baseline}
+.lr .tm{font:800 20px/1.1 var(--font-display);letter-spacing:-.02em;white-space:nowrap}
+.lr .tm small{display:block;font:600 12px/1.3 var(--font-ui);color:var(--ink-soft);letter-spacing:.04em;margin-top:1px}
+.lr .tm.alt{font-size:15px;line-height:1.2}
+.lr b.tt{display:inline;font-size:16px;font-weight:600}
+.lr .rb{min-width:0}
+.lr .rm{margin-top:2px;color:var(--ink-soft)}
+.lr .ck{right:10px;top:12px}
+
+/* sold out: a pill, before anyone clicks in */
+.so{display:inline-block;flex:none;font:700 11px/1 var(--font-ui);letter-spacing:.04em;text-transform:uppercase;padding:3px 6px;border:1.5px solid var(--ink);border-radius:4px;background:var(--paper-deep);color:var(--ink);margin-left:8px;vertical-align:2px;white-space:nowrap}
+.lr.sold .tt,.pill.sold .ttl{color:var(--ink-soft)}
+.lr.cur .so,.pill.cu .so{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+.pill .so{margin-left:0;padding:2px 5px;font-size:10px;vertical-align:baseline}
+.pip.sold{background:transparent;border:2px solid var(--red);box-sizing:border-box}
 </style>
 </head>
 <body>
@@ -557,7 +618,7 @@ function reportsMine(){return lsGet('mj-reports',{})}
 function reportCount(e){return (e.reports||0)+(reportsMine()[e.id]?1:0)}
 const markAdded=uid=>{S.added[uid]=1;lsSet('mj-added',S.added)};
 
-const nextUp=()=>filtered(true).find(e=>e.type!=='cruise')||null;
+const nextUp=()=>filtered(true).find(e=>e.type!=='cruise'&&!e.soldOut)||null;
 const dist=(a,b)=>{const R=3959,r=x=>x*Math.PI/180;const dl=r(b.lat-a.lat),dg=r(b.lng-a.lng);const h=Math.sin(dl/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dg/2)**2;return 2*R*Math.asin(Math.sqrt(h))};
 const stateName=()=>S.place.label;
 const matchQ=e=>{const q=(S.q||'').trim().toLowerCase();return !q||[e.title,e.venue,e.city,e.orgName,e.style].join(' ').toLowerCase().includes(q)};
@@ -636,15 +697,20 @@ function cardHTML(e){
   const tags=[`<span class="tag ${e.price===0?'solid':''}">${money(e.price)}</span>`];
   if(e.beginner)tags.push('<span class="tag soft">Beginner friendly</span>');
   if(e.rec)tags.push(`<span class="tag soft">Every ${DS[parse(e.date).getDay()]}</span>`);
-  if(e.spots&&e.spots<=12)tags.push(`<span class="tag">${e.spots} spots left</span>`);
+  if(e.soldOut)tags.unshift('<span class="so" style="margin:0">Sold out</span>');
+  else if(e.spots&&e.spots<=12)tags.push(`<span class="tag">${e.spots} spots left</span>`);
   if(S.added[e.uid])tags.push('<span class="tag">✓ On your calendar</span>');if(rc>=3)tags.push('<span class="tag warn">Reported</span>');
   return `<a class="card${S.seen[e.uid]?' seen':''}" href="#event-${e.uid}">${tile(e)}<div><h3 class="tt">${esc(e.title)}</h3><div class="meta">${meta.join(' · ')}</div><div class="tags">${tags.join('')}</div></div><span class="go" aria-hidden="true">›</span></a>`;
 }
 const shortT=t=>{const [h,m]=t.split(':').map(Number);return (h%12||12)+(m?':'+pad(m):'')+(h<12?'a':'p')};
+const SOLD='<span class="so">Sold out</span>';
+const tparts=s=>{const m=s.match(/^(.+?)\s(AM|PM)$/);return m?m[1]+'<small>'+m[2]+'</small>':esc(s)};
 function rowHTML(e,cur){
-  const bits=[e.dayOnly?'Time TBD':e.allDay?e.days+' nights':t12(e.time),e.type==='cruise'?'Trips and cruises':e.city,money(e.price)];if(e.beginner)bits.push('Beginner friendly');
-  return `<a class="lr${S.seen[e.uid]?' seen':''}${cur&&cur.uid===e.uid?' cur':''}" href="#event-${e.uid}"><b class="tt">${esc(e.title)}</b>${S.added[e.uid]?'<span class="ck" title="You added this to your calendar">✓</span>':''}<div class="rm">${bits.join(' · ')}</div></a>`;
+  const bits=[e.type==='cruise'?'Trips and cruises':e.city,money(e.price)];if(e.beginner)bits.push('Beginner friendly');
+  const tm=e.dayOnly?'<span class="tm alt">Time TBD</span>':e.allDay?`<span class="tm alt">${e.days} nights</span>`:`<span class="tm">${tparts(t12(e.time))}</span>`;
+  return `<a class="lr${S.seen[e.uid]?' seen':''}${cur&&cur.uid===e.uid?' cur':''}${e.soldOut?' sold':''}" href="#event-${e.uid}">${tm}<div class="rb"><b class="tt">${esc(e.title)}</b>${e.soldOut?SOLD:''}<div class="rm">${bits.join(' · ')}</div></div>${S.added[e.uid]?'<span class="ck" title="You added this to your calendar">✓</span>':''}</a>`;
 }
+function dayHead(ds){const d=parse(ds);const t=ds===TISO;return `<span class="dn2">${d.getDate()}</span><span class="dw">${DOW[d.getDay()]}<small>${MON[d.getMonth()]}${t?' · Today':''}</small></span>`}
 function nextHTML(nx){
   if(!nx)return '';
   let label;
@@ -666,14 +732,17 @@ function listHTML(nx,cur){
     const act=[S.when!=='any'?WL[S.when]:'',S.types.size<ALLTYPES.length?typeLabel():'',S.style!=='any'?S.style:'',S.cost!=='any'?(S.cost==='free'?'Free':'Paid'):''].filter(Boolean);
     return searchHTML()+chipsHTML()+`<div class="nearest"><b>No games match${act.length?': '+esc(act.join(' \u00B7 ')):' here yet'}.</b><button class="linkbtn" data-a="clear">Reset all filters</button></div>`;
   }
-  const all=filtered(false);
-  const rows=all;
-  let out=searchHTML()+chipsHTML()+`<div class="lh"><h3>${S.day?fmtDay(S.day,true):'Coming up'}</h3>${S.day?`<button class="linkbtn showall" data-a="day" data-v="${S.day}">Show all</button>`:''}</div>`;
+  const inMonth=S.view==='calendar'&&!S.day;
+  const {y:my,m:mm}=S.month;const mkey=my+'-'+pad(mm+1);
+  const rows=inMonth?filtered(false).filter(e=>e.date.startsWith(mkey)):filtered(false);
+  const head=S.day?`<h3 class="big">${dayHead(S.day)}</h3>`:inMonth?`<h3 class="month">${MON[mm]}<small>${rows.length} ${rows.length===1?'game':'games'}</small></h3>`:'<h3>Coming up</h3>';
+  let out=searchHTML()+chipsHTML()+`<div class="lh">${head}${S.day?`<button class="linkbtn showall" data-a="day" data-v="${S.day}">Show all</button>`:''}</div>`;
   if(S.day&&!rows.length)return out+`<p class="meta">No games this day.</p>`;
-  const limit=S.day||S.more?rows.length:12;
+  if(inMonth&&!rows.length)return out+`<p class="meta">No games in ${MON[mm]} with these filters.</p><button class="linkbtn" data-a="month" data-v="1">See ${MON[(mm+1)%12]} ›</button>`;
+  const limit=S.day||S.more||inMonth?rows.length:12;
   let last='';
   rows.slice(0,limit).forEach(e=>{
-    if(!S.day&&e.date!==last){last=e.date;out+=`<div class="dg">${e.date===TISO?'Today · ':''}${fmtDay(e.date,true)}</div>`}
+    if(!S.day&&e.date!==last){last=e.date;out+=`<div class="dg${e.date===TISO?' today':''}">${dayHead(e.date)}</div>`}
     out+=rowHTML(e,cur);
   });
   if(rows.length>limit)out+=`<button class="linkbtn more2" data-a="more">Show ${rows.length-limit} more</button>`;
@@ -690,9 +759,9 @@ function calHTML(nx,cur){
   for(let i=skip*7;i<rows*7;i++){
     const d=addDays(start,i);const ds=iso(d);const evs=byDay[ds]||[];
     let cls='day';if(d.getMonth()!==m)cls+=' out';if(ds<TISO)cls+=' past';if(ds===TISO)cls+=' today';if(S.day===ds)cls+=' sel';
-    const pips=evs.slice(0,6).map(e=>`<a class="pip${nx&&nx.uid===e.uid?' nx':''}${cur&&cur.uid===e.uid?' cu':''}${S.added[e.uid]?' ad':''}" href="#event-${e.uid}" title="${esc(e.title)}" tabindex="-1" aria-hidden="true">${S.added[e.uid]?'✓':''}</a>`).join('');
+    const pips=evs.slice(0,6).map(e=>`<a class="pip${e.soldOut?' sold':''}${nx&&nx.uid===e.uid?' nx':''}${cur&&cur.uid===e.uid?' cu':''}${S.added[e.uid]?' ad':''}" href="#event-${e.uid}" title="${esc(e.title)}" tabindex="-1" aria-hidden="true">${S.added[e.uid]?'✓':''}</a>`).join('');
     const cnt=evs.length?`<span class="cnt">${evs.length} ${evs.length===1?'game':'games'}</span>`:'';
-    const pills=evs.slice(0,10).map(e=>`<a class="pill${cur&&cur.uid===e.uid?' cu':''}${S.seen[e.uid]?' seen':''}" href="#event-${e.uid}" title="${esc(e.title)}" tabindex="-1" aria-hidden="true">${S.added[e.uid]?'<span class="ck2">\u2713</span>':''}${e.allDay?'':'<span class="pt">'+shortT(e.time)+'</span>'}<span class="ttl">${esc(e.title)}</span></a>`).join('');
+    const pills=evs.slice(0,10).map(e=>`<a class="pill${cur&&cur.uid===e.uid?' cu':''}${S.seen[e.uid]?' seen':''}${e.soldOut?' sold':''}" href="#event-${e.uid}" title="${esc(e.title)}${e.soldOut?' (sold out)':''}" tabindex="-1" aria-hidden="true">${S.added[e.uid]?'<span class="ck2">\u2713</span>':''}${e.allDay?'':'<span class="pt">'+shortT(e.time)+'</span>'}<span class="ttl">${esc(e.title)}</span>${e.soldOut?SOLD:''}</a>`).join('');
     const lab=fmtDay(ds,true)+(evs.length?', '+evs.length+(evs.length===1?' game':' games'):', no games');
     const act=!evs.length?'':(evs.length===1?` data-a="goev" data-v="${evs[0].uid}"`:` data-a="day" data-v="${ds}"`)+` role="button" tabindex="0" aria-label="${esc(lab)}"`;
     if(evs.length)cls+=' has';
@@ -757,16 +826,32 @@ const TYPE_HELP={open:'Drop in and play, no sign-up',social:'Games with food, dr
 const TYPE_PLAIN={open:'Open play means drop-in games: show up and join a table.',lesson:'A lesson: someone teaches you how to play.',tournament:'A tournament: players compete for prizes.',social:'A social game: relaxed, friendly play.',cruise:'A trip with mahjong built in.'};
 const STYLE_HELP={'Hong Kong':'Hong Kong rules, played with a 13-tile hand','American (NMJL)':'NMJL is the National Mah Jongg League, the group that makes the yearly card American players use','Riichi':'Japanese style, with riichi calls','Chinese official':'Tournament rules used worldwide'};
 function typeLabel(){const n=S.types.size;if(n===0)return 'No game types';if(n===ALLTYPES.length)return 'All game types';if(n===1)return TYPES[[...S.types][0]].label;return n+' types'}
+/* How many games you would see if you picked this option, holding every other filter as it is now.
+   (So choosing an option never drops you to zero unless it already says 0.) */
+function optCount(dim,val){
+  const P=S.area?null:eff().place;
+  return ALL.filter(e=>{
+    if(!((e.date+'T'+(e.time||'00:00'))>=NOW&&(S.view!=='map'||whenOk(e))&&matchQ(e)))return false;
+    if(dim==='type'){if(e.type!==val)return false}else if(!S.types.has(e.type))return false;
+    if(dim==='style'){if(val!=='any'&&e.style!==val)return false}else if(S.style!=='any'&&e.style!==S.style)return false;
+    if(dim==='cost'){if(val==='free'&&e.price!==0)return false;if(val==='paid'&&!(e.price>0))return false}
+    else if(S.cost==='free'&&e.price!==0)return false;else if(S.cost==='paid'&&!(e.price>0))return false;
+    if(S.area){const b=S.area;return e.type!=='cruise'&&e.lat>=b[0]&&e.lat<=b[2]&&e.lng>=b[1]&&e.lng<=b[3]}
+    return inPlace(e,P);
+  }).length;
+}
+const nHTML=n=>`<b class="n">${n}</b>`;
 function popHTML(which){
   if(S.pop!==which)return '';
   if(which==='where'){
     return `<div class="pop popw"><input id="placeq" class="placeq" placeholder="City, state or ZIP" autocomplete="off" aria-label="City, state or ZIP"><div id="sugg">${suggestHTML('')}</div></div>`;
   }
   if(which==='type'){
-    return `<div class="pop"><h4>Show</h4>${ALLTYPES.map(k=>`<button class="opt chkopt ${S.types.has(k)?'on':''}" data-a="type" data-v="${k}" role="checkbox" aria-checked="${S.types.has(k)}"><i class="bx"></i><span class="ot">${TYPES[k].label}<small>${TYPE_HELP[k]}</small></span></button>`).join('')}<hr><button class="opt selall" data-a="typeall">${S.types.size===ALLTYPES.length?'Deselect all':'Select all'}</button></div>`;
+    return `<div class="pop"><h4>Show</h4>${ALLTYPES.map(k=>{const n=optCount('type',k);return `<button class="opt chkopt ${S.types.has(k)?'on':''}${n?'':' zero'}" data-a="type" data-v="${k}" role="checkbox" aria-checked="${S.types.has(k)}"><i class="bx"></i><span class="ot">${TYPES[k].label}<small>${TYPE_HELP[k]}</small></span>${nHTML(n)}</button>`}).join('')}<hr><button class="opt selall" data-a="typeall">${S.types.size===ALLTYPES.length?'Deselect all':'Select all'}</button></div>`;
   }
   if(which==='filters'){
-    return `<div class="pop"><h4>Rules</h4><button class="opt ${S.style==='any'?'sel':''}" data-a="style" data-v="any">Any style</button>${STYLES.map(s=>`<button class="opt ${S.style===s?'sel':''}" data-a="style" data-v="${s}"><span class="ot">${s}<small>${STYLE_HELP[s]||'Hong Kong rules, played with a 13-tile hand'}</small></span></button>`).join('')}<hr><h4>Cost</h4>${[['any','Any price'],['free','Free'],['paid','Paid']].map(([k,l])=>`<button class="opt ${S.cost===k?'sel':''}" data-a="cost" data-v="${k}">${l}</button>`).join('')}<hr><button class="opt" data-a="clear">Reset all filters</button></div>`;
+    const zc=n=>n?'':' zero';
+    return `<div class="pop"><h4>Rules</h4><button class="opt ${S.style==='any'?'sel':''}" data-a="style" data-v="any">Any style${nHTML(optCount('style','any'))}</button>${STYLES.map(s=>{const n=optCount('style',s);return `<button class="opt ${S.style===s?'sel':''}${zc(n)}" data-a="style" data-v="${s}"><span class="ot">${s}<small>${STYLE_HELP[s]||'Hong Kong rules, played with a 13-tile hand'}</small></span>${nHTML(n)}</button>`}).join('')}<hr><h4>Cost</h4>${[['any','Any price'],['free','Free'],['paid','Paid']].map(([k,l])=>{const n=optCount('cost',k);return `<button class="opt ${S.cost===k?'sel':''}${zc(n)}" data-a="cost" data-v="${k}">${l}${nHTML(n)}</button>`}).join('')}<hr><button class="opt" data-a="clear">Reset all filters</button></div>`;
   }
   return '';
 }
