@@ -569,6 +569,9 @@ const TISO=iso(TODAY);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const t12=t=>{const [h,m]=t.split(':').map(Number);return (h%12||12)+':'+pad(m)+' '+(h<12?'AM':'PM')};
 const money=n=>n===0?'Free':'$'+n.toLocaleString();
+const unk=e=>!!e.priceUnknown||e.price==null;
+const isFree=e=>!unk(e)&&e.price===0;
+const priceText=e=>unk(e)?'Price not listed':money(e.price);
 const lsGet=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
 
@@ -630,7 +633,7 @@ function whenOk(e){
   if(w==='weekend'){const dw=parse(d).getDay();const lim=iso(addDays(TODAY,((7-TODAY.getDay())%7)+(TODAY.getDay()===0?0:0)));const fri=[5,6,0].includes(dw);return fri&&d<=iso(addDays(TODAY,9))&&d>=TISO}
   return true;
 }
-const passBase=e=>(e.date+'T'+(e.time||'00:00'))>=NOW&&(S.view!=='map'||whenOk(e))&&matchQ(e)&&S.types.has(e.type)&&(S.style==='any'||e.style===S.style)&&(S.cost==='any'||(S.cost==='free'?e.price===0:e.price>0));
+const passBase=e=>(e.date+'T'+(e.time||'00:00'))>=NOW&&(S.view!=='map'||whenOk(e))&&matchQ(e)&&S.types.has(e.type)&&(S.style==='any'||e.style===S.style)&&(S.cost==='any'||(S.cost==='free'?isFree(e):(!unk(e)&&e.price>0)));
 const inPlace=(e,p)=>e.type==='cruise'||p.kind==='all'||(p.kind==='state'?e.st===p.st:dist(p,e)<=75);
 function eff(){
   const p=S.place;
@@ -694,7 +697,7 @@ function tile(e){const d=parse(e.date);return `<div class="tile"><span class="m"
 function cardHTML(e){
   const rc=reportCount(e);
   const meta=[TYPES[e.type].g+' '+tagLabel(e),e.city+', '+e.st,e.dayOnly?'Time TBD':e.allDay?e.days+' nights':t12(e.time)+' '+e.tz];
-  const tags=[`<span class="tag ${e.price===0?'solid':''}">${money(e.price)}</span>`];
+  const tags=[`<span class="tag ${isFree(e)?'solid':''}">${priceText(e)}</span>`];
   if(e.beginner)tags.push('<span class="tag soft">Beginner friendly</span>');
   if(e.rec)tags.push(`<span class="tag soft">Every ${DS[parse(e.date).getDay()]}</span>`);
   if(e.soldOut)tags.unshift('<span class="so" style="margin:0">Sold out</span>');
@@ -706,7 +709,7 @@ const shortT=t=>{const [h,m]=t.split(':').map(Number);return (h%12||12)+(m?':'+p
 const SOLD='<span class="so">Sold out</span>';
 const tparts=s=>{const m=s.match(/^(.+?)\s(AM|PM)$/);return m?m[1]+'<small>'+m[2]+'</small>':esc(s)};
 function rowHTML(e,cur){
-  const bits=[e.type==='cruise'?'Trips and cruises':e.city,money(e.price)];if(e.beginner)bits.push('Beginner friendly');
+  const bits=[e.type==='cruise'?'Trips and cruises':e.city,priceText(e)];if(e.beginner)bits.push('Beginner friendly');
   const tm=e.dayOnly?'<span class="tm alt">Time TBD</span>':e.allDay?`<span class="tm alt">${e.days} nights</span>`:`<span class="tm">${tparts(t12(e.time))}</span>`;
   return `<a class="lr${S.seen[e.uid]?' seen':''}${cur&&cur.uid===e.uid?' cur':''}${e.soldOut?' sold':''}" href="#event-${e.uid}">${tm}<div class="rb"><b class="tt">${esc(e.title)}</b>${e.soldOut?SOLD:''}<div class="rm">${bits.join(' · ')}</div></div>${S.added[e.uid]?'<span class="ck" title="You added this to your calendar">✓</span>':''}</a>`;
 }
@@ -717,7 +720,7 @@ function nextHTML(nx){
   if(nx.date===TISO)label=parseInt(nx.time)>=17?'Tonight':'Today';
   else if(nx.date===iso(addDays(TODAY,1)))label='Tomorrow';
   else label=DOW[parse(nx.date).getDay()];
-  return `<div class="nextup"><p class="nl">Next up · ${label}</p><h2>${esc(nx.title)}</h2><p class="nm">${t12(nx.time)} ${nx.tz} · ${esc(nx.venue)}, ${esc(nx.city)} · ${money(nx.price)}</p><div class="na"><a class="nbtn" href="#event-${nx.uid}">See details</a><a class="nlink" data-a="gcal" data-v="${nx.uid}" href="${googleUrl(nx)}" target="_blank" rel="noopener">${S.added[nx.uid]?'✓ Added to calendar':'Add to Google Calendar'}</a></div></div>`;
+  return `<div class="nextup"><p class="nl">Next up · ${label}</p><h2>${esc(nx.title)}</h2><p class="nm">${t12(nx.time)} ${nx.tz} · ${esc(nx.venue)}, ${esc(nx.city)} · ${priceText(nx)}</p><div class="na"><a class="nbtn" href="#event-${nx.uid}">See details</a><a class="nlink" data-a="gcal" data-v="${nx.uid}" href="${googleUrl(nx)}" target="_blank" rel="noopener">${S.added[nx.uid]?'✓ Added to calendar':'Add to Google Calendar'}</a></div></div>`;
 }
 const WHENS=[['any','Any time'],['today','Today'],['weekend','This weekend'],['week','Next 7 days']];
 function chipsHTML(cls){
@@ -834,8 +837,8 @@ function optCount(dim,val){
     if(!((e.date+'T'+(e.time||'00:00'))>=NOW&&(S.view!=='map'||whenOk(e))&&matchQ(e)))return false;
     if(dim==='type'){if(e.type!==val)return false}else if(!S.types.has(e.type))return false;
     if(dim==='style'){if(val!=='any'&&e.style!==val)return false}else if(S.style!=='any'&&e.style!==S.style)return false;
-    if(dim==='cost'){if(val==='free'&&e.price!==0)return false;if(val==='paid'&&!(e.price>0))return false}
-    else if(S.cost==='free'&&e.price!==0)return false;else if(S.cost==='paid'&&!(e.price>0))return false;
+    if(dim==='cost'){if(val==='free'&&!isFree(e))return false;if(val==='paid'&&!(!unk(e)&&e.price>0))return false}
+    else if(S.cost==='free'&&!isFree(e))return false;else if(S.cost==='paid'&&!(!unk(e)&&e.price>0))return false;
     if(S.area){const b=S.area;return e.type!=='cruise'&&e.lat>=b[0]&&e.lat<=b[2]&&e.lng>=b[1]&&e.lng<=b[3]}
     return inPlace(e,P);
   }).length;
@@ -881,7 +884,7 @@ function homeHTML(){
 /* ---------- event details (one component: desktop column and phone overlay) ---------- */
 function hostRow(x){
   const added=!!S.added[x.uid];
-  return `<div class="hrow"><a href="#event-${x.uid}" class="hl"><b class="${S.seen[x.uid]?'seen':''}">${esc(x.title)}</b><span class="meta">${fmtDay(x.date)}${x.allDay?'':' \u00B7 '+t12(x.time)} \u00B7 ${esc(x.city)} \u00B7 ${money(x.price)}</span></a><a class="btn sm" data-a="gcal" data-v="${x.uid}" href="${googleUrl(x)}" target="_blank" rel="noopener">${added?'\u2713 Added':'Add'}</a></div>`;
+  return `<div class="hrow"><a href="#event-${x.uid}" class="hl"><b class="${S.seen[x.uid]?'seen':''}">${esc(x.title)}</b><span class="meta">${fmtDay(x.date)}${x.allDay?'':' \u00B7 '+t12(x.time)} \u00B7 ${esc(x.city)} \u00B7 ${priceText(x)}</span></a><a class="btn sm" data-a="gcal" data-v="${x.uid}" href="${googleUrl(x)}" target="_blank" rel="noopener">${added?'\u2713 Added':'Add'}</a></div>`;
 }
 function detailHTML(e){
   const o=ORGS[e.org];const rc=reportCount(e);const mine=!!reportsMine()[e.id];
@@ -906,7 +909,7 @@ function detailHTML(e){
     <div class="tags" style="margin:0"><span class="tag">${t.g} ${tagLabel(e)}</span><span class="tag">${e.style}</span>${e.beginner?'<span class="tag">Beginner friendly</span>':''}${e.rec?`<span class="tag">Every ${DOW[parse(e.date).getDay()]}</span>`:''}</div>
     <h1 class="dtitle">${esc(e.title)}</h1>
     <p class="plain">${TYPE_PLAIN[e.type]||''} ${STYLE_HELP[e.style]?STYLE_HELP[e.style]+'.':''}</p>
-    <div class="sec"><dl class="kv"><dt>When</dt><dd>${timeText(e)}</dd><dt>Where</dt><dd>${where}</dd><dt>Cost</dt><dd>${e.priceUnknown?'See the organizer':money(e.price)}${e.priceNote&&e.priceNote!==('$'+e.price)?' <span class="meta">('+esc(e.priceNote)+')</span>':''}${e.soldOut?' · <b>Sold out</b>':e.spots?' · '+e.spots+' spots left':''}</dd></dl>
+    <div class="sec"><dl class="kv"><dt>When</dt><dd>${timeText(e)}</dd><dt>Where</dt><dd>${where}</dd><dt>Cost</dt><dd>${unk(e)?'See the organizer':money(e.price)}${e.priceNote&&e.priceNote!==('$'+e.price)?' <span class="meta">('+esc(e.priceNote)+')</span>':''}${e.soldOut?' · <b>Sold out</b>':e.spots?' · '+e.spots+' spots left':''}</dd></dl>
       <div id="emap" role="img" aria-label="Map of the event location"></div>
       ${isArea(e)?'':`<a class="dirlink" href="${dirUrl(e)}" target="_blank" rel="noopener">Get directions ↗</a>`}</div>
     <div class="sec"><h2>About</h2><p>${esc(e.desc)}</p>${!e.verified?'<p class="meta" style="margin-top:6px">This date is worked out from the host’s repeat schedule or a listing page. Check with the organizer before you go.</p>':''}</div>
@@ -921,7 +924,7 @@ function detailHTML(e){
     ${S.calOpen?`<div class="calmenu"><a data-a="gcal" data-v="${e.uid}" href="${googleUrl(e)}" target="_blank" rel="noopener">Google Calendar</a><button data-a="ics">Apple Calendar</button><button data-a="ics">Outlook</button></div>`:''}</div>`}
     <button class="btn ghost" data-a="copy">Copy link</button>
     ${e.contact?`<a class="btn ghost" href="${e.contact.includes('@')?'mailto:'+esc(e.contact)+'?subject='+encodeURIComponent('Question about '+e.title):'tel:'+esc(e.contact)}">Message the host</a>`:''}
-    ${e.real&&e.url?`<a class="btn ghost" href="${esc(e.url)}" target="_blank" rel="noopener">${e.soldOut?'Sold out · view page':(e.price===0?'Details':'Register')} ↗</a>`:''}
+    ${e.real&&e.url?`<a class="btn ghost" href="${esc(e.url)}" target="_blank" rel="noopener">${e.soldOut?'Sold out · view page':(isFree(e)?'Details':'Register')} ↗</a>`:''}
   </div>`;
 }
 
